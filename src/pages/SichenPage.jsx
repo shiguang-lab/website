@@ -2,7 +2,6 @@ import IconActivity from '@douyinfe/semi-icons/lib/es/icons/IconActivity';
 import IconArrowRight from '@douyinfe/semi-icons/lib/es/icons/IconArrowRight';
 import IconBranch from '@douyinfe/semi-icons/lib/es/icons/IconBranch';
 import IconCheckCircleStroked from '@douyinfe/semi-icons/lib/es/icons/IconCheckCircleStroked';
-import IconDesktop from '@douyinfe/semi-icons/lib/es/icons/IconDesktop';
 import IconDownload from '@douyinfe/semi-icons/lib/es/icons/IconDownload';
 import IconGlobe from '@douyinfe/semi-icons/lib/es/icons/IconGlobe';
 import IconLock from '@douyinfe/semi-icons/lib/es/icons/IconLock';
@@ -10,7 +9,9 @@ import IconPhone from '@douyinfe/semi-icons/lib/es/icons/IconPhone';
 import IconPulse from '@douyinfe/semi-icons/lib/es/icons/IconPulse';
 import IconSetting from '@douyinfe/semi-icons/lib/es/icons/IconSetting';
 import IconUserGroup from '@douyinfe/semi-icons/lib/es/icons/IconUserGroup';
+import { useEffect, useState } from 'react';
 import { PageMeta } from '../components/PageMeta';
+import { PlatformGlyph } from '../components/PlatformGlyph';
 import { SichenMark } from '../components/SichenMark';
 import { SiteHeader } from '../components/SiteHeader';
 import { SICHEN_WEB_URL } from '../config/productUrls';
@@ -20,11 +21,51 @@ const windowsDownloadUrl = import.meta.env.VITE_SICHEN_WINDOWS_DOWNLOAD_URL || '
 const macDownloadUrl = import.meta.env.VITE_SICHEN_MAC_DOWNLOAD_URL || '/downloads/sichen-macos-universal.dmg';
 const linuxDownloadUrl = import.meta.env.VITE_SICHEN_LINUX_DOWNLOAD_URL || '/downloads/sichen-linux-x86_64.AppImage';
 
+/** 构建时注入的安装包真实大小(MB);产物缺失时对应项为 null。 */
+const downloadSizes = typeof __SICHEN_DOWNLOAD_SIZES__ === 'undefined' ? {} : __SICHEN_DOWNLOAD_SIZES__;
+
+const desktopBuilds = [
+  {
+    id: 'windows',
+    name: 'Windows',
+    requirement: 'Windows 10 及以上',
+    packaging: 'x64 安装包',
+    url: windowsDownloadUrl,
+    sizeMb: downloadSizes.windows,
+  },
+  {
+    id: 'mac',
+    name: 'macOS',
+    requirement: 'macOS 12 及以上',
+    packaging: 'Universal · Apple Silicon 与 Intel',
+    url: macDownloadUrl,
+    sizeMb: downloadSizes.mac,
+  },
+  {
+    id: 'linux',
+    name: 'Linux',
+    requirement: '主流 x86_64 发行版',
+    packaging: 'AppImage · 免安装依赖',
+    url: linuxDownloadUrl,
+    sizeMb: downloadSizes.linux,
+  },
+];
+
+/** 按 UA 识别访问者桌面平台,用于默认高亮对应下载项。 */
+function detectPlatform() {
+  if (typeof navigator === 'undefined') return null;
+  const ua = navigator.userAgent;
+  if (/Windows/i.test(ua)) return 'windows';
+  if (/Macintosh|Mac OS X/i.test(ua)) return 'mac';
+  if (/Linux/i.test(ua) && !/Android/i.test(ua)) return 'linux';
+  return null;
+}
+
 const capabilities = [
   {
     icon: IconUserGroup,
     title: '一支随时待命的 Agent 团队',
-    description: '注册内置或外部 Agent，按角色、技能和当前状态匹配最适合的执行者。',
+    description: '内置需求分析、研发、质量检测、运维等专业 Agent，也可注册外部 Agent，按角色与技能匹配执行者。',
   },
   {
     icon: IconBranch,
@@ -45,13 +86,18 @@ const capabilities = [
 
 const workflow = [
   { number: '01', title: '说清目标', text: '在对话中描述结果，或从业务事件自动触发任务。' },
-  { number: '02', title: '司辰调度', text: 'Router 识别意图，选择 Agent、技能与执行路径。' },
+  { number: '02', title: '司辰调度', text: '司辰理解意图，匹配专业 Agent、技能与执行流程。' },
   { number: '03', title: '并行协作', text: '多个 Agent 分工推进，实时同步上下文和阶段产物。' },
   { number: '04', title: '确认交付', text: '关键动作由你确认，结果、日志与资产完整留存。' },
 ];
 
 export function SichenPage() {
   useHomeEffects();
+  const [platform, setPlatform] = useState(null);
+  useEffect(() => {
+    // 挂载后异步识别平台:预渲染 HTML 无高亮,水合一致,识别结果在微任务中落地。
+    Promise.resolve().then(() => setPlatform(detectPlatform()));
+  }, []);
 
   return (
     <div className="page-shell sichen-page">
@@ -76,10 +122,10 @@ export function SichenPage() {
                 <a className="btn btn-ghost btn-lg" href="#download"><IconDownload aria-hidden="true" />下载客户端</a>
               </div>
               <div className="sichen-availability" aria-label="可用平台">
-                <span><IconCheckCircleStroked />Web</span>
-                <span><IconDesktop />Windows</span>
-                <span><IconDesktop />macOS</span>
-                <span><IconDesktop />Linux</span>
+                <span><IconGlobe />Web</span>
+                <span><PlatformGlyph name="windows" className="availability-glyph" />Windows</span>
+                <span><PlatformGlyph name="mac" className="availability-glyph" />macOS</span>
+                <span><PlatformGlyph name="linux" className="availability-glyph" />Linux</span>
                 <span className="muted"><IconPhone />移动端规划中</span>
               </div>
             </div>
@@ -155,32 +201,56 @@ export function SichenPage() {
               <h2>随时进入你的 Agent 工作空间</h2>
               <p>无需安装即可使用 Web 版；桌面客户端提供更连续的任务体验与系统级连接能力。</p>
             </div>
-            <div className="sichen-access-grid">
-              <article className="access-option featured reveal">
+            <div className="sichen-access-layout">
+              <article className="access-web reveal">
                 <span className="access-icon"><IconGlobe /></span>
-                <div><small>免安装，即开即用</small><h3>Web 版</h3><p>在浏览器中管理 Agent、发起任务、查看运行和交付产物。</p></div>
-                <a className="btn btn-primary" href={SICHEN_WEB_URL} target="_blank" rel="noopener noreferrer">进入 Web 版 <IconArrowRight /></a>
+                <small>免安装 · 即开即用</small>
+                <h3>Web 版</h3>
+                <p>在浏览器中管理 Agent、发起任务、查看运行与交付产物，与桌面端保持一致体验。</p>
+                <a className="btn btn-primary" href={SICHEN_WEB_URL} target="_blank" rel="noopener noreferrer">
+                  进入 Web 版 <IconArrowRight />
+                </a>
               </article>
-              <article className="access-option reveal">
-                <span className="access-icon"><IconDesktop /></span>
-                <div><small>Windows 10 及以上</small><h3>Windows 客户端</h3><p>适合需要长时运行、桌面通知和本地工作空间的任务。</p></div>
-                <a className="btn btn-ghost" href={windowsDownloadUrl} download>下载 Windows 版 <IconDownload /></a>
-              </article>
-              <article className="access-option reveal">
-                <span className="access-icon"><IconDesktop /></span>
-                <div><small>macOS 12 及以上</small><h3>macOS 客户端</h3><p>支持 Apple Silicon 与 Intel，保持任务状态跨窗口连续。</p></div>
-                <a className="btn btn-ghost" href={macDownloadUrl} download>下载 macOS 版 <IconDownload /></a>
-              </article>
-              <article className="access-option reveal">
-                <span className="access-icon"><IconDesktop /></span>
-                <div><small>主流 x86_64 发行版</small><h3>Linux 客户端</h3><p>以 AppImage 运行，无需安装系统级依赖。</p></div>
-                <a className="btn btn-ghost" href={linuxDownloadUrl} download>下载 Linux 版 <IconDownload /></a>
-              </article>
-              <article className="access-option disabled reveal" aria-disabled="true">
-                <span className="access-icon"><IconPhone /></span>
-                <div><small>产品规划中</small><h3>iOS 与 Android</h3><p>移动端入口已预留，当前暂不提供下载安装。</p></div>
-                <button className="btn btn-ghost" type="button" disabled>暂不提供下载</button>
-              </article>
+
+              <div className="access-desktop reveal">
+                <div className="access-desktop-head">
+                  <div>
+                    <small>DESKTOP</small>
+                    <h3>桌面客户端</h3>
+                  </div>
+                  {platform && <span className="access-detected">已识别你的系统</span>}
+                </div>
+                <ul className="access-build-list">
+                  {desktopBuilds.map((build) => {
+                    const current = platform === build.id;
+                    return (
+                      <li className={current ? 'is-current' : ''} key={build.id}>
+                        <span className="build-glyph"><PlatformGlyph name={build.id} /></span>
+                        <div className="build-meta">
+                          <strong>
+                            {build.name}
+                            {current && <em>当前系统</em>}
+                          </strong>
+                          <span>{build.requirement} · {build.packaging}</span>
+                        </div>
+                        {typeof build.sizeMb === 'number' && <span className="build-size">{build.sizeMb} MB</span>}
+                        <a
+                          className={`btn btn-sm ${current ? 'btn-primary' : 'btn-ghost'}`}
+                          href={build.url}
+                          download
+                          aria-label={`下载 ${build.name} 版`}
+                        >
+                          <IconDownload />下载
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <div className="access-mobile-note">
+                  <IconPhone aria-hidden="true" />
+                  <span>iOS 与 Android 移动端规划中，入口已预留。</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
