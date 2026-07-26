@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { AuthProviderIcon } from '../components/AuthProviderIcons';
 import { authProviders } from '../config/authProviders';
 
@@ -190,10 +191,10 @@ export function RegisterPage() {
     <main className="login-page register-page">
       <section className="login-story" aria-label="拾光品牌介绍">
         <div className="login-story-backdrop" aria-hidden="true" />
-        <a className="login-brand" href="/" aria-label="返回拾光首页">
+        <Link className="login-brand" to="/" aria-label="返回拾光首页">
           <img src="/assets/微信图片_20260722101545_795_4.svg" alt="" />
           <span><strong>拾光</strong><small>SHIGUANG</small></span>
-        </a>
+        </Link>
 
         <div className="login-story-content">
           <p className="login-story-eyebrow">SHIGUANG AI PLATFORM</p>
@@ -231,7 +232,7 @@ export function RegisterPage() {
       <section className="login-account register-account" aria-labelledby="register-title">
         <div className="login-account-top">
           <span>已有账号？</span>
-          <a href={loginHref}>去登录 <b aria-hidden="true">→</b></a>
+          <Link to={loginHref}>去登录 <b aria-hidden="true">→</b></Link>
         </div>
 
         <div className="login-panel register-panel">
