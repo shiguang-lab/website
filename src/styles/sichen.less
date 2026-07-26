@@ -160,8 +160,13 @@
 .build-size { flex:none; color:#65758c; font-size:11px; font-variant-numeric:tabular-nums; }
 .access-build-list .btn-sm { flex:none; display:inline-flex; align-items:center; gap:6px; padding:8px 16px; font-size:12px; }
 
-.access-mobile-note { display:flex; align-items:center; gap:8px; margin-top:12px; padding:11px 12px 2px; border-top:1px dashed rgba(138,157,192,.16); color:#5d6d84; font-size:11px; }
-.access-mobile-note svg { width:13px; height:13px; }
+.access-build-list--planned { margin-top:8px; padding-top:8px; border-top:1px dashed rgba(138,157,192,.16); }
+.access-build-list li.is-planned { opacity:.62; }
+.access-build-list li.is-planned:hover { background:transparent; border-color:transparent; transform:none; }
+.access-build-list li.is-planned .build-glyph { color:#5d6d84; }
+.access-build-list li.is-planned .build-glyph svg { width:16px; height:16px; }
+.build-meta strong .planned-tag { padding:2px 8px; border-radius:999px; border:1px solid rgba(138,157,192,.28); color:#8695ab; font-size:9px; font-style:normal; letter-spacing:.05em; }
+.access-build-list .btn-sm:disabled { opacity:.55; cursor:not-allowed; }
 
 @media (max-width: 900px) {
   .sichen-access-layout { grid-template-columns:1fr; }

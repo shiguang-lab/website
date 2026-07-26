@@ -1,5 +1,3 @@
-import IconDownload from '@douyinfe/semi-icons/lib/es/icons/IconDownload';
-import IconGlobe from '@douyinfe/semi-icons/lib/es/icons/IconGlobe';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
@@ -90,18 +88,13 @@ export function SiteHeader({ productPage = false }) {
           <a href={`${prefix}#about`}>关于我们</a>
         </nav>
         <div className="header-actions">
-          {status === 'loading' && !productPage && <span className="header-auth-loading" aria-label="正在检查登录状态" />}
+          {status === 'loading' && <span className="header-auth-loading" aria-label="正在检查登录状态" />}
           {status === 'authenticated' && user && <AccountMenu />}
+          {status === 'anonymous' && <Link className="btn btn-ghost btn-sm" to={signInHref} data-umami-ignore>登录</Link>}
           {productPage ? (
-            <>
-              <a className="btn btn-ghost btn-sm header-web-button" href={SICHEN_WEB_URL} target="_blank" rel="noopener noreferrer"><IconGlobe aria-hidden="true" />Web 版</a>
-              <a className="btn btn-primary btn-sm" href="#download"><IconDownload aria-hidden="true" />下载客户端</a>
-            </>
+            <a className="btn btn-primary btn-sm" href={SICHEN_WEB_URL} target="_blank" rel="noopener noreferrer">免费体验</a>
           ) : (
-            <>
-              {status === 'anonymous' && <Link className="btn btn-ghost btn-sm" to={signInHref} data-umami-ignore>登录</Link>}
-              <Link className="btn btn-primary btn-sm" to={SICHEN_LANDING_PATH}>免费体验</Link>
-            </>
+            <Link className="btn btn-primary btn-sm" to={SICHEN_LANDING_PATH}>免费体验</Link>
           )}
           <button className="menu-button" type="button" aria-label="打开菜单" aria-expanded="false" data-menu-button>
             <span /><span /><span />
@@ -122,7 +115,6 @@ export function SiteHeader({ productPage = false }) {
         ) : (
           <Link to={signInHref} data-umami-ignore>登录</Link>
         )}
-        {productPage && <><a href={SICHEN_WEB_URL} target="_blank" rel="noopener noreferrer">进入 Web 版</a><a href="#download">下载客户端</a></>}
       </div>
     </header>
   );

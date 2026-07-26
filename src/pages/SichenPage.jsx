@@ -246,10 +246,19 @@ export function SichenPage() {
                     );
                   })}
                 </ul>
-                <div className="access-mobile-note">
-                  <IconPhone aria-hidden="true" />
-                  <span>iOS 与 Android 移动端规划中，入口已预留。</span>
-                </div>
+                <ul className="access-build-list access-build-list--planned">
+                  <li className="is-planned">
+                    <span className="build-glyph"><IconPhone aria-hidden="true" /></span>
+                    <div className="build-meta">
+                      <strong>
+                        iOS 与 Android
+                        <em className="planned-tag">规划中</em>
+                      </strong>
+                      <span>移动端入口已预留，当前暂不提供下载安装。</span>
+                    </div>
+                    <button className="btn btn-sm btn-ghost" type="button" disabled>敬请期待</button>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
