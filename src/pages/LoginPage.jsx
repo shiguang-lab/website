@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthProviderIcon } from '../components/AuthProviderIcons';
 import { authProviders } from '../config/authProviders';
+import { useAuth } from '../auth/useAuth';
 
 const genericError = '登录失败，请检查账号和密码后重试。';
 
@@ -74,7 +75,27 @@ function LoginIcon({ name }) {
   );
 }
 
+
+/**
+ * 登录/注册成功后的回跳:本站路径走路由切换(先刷新会话上下文),
+ * 跨源地址(其它产品域)才整页跳转。
+ * @param {string} target
+ * @param {(to: string) => void} navigate
+ * @param {() => Promise<unknown>} refresh
+ */
+async function settleRedirect(target, navigate, refresh) {
+  const value = typeof target === 'string' && target ? target : '/';
+  if (value.startsWith('/') && !value.startsWith('//')) {
+    await refresh().catch(() => undefined);
+    navigate(value);
+    return;
+  }
+  window.location.assign(value);
+}
+
 export function LoginPage() {
+  const navigate = useNavigate();
+  const { refresh } = useAuth();
   const query = useMemo(
     () => new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search),
     [],
@@ -147,7 +168,7 @@ export function LoginPage() {
         }),
       });
       const value = await readJSON(response);
-      window.location.assign(value.redirect);
+      await settleRedirect(value.redirect, navigate, refresh);
     } catch (error) {
       setPassword('');
       setMessage(error instanceof Error && 'status' in error && error.status === 429 ? '尝试次数过多，请稍后再试。' : genericError);
