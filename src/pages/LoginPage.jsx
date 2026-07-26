@@ -6,6 +6,11 @@ import { useAuth } from '../auth/useAuth';
 
 const genericError = '登录失败，请检查账号和密码后重试。';
 
+/**
+ * 登录方式。`enabled: false` 的方式以禁用态展示(不可切换):
+ * - email-code:邮箱验证码登录,等 SMTP 与 auth-service 流程接通后放开;
+ * - sso:企业 SSO,等企业 IdP 接入后放开。
+ */
 const loginModes = [
   {
     id: 'account',
@@ -13,8 +18,26 @@ const loginModes = [
     inputLabel: '账号',
     placeholder: '请输入用户名或邮箱',
     autoComplete: 'username',
+    enabled: true,
   },
-  { id: 'sso', label: '企业 SSO', inputLabel: '企业账号', placeholder: '请输入企业账号', autoComplete: 'username' },
+  {
+    id: 'email-code',
+    label: '邮箱登录',
+    inputLabel: '邮箱地址',
+    placeholder: '请输入邮箱地址',
+    autoComplete: 'email',
+    enabled: false,
+    disabledHint: '邮箱验证码登录即将开放',
+  },
+  {
+    id: 'sso',
+    label: '企业 SSO',
+    inputLabel: '企业账号',
+    placeholder: '请输入企业账号',
+    autoComplete: 'username',
+    enabled: false,
+    disabledHint: '企业 SSO 暂未开放',
+  },
 ];
 
 /** @typedef {{ transactionId: string, csrfToken: string }} LoginContext */
@@ -251,8 +274,12 @@ export function LoginPage() {
                 type="button"
                 role="tab"
                 aria-selected={mode === item.id}
+                aria-disabled={!item.enabled}
+                disabled={!item.enabled}
                 className={mode === item.id ? 'is-active' : ''}
+                title={item.enabled ? undefined : item.disabledHint}
                 onClick={() => {
+                  if (!item.enabled) return;
                   setMode(item.id);
                   setMessage('');
                 }}
@@ -339,9 +366,11 @@ export function LoginPage() {
               <button
                 key={item.id}
                 type="button"
-                aria-label={`使用${item.label}登录`}
-                title={`使用${item.label}登录`}
-                onClick={() => startFederatedLogin(item.id)}
+                aria-label={item.enabled ? `使用${item.label}登录` : `${item.label}登录暂未开放`}
+                title={item.enabled ? `使用${item.label}登录` : `${item.label}登录暂未开放`}
+                aria-disabled={!item.enabled}
+                disabled={!item.enabled}
+                onClick={() => item.enabled && startFederatedLogin(item.id)}
               >
                 <AuthProviderIcon name={item.id} />
               </button>

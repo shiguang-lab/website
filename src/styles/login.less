@@ -925,3 +925,20 @@
     animation-duration: 1600ms;
   }
 }
+
+/* 未开放的登录方式/三方渠道:可见但禁用 */
+.login-tabs button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.login-providers button:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.login-providers button:disabled:hover {
+  transform: none;
+  border-color: inherit;
+}

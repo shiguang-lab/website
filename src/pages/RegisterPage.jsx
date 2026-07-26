@@ -384,9 +384,11 @@ export function RegisterPage() {
               <button
                 key={item.id}
                 type="button"
-                aria-label={`使用${item.label}注册`}
-                title={`使用${item.label}注册`}
-                onClick={() => startProviderRegistration(item.id)}
+                aria-label={item.enabled ? `使用${item.label}注册` : `${item.label}注册暂未开放`}
+                title={item.enabled ? `使用${item.label}注册` : `${item.label}注册暂未开放`}
+                aria-disabled={!item.enabled}
+                disabled={!item.enabled}
+                onClick={() => item.enabled && startProviderRegistration(item.id)}
               >
                 <AuthProviderIcon name={item.id} />
               </button>
