@@ -7,8 +7,13 @@ import { useAuth } from '../auth/useAuth';
 const genericError = '登录失败，请检查账号和密码后重试。';
 
 const loginModes = [
-  { id: 'phone', label: '手机号登录', inputLabel: '手机号', placeholder: '请输入手机号', autoComplete: 'tel' },
-  { id: 'email', label: '邮箱登录', inputLabel: '邮箱地址', placeholder: '请输入邮箱地址', autoComplete: 'email' },
+  {
+    id: 'account',
+    label: '账号登录',
+    inputLabel: '账号',
+    placeholder: '请输入用户名或邮箱',
+    autoComplete: 'username',
+  },
   { id: 'sso', label: '企业 SSO', inputLabel: '企业账号', placeholder: '请输入企业账号', autoComplete: 'username' },
 ];
 
@@ -105,7 +110,7 @@ export function LoginPage() {
   const [context, setContext] = useState(/** @type {LoginContext | null} */ (null));
   const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
-  const [mode, setMode] = useState('phone');
+  const [mode, setMode] = useState('account');
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState('initializing');
   const [message, setMessage] = useState('');
@@ -264,8 +269,8 @@ export function LoginPage() {
               <input
                 id="login-name"
                 name="username"
-                type={mode === 'phone' ? 'tel' : 'text'}
-                inputMode={mode === 'phone' ? 'tel' : mode === 'email' ? 'email' : 'text'}
+                type="text"
+                inputMode="email"
                 autoComplete={activeMode.autoComplete}
                 autoCapitalize="none"
                 spellCheck="false"
