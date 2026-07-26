@@ -51,6 +51,31 @@ const desktopBuilds = [
   },
 ];
 
+/** 扫码占位:伪二维码点阵,应用上架后替换为真实下载码。 */
+function QrPlaceholder() {
+  const modules = [
+    [8,1],[10,1],[12,1],[9,2],[13,2],[8,3],[11,3],[12,4],[9,5],[13,5],[8,6],[10,6],
+    [1,8],[3,8],[6,8],[9,8],[12,8],[14,9],[2,9],[5,10],[8,10],[11,10],[13,11],[1,11],
+    [4,12],[7,12],[10,13],[13,13],[2,13],[5,14],[9,14],[12,14],
+  ];
+  return (
+    <span className="qr-placeholder" aria-hidden="true">
+      <svg viewBox="0 0 16 16">
+        {[[0.5,0.5],[10.5,0.5],[0.5,10.5]].map(([x, y]) => (
+          <g key={`${x}-${y}`}>
+            <rect x={x} y={y} width="5" height="5" fill="none" stroke="currentColor" strokeWidth="1" />
+            <rect x={x + 1.5} y={y + 1.5} width="2" height="2" fill="currentColor" />
+          </g>
+        ))}
+        {modules.map(([x, y]) => (
+          <rect key={`${x}:${y}`} x={x} y={y} width="1" height="1" fill="currentColor" />
+        ))}
+      </svg>
+      <em>上线后开放扫码</em>
+    </span>
+  );
+}
+
 /** 按 UA 识别访问者桌面平台,用于默认高亮对应下载项。 */
 function detectPlatform() {
   if (typeof navigator === 'undefined') return null;
@@ -246,19 +271,38 @@ export function SichenPage() {
                     );
                   })}
                 </ul>
-                <ul className="access-build-list access-build-list--planned">
-                  <li className="is-planned">
-                    <span className="build-glyph"><IconPhone aria-hidden="true" /></span>
-                    <div className="build-meta">
-                      <strong>
-                        iOS 与 Android
-                        <em className="planned-tag">规划中</em>
-                      </strong>
-                      <span>移动端入口已预留，当前暂不提供下载安装。</span>
+              </div>
+
+              <div className="access-mobile reveal">
+                <div className="access-mobile-head">
+                  <div>
+                    <small>MOBILE</small>
+                    <h3>移动端</h3>
+                  </div>
+                  <span className="planned-tag">规划中</span>
+                </div>
+                <div className="access-mobile-grid">
+                  <div className="mobile-card">
+                    <div className="mobile-card-info">
+                      <span className="build-glyph"><PlatformGlyph name="ios" /></span>
+                      <div>
+                        <strong>iOS</strong>
+                        <span>App Store 上架后扫码直达</span>
+                      </div>
                     </div>
-                    <button className="btn btn-sm btn-ghost" type="button" disabled>敬请期待</button>
-                  </li>
-                </ul>
+                    <QrPlaceholder />
+                  </div>
+                  <div className="mobile-card">
+                    <div className="mobile-card-info">
+                      <span className="build-glyph"><PlatformGlyph name="android" /></span>
+                      <div>
+                        <strong>Android</strong>
+                        <span>应用市场与安装包扫码下载</span>
+                      </div>
+                    </div>
+                    <QrPlaceholder />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
