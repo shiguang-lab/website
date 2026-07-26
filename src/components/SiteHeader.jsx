@@ -99,7 +99,7 @@ export function SiteHeader({ productPage = false }) {
             </>
           ) : (
             <>
-              {status === 'anonymous' && <a className="btn btn-ghost btn-sm" href={signInHref} data-umami-ignore>登录</a>}
+              {status === 'anonymous' && <Link className="btn btn-ghost btn-sm" to={signInHref} data-umami-ignore>登录</Link>}
               <Link className="btn btn-primary btn-sm" to={SICHEN_LANDING_PATH}>免费体验</Link>
             </>
           )}
@@ -120,7 +120,7 @@ export function SiteHeader({ productPage = false }) {
             <button type="button" onClick={() => logout().catch(() => undefined)}>退出登录</button>
           </div>
         ) : (
-          <a href={signInHref} data-umami-ignore>登录</a>
+          <Link to={signInHref} data-umami-ignore>登录</Link>
         )}
         {productPage && <><a href={SICHEN_WEB_URL} target="_blank" rel="noopener noreferrer">进入 Web 版</a><a href="#download">下载客户端</a></>}
       </div>

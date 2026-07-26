@@ -18,7 +18,7 @@ export function HomePage() {
           <h1>拾光 · 让 <em>AI</em><br />成为你的<span>生产力</span></h1>
           <p>构建、连接、协作，释放 AI 的无限可能。<br />拾光为个人与团队提供一站式智能化协作平台。</p>
           <div className="hero-actions">
-            <a className="btn btn-primary btn-lg" href="/app/chat">免费体验</a>
+            <Link className="btn btn-primary btn-lg" to="/app/chat">免费体验</Link>
             <a className="btn btn-ghost btn-lg" href="#solutions">了解更多</a>
           </div>
           <div className="hero-tags" aria-label="平台特点">
@@ -63,23 +63,23 @@ export function HomePage() {
       <div className="feature-grid">
         <article className="feature-card reveal delay-0">
           <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-chat.png" width={72} height={72} alt="" aria-hidden="true" /></div>
-          <h3>智能助手</h3><p>多模型对话、知识检索、写作协作、编程辅助，轻松表达。</p><a href="/app/chat">立即体验 <span>→</span></a>
+          <h3>智能助手</h3><p>多模型对话、知识检索、写作协作、编程辅助，轻松表达。</p><Link to="/app/chat">立即体验 <span>→</span></Link>
         </article>
         <article className="feature-card reveal delay-60">
           <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-cube.png" width={72} height={72} alt="" aria-hidden="true" /></div>
-          <h3>知识库</h3><p>构建你的专属知识库，支持多格式导入、智能检索与问答。</p><a href="/app/knowledge">立即体验 <span>→</span></a>
+          <h3>知识库</h3><p>构建你的专属知识库，支持多格式导入、智能检索与问答。</p><Link to="/app/knowledge">立即体验 <span>→</span></Link>
         </article>
         <article className="feature-card reveal delay-120">
           <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-flow.png" width={72} height={72} alt="" aria-hidden="true" /></div>
-          <h3>工作流</h3><p>可视化编排 AI 工作流，连接工具与数据，自动化复杂任务。</p><a href="/app/workflow">立即体验 <span>→</span></a>
+          <h3>工作流</h3><p>可视化编排 AI 工作流，连接工具与数据，自动化复杂任务。</p><Link to="/app/workflow">立即体验 <span>→</span></Link>
         </article>
         <article className="feature-card reveal delay-180">
           <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-apps.png" width={72} height={72} alt="" aria-hidden="true" /></div>
-          <h3>应用广场</h3><p>丰富的 AI 应用与插件，一键集成、开箱即用。</p><a href="/app/market">立即体验 <span>→</span></a>
+          <h3>应用广场</h3><p>丰富的 AI 应用与插件，一键集成、开箱即用。</p><Link to="/app/market">立即体验 <span>→</span></Link>
         </article>
         <article className="feature-card reveal delay-240">
           <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-team.png" width={72} height={72} alt="" aria-hidden="true" /></div>
-          <h3>团队协作</h3><p>权限管理、成员协作、项目空间，让团队效率倍增。</p><a href="/app/team">立即体验 <span>→</span></a>
+          <h3>团队协作</h3><p>权限管理、成员协作、项目空间，让团队效率倍增。</p><Link to="/app/team">立即体验 <span>→</span></Link>
         </article>
       </div>
     </section>
@@ -160,7 +160,7 @@ export function HomePage() {
       <div className="cta-art" aria-hidden="true"><span /><span /><span /></div>
       <div className="container cta-inner reveal">
         <div><span className="section-kicker">START NOW</span><h2>准备好和拾光一起，开启你的 AI 之旅了吗？</h2><p>立即注册，免费体验全部基础功能。</p></div>
-        <div className="cta-actions"><a className="btn btn-primary" href="/app/chat">免费体验</a><button className="btn btn-ghost">预约演示</button></div>
+        <div className="cta-actions"><Link className="btn btn-primary" to="/app/chat">免费体验</Link><button className="btn btn-ghost">预约演示</button></div>
       </div>
     </section>
   </main>
