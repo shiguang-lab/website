@@ -5,7 +5,6 @@ import IconCheckCircleStroked from '@douyinfe/semi-icons/lib/es/icons/IconCheckC
 import IconDownload from '@douyinfe/semi-icons/lib/es/icons/IconDownload';
 import IconGlobe from '@douyinfe/semi-icons/lib/es/icons/IconGlobe';
 import IconLock from '@douyinfe/semi-icons/lib/es/icons/IconLock';
-import IconPhone from '@douyinfe/semi-icons/lib/es/icons/IconPhone';
 import IconPulse from '@douyinfe/semi-icons/lib/es/icons/IconPulse';
 import IconSetting from '@douyinfe/semi-icons/lib/es/icons/IconSetting';
 import IconUserGroup from '@douyinfe/semi-icons/lib/es/icons/IconUserGroup';
@@ -151,7 +150,6 @@ export function SichenPage() {
                 <span><PlatformGlyph name="windows" className="availability-glyph" />Windows</span>
                 <span><PlatformGlyph name="mac" className="availability-glyph" />macOS</span>
                 <span><PlatformGlyph name="linux" className="availability-glyph" />Linux</span>
-                <span className="muted"><IconPhone />移动端规划中</span>
               </div>
             </div>
 
