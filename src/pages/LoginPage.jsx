@@ -5,29 +5,32 @@ import { authProviders } from '../config/authProviders';
 import { useAuth } from '../auth/useAuth';
 
 const genericError = '登录失败，请检查账号和密码后重试。';
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * 登录方式。`enabled: false` 的方式以禁用态展示(不可切换):
- * - email-code:邮箱验证码登录,等 SMTP 与 auth-service 流程接通后放开;
  * - sso:企业 SSO,等企业 IdP 接入后放开。
  */
 const loginModes = [
   {
     id: 'account',
     label: '账号登录',
-    inputLabel: '账号',
-    placeholder: '请输入用户名或邮箱',
+    inputLabel: '用户名',
+    placeholder: '请输入用户名',
     autoComplete: 'username',
+    inputMode: 'text',
+    inputType: 'text',
     enabled: true,
   },
   {
-    id: 'email-code',
+    id: 'email',
     label: '邮箱登录',
     inputLabel: '邮箱地址',
     placeholder: '请输入邮箱地址',
     autoComplete: 'email',
-    enabled: false,
-    disabledHint: '邮箱验证码登录即将开放',
+    inputMode: 'email',
+    inputType: 'email',
+    enabled: true,
   },
   {
     id: 'sso',
@@ -35,6 +38,8 @@ const loginModes = [
     inputLabel: '企业账号',
     placeholder: '请输入企业账号',
     autoComplete: 'username',
+    inputMode: 'text',
+    inputType: 'text',
     enabled: false,
     disabledHint: '企业 SSO 暂未开放',
   },
@@ -166,6 +171,11 @@ export function LoginPage() {
   const submit = async (event) => {
     event.preventDefault();
     if (status === 'submitting' || status === 'initializing') return;
+    const normalizedLoginName = loginName.trim();
+    if (mode === 'email' && !emailPattern.test(normalizedLoginName)) {
+      setMessage('请输入有效的邮箱地址。');
+      return;
+    }
     if (!context) {
       setStatus('initializing');
       setMessage('');
@@ -191,7 +201,7 @@ export function LoginPage() {
         },
         body: JSON.stringify({
           transactionId: context.transactionId,
-          loginName,
+          loginName: mode === 'email' ? normalizedLoginName.toLowerCase() : normalizedLoginName,
           password,
           csrfToken: context.csrfToken,
         }),
@@ -200,7 +210,13 @@ export function LoginPage() {
       await settleRedirect(value.redirect, navigate, refresh);
     } catch (error) {
       setPassword('');
-      setMessage(error instanceof Error && 'status' in error && error.status === 429 ? '尝试次数过多，请稍后再试。' : genericError);
+      setMessage(
+        error instanceof Error && 'status' in error && error.status === 429
+          ? '尝试次数过多，请稍后再试。'
+          : mode === 'email'
+            ? '登录失败，请检查邮箱和密码后重试。'
+            : genericError,
+      );
       setContext(null);
       setStatus('initializing');
       try {
@@ -282,6 +298,8 @@ export function LoginPage() {
                 onClick={() => {
                   if (!item.enabled) return;
                   setMode(item.id);
+                  setLoginName('');
+                  setPassword('');
                   setMessage('');
                 }}
               >
@@ -296,9 +314,9 @@ export function LoginPage() {
               <LoginIcon name="user" />
               <input
                 id="login-name"
-                name="username"
-                type="text"
-                inputMode="email"
+                name={mode === 'email' ? 'email' : 'username'}
+                type={activeMode.inputType === 'email' ? 'email' : 'text'}
+                inputMode={activeMode.inputMode === 'email' ? 'email' : 'text'}
                 autoComplete={activeMode.autoComplete}
                 autoCapitalize="none"
                 spellCheck="false"
@@ -335,7 +353,13 @@ export function LoginPage() {
             </label>
 
             <div className="login-form-options">
-              <span>{status === 'initializing' ? '正在建立安全登录连接…' : '统一账号 · 安全登录'}</span>
+              <span>
+                {status === 'initializing'
+                  ? '正在建立安全登录连接…'
+                  : mode === 'email'
+                    ? '邮箱账号 · 安全登录'
+                    : '统一账号 · 安全登录'}
+              </span>
               <Link to={loginHelpHref}>无法登录？</Link>
             </div>
 

@@ -203,7 +203,7 @@ export function RegisterPage() {
         return;
       }
       setStatus('success');
-      setMessage('账号已创建，请前往邮箱完成验证。');
+      setMessage(`验证邮件已发送至 ${email}，请完成验证后登录。`);
     } catch (error) {
       if (error instanceof Error && 'status' in error && error.status === 409) {
         setMessage('用户名或邮箱已被使用，请更换后重试。');
@@ -402,6 +402,11 @@ export function RegisterPage() {
             <button className="login-submit" type="submit" disabled={status !== 'ready'}>
               {status === 'submitting' ? '正在创建账号...' : status === 'success' ? '注册成功' : '创建账号'}
             </button>
+            {status === 'success' && (
+              <Link className="register-login-link" to={loginHref}>
+                完成邮箱验证后前往登录 <span aria-hidden="true">→</span>
+              </Link>
+            )}
           </form>
 
           {!federatedMode && (
