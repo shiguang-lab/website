@@ -6,6 +6,7 @@ import './styles/tailwind.less';
 import './styles/home.less';
 import './styles/sichen.less';
 import './styles/login.less';
+import './styles/legal.less';
 import './styles/account.less';
 import { App } from './App';
 import { startUmamiAutoTracking } from './analytics/umami';

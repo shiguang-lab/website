@@ -387,9 +387,9 @@ export function RegisterPage() {
               <span aria-hidden="true" />
               <em>
                 我已阅读并同意
-                <a href="/terms">《用户协议》</a>
+                <Link to="/terms">《用户协议》</Link>
                 和
-                <a href="/privacy">《隐私政策》</a>
+                <Link to="/privacy">《隐私政策》</Link>
               </em>
             </label>
 

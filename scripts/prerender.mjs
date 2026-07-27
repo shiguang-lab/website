@@ -79,6 +79,17 @@ const accountDocument = template
 const accountDir = path.join(distDir, 'account');
 await mkdir(accountDir, { recursive: true });
 await writeFile(path.join(accountDir, 'index.html'), accountDocument);
+for (const page of [
+  { pathname: '/terms', productName: '拾光用户协议', robots: 'index, follow' },
+  { pathname: '/privacy', productName: '拾光隐私政策', robots: 'index, follow' },
+  { pathname: '/login-help', productName: '拾光登录帮助', robots: 'noindex, follow' },
+]) {
+  const pageDir = path.join(distDir, page.pathname.slice(1));
+  await mkdir(pageDir, { recursive: true });
+  const document = buildPage(page.pathname, page.productName)
+    .replace('</head>', `  <meta name="robots" content="${page.robots}" />\n</head>`);
+  await writeFile(path.join(pageDir, 'index.html'), document);
+}
 for (const appId of ['sichen', 'chat', 'knowledge', 'workflow', 'market', 'team']) {
   const appDir = path.join(distDir, 'app', appId);
   await mkdir(appDir, { recursive: true });
@@ -91,6 +102,14 @@ await writeFile(path.join(distDir, 'sitemap.xml'), `<?xml version="1.0" encoding
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>${siteUrl}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>${siteUrl}${SICHEN_LANDING_PATH}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>${siteUrl}/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>${siteUrl}/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>\n`);
 
+/** Account sub-route fallbacks — SPA handles actual rendering client-side. */
+for (const sub of ['profile', 'security', 'organizations']) {
+  const subDir = path.join(distDir, 'account', sub);
+  await mkdir(subDir, { recursive: true });
+  await writeFile(path.join(subDir, 'index.html'), accountDocument);
+}
 console.log(`Pre-rendered ${siteUrl}/ and ${siteUrl}${SICHEN_LANDING_PATH}`);

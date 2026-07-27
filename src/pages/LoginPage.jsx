@@ -130,6 +130,7 @@ export function LoginPage() {
   );
   const returnTo = query.get('return_to') || query.get('redirect') || '/';
   const registerHref = `/register?${new URLSearchParams({ return_to: returnTo }).toString()}`;
+  const loginHelpHref = `/login-help?${new URLSearchParams({ return_to: returnTo }).toString()}`;
   const [context, setContext] = useState(/** @type {LoginContext | null} */ (null));
   const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
@@ -335,7 +336,7 @@ export function LoginPage() {
 
             <div className="login-form-options">
               <span>{status === 'initializing' ? '正在建立安全登录连接…' : '统一账号 · 安全登录'}</span>
-              <a href="mailto:support@shiguanglab.com">无法登录？</a>
+              <Link to={loginHelpHref}>无法登录？</Link>
             </div>
 
             {message && <p className="login-error" role="alert">{message}</p>}
@@ -356,9 +357,9 @@ export function LoginPage() {
 
           <p className="login-legal">
             登录即表示你同意拾光的
-            <a href="/terms">《用户协议》</a>
+            <Link to="/terms">《用户协议》</Link>
             和
-            <a href="/privacy">《隐私政策》</a>
+            <Link to="/privacy">《隐私政策》</Link>
           </p>
           <div className="login-divider"><span>或通过以下方式登录</span></div>
           <div className="login-providers" aria-label="其它登录方式">

@@ -174,7 +174,7 @@ export function HomePage() {
       <div className="footer-col"><h4>产品</h4><a href="#products">绘光 · AI 图片</a><a href="#products">跃影 · AI 视频</a><a href="#products">入戏 · AI 短剧</a><Link to={SICHEN_LANDING_PATH}>司辰 · 多智能体</Link></div>
       <div className="footer-col"><h4>解决方案</h4><a href="#solutions">个人用户</a><a href="#solutions">中小团队</a><a href="#solutions">企业客户</a><a href="#solutions">教育行业</a><a href="#developers">开发者</a></div>
       <div className="footer-col" id="resources"><h4>资源</h4><a href="#">文档中心</a><a href="#">帮助中心</a><a href="#">更新日志</a><a href="#">API 文档</a><a href="#">博客</a></div>
-      <div className="footer-col"><h4>公司</h4><a href="#">关于我们</a><a href="#">加入我们</a><a href="#">联系我们</a><a href="#">隐私政策</a><a href="#">服务条款</a></div>
+      <div className="footer-col"><h4>公司</h4><a href="#">关于我们</a><a href="#">加入我们</a><a href="mailto:support@shiguanglab.com">联系我们</a><Link to="/privacy">隐私政策</Link><Link to="/terms">用户协议</Link></div>
     </div>
     <div className="container footer-bottom"><span>© 2026 拾光 Shiguang. All rights reserved.</span><button type="button">简体中文⌄</button></div>
   </footer>
