@@ -7,7 +7,7 @@ const root = process.cwd();
 const distDir = path.join(root, 'dist');
 const templatePath = path.join(distDir, 'index.html');
 const serverEntry = path.join(root, '.ssr', 'entry-server.js');
-const siteUrl = (process.env.SITE_URL || 'https://shiguang.ai').replace(/\/$/, '');
+const siteUrl = (process.env.SITE_URL || 'https://shiguanglab.com').replace(/\/$/, '');
 const template = await readFile(templatePath, 'utf8');
 const { render } = await import(`${pathToFileURL(serverEntry).href}?t=${Date.now()}`);
 
