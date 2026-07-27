@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { loginHref } from '../auth/loginRedirect';
+import { AuthProviderIcon } from '../components/AuthProviderIcons';
 
 /** @typedef {{ id: string, name: string, roles: string[] }} Organization */
 /** @typedef {{ userId: string, displayName?: string, loginName?: string, roles: string[] }} OrgMember */
@@ -11,6 +12,10 @@ const roleLabels = {
 };
 
 const assignableRoles = ['org:admin', 'org:member', 'org:viewer'];
+const externalProviders = [
+  { id: 'github', label: 'GitHub' },
+  { id: 'google', label: 'Google' },
+];
 
 /** @param {string[] | undefined} roles */
 function roleText(roles) {
@@ -84,6 +89,11 @@ export function AccountPage() {
   const [inviteStatus, setInviteStatus] = useState('idle');
   const [inviteMessage, setInviteMessage] = useState(/** @type {{ type: 'error' | 'success', text: string } | null} */ (null));
 
+  const [idpLinks, setIdpLinks] = useState(/** @type {{ provider: string, userName?: string, userId?: string }[]} */ ([]));
+  const [idpStatus, setIdpStatus] = useState('loading');
+  const [idpMessage, setIdpMessage] = useState(/** @type {{ type: 'error' | 'success', text: string } | null} */ (null));
+  const [busyProvider, setBusyProvider] = useState(/** @type {string | null} */ (null));
+
   const selectedOrg = useMemo(
     () => orgs.find((org) => org.id === selectedOrgId) || null,
     [orgs, selectedOrgId],
@@ -106,6 +116,40 @@ export function AccountPage() {
       active = false;
     };
   }, []);
+
+  const loadIDPLinks = useCallback(async () => {
+    setIdpStatus('loading');
+    try {
+      const value = await requestJSON('/api/auth/idp-links');
+      setIdpLinks(Array.isArray(value?.links) ? value.links : []);
+      setIdpStatus('ready');
+    } catch (error) {
+      if (!isStatus(error, 401)) setIdpStatus('error');
+    }
+  }, []);
+
+  useEffect(() => {
+    window.setTimeout(() => loadIDPLinks(), 0);
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('link_status');
+    const provider = params.get('provider');
+    if (status) {
+      const label = externalProviders.find((item) => item.id === provider)?.label || '第三方账号';
+      const message = status === 'success'
+        ? { type: 'success', text: `${label} 已成功关联。` }
+        : status === 'conflict'
+          ? { type: 'error', text: `${label} 已关联到其他拾光账号。` }
+          : { type: 'error', text: `${label} 关联失败，请重试。` };
+      window.setTimeout(() => setIdpMessage(message), 0);
+      window.history.replaceState({}, '', `${window.location.pathname}${window.location.hash}`);
+    }
+  }, [loadIDPLinks]);
+
+  const startIDPLink = (provider) => {
+    if (busyProvider) return;
+    setBusyProvider(provider);
+    window.location.assign(`/api/auth/idp-links/start?provider=${encodeURIComponent(provider)}&return_to=%2Faccount`);
+  };
 
   const loadOrgs = useCallback(async () => {
     setOrgsStatus('loading');
@@ -315,6 +359,31 @@ export function AccountPage() {
               </div>
             </div>
           )}
+        </section>
+
+        <section className="account-card account-links-card" aria-labelledby="account-links-title">
+          <div className="account-card-head">
+            <h2 id="account-links-title">登录方式</h2>
+            <span>关联后可直接使用</span>
+          </div>
+          <p className="account-member-hint">将常用的第三方账号关联到当前拾光账号，不会通过邮箱自动合并账号。</p>
+          {idpStatus === 'loading' && <div className="account-loading"><span aria-hidden="true" />正在加载关联方式…</div>}
+          {idpStatus === 'error' && <div className="account-empty"><p className="account-error" role="alert">登录方式加载失败。</p><button type="button" className="account-ghost-button" onClick={loadIDPLinks}>重新加载</button></div>}
+          {idpStatus === 'ready' && (
+            <div className="account-links-list">
+              {externalProviders.map((provider) => {
+                const link = idpLinks.find((item) => item.provider === provider.id);
+                return (
+                  <div className="account-link-row" key={provider.id}>
+                    <span className={`account-link-icon account-link-icon-${provider.id}`}><AuthProviderIcon name={provider.id} /></span>
+                    <div className="account-link-main"><strong>{provider.label}</strong><span>{link ? (link.userName || '已关联') : '尚未关联'}</span></div>
+                    {link ? <span className="account-link-state">已关联</span> : <button type="button" className="account-ghost-button" onClick={() => startIDPLink(provider.id)} disabled={busyProvider === provider.id}>{busyProvider === provider.id ? '跳转中…' : '关联账号'}</button>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {idpMessage && <p className={idpMessage.type === 'error' ? 'account-error' : 'account-success'} role={idpMessage.type === 'error' ? 'alert' : 'status'}>{idpMessage.text}</p>}
         </section>
 
         <div className="account-columns">

@@ -130,6 +130,53 @@
   gap: 22px;
 }
 
+.account-links-card {
+  margin-top: 0;
+}
+
+.account-links-list {
+  display: grid;
+  gap: 10px;
+}
+
+.account-link-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 58px;
+  padding: 0 14px;
+  border: 1px solid rgba(190, 196, 226, 0.14);
+  border-radius: 10px;
+  background: rgba(13, 16, 31, 0.72);
+}
+
+.account-link-icon {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  color: #fff;
+}
+
+.account-link-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.account-link-icon-google svg { fill: none; }
+
+.account-link-main {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 4px;
+}
+
+.account-link-main strong { color: #f4f4ff; font-size: 14px; font-weight: 620; }
+.account-link-main span { overflow: hidden; color: rgba(224, 226, 241, 0.48); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.account-link-state { color: #76dcae; font-size: 12px; }
+
 .account-session-body {
   display: flex;
   align-items: center;

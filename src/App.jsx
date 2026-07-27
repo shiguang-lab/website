@@ -9,6 +9,7 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then((module) => 
 const LoginPage = lazy(() => import('./pages/LoginPage').then((module) => ({ default: module.LoginPage })));
 const RegisterPage = lazy(() => import('./pages/RegisterPage').then((module) => ({ default: module.RegisterPage })));
 const AccountPage = lazy(() => import('./pages/AccountPage').then((module) => ({ default: module.AccountPage })));
+const AuthCallbackPage = lazy(() => import('./pages/AuthCallbackPage').then((module) => ({ default: module.AuthCallbackPage })));
 
 /** @param {{ children: import('react').ReactNode }} props */
 function DeferredPage({ children }) {
@@ -23,6 +24,7 @@ export function App() {
       <Route path="/login" element={<DeferredPage><LoginPage /></DeferredPage>} />
       <Route path="/register" element={<DeferredPage><RegisterPage /></DeferredPage>} />
       <Route path="/account" element={<DeferredPage><AccountPage /></DeferredPage>} />
+      <Route path="/auth/callback" element={<DeferredPage><AuthCallbackPage /></DeferredPage>} />
       <Route path="/app/:appId/*" element={<DeferredPage><MicroAppPage /></DeferredPage>} />
       <Route path="*" element={<DeferredPage><NotFoundPage /></DeferredPage>} />
     </Routes>
