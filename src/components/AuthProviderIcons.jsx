@@ -21,6 +21,17 @@ export function AuthProviderIcon({ name }) {
     );
   }
 
+  if (name === 'google') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="#4285F4" d="M21.8 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.5a4.7 4.7 0 0 1-2 3.1v2.6h3.2c1.9-1.8 3.1-4.4 3.1-7.5Z" />
+        <path fill="#34A853" d="M12 22c2.7 0 5-.9 6.7-2.4l-3.2-2.6c-.9.6-2 1-3.5 1-2.7 0-5-1.8-5.8-4.3H3v2.7A10 10 0 0 0 12 22Z" />
+        <path fill="#FBBC05" d="M6.2 13.7a6 6 0 0 1 0-3.4V7.6H3a10 10 0 0 0 0 8.8l3.2-2.7Z" />
+        <path fill="#EA4335" d="M12 6c1.5 0 2.8.5 3.9 1.6l2.9-2.9C17 3 14.7 2 12 2a10 10 0 0 0-9 5.6l3.2 2.7C7 7.8 9.3 6 12 6Z" />
+      </svg>
+    );
+  }
+
   if (name === 'linkedin') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">

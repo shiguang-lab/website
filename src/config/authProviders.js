@@ -4,7 +4,8 @@
  */
 export const authProviders = [
   { id: 'wechat', label: '微信', enabled: false },
-  { id: 'github', label: 'GitHub', enabled: false },
+  { id: 'github', label: 'GitHub', enabled: true },
+  { id: 'google', label: 'Google', enabled: true },
   { id: 'linkedin', label: 'LinkedIn', enabled: false },
   { id: 'dingtalk', label: '钉钉', enabled: false },
 ];

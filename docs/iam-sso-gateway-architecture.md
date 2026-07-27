@@ -288,7 +288,7 @@ sequenceDiagram
 
 ### 8.2 外部身份提供方登录
 
-外部身份提供方从 `/api/auth/federated/start?provider=...&return_to=...` 开始，使用 `state`、`nonce` 和 PKCE。Auth Service 完成 code exchange 和 ID Token 校验后创建同一种拾光服务端 Session。该流程允许跳转到 ZITADEL 和外部身份源，但与账号密码 Session API 流程相互独立。
+外部身份提供方从 `/api/auth/federated/start?provider=...&return_to=...` 开始，使用 `state`、`nonce` 和 PKCE。Auth Service 只接受服务端 `OIDC_PROVIDER_IDS` 中配置的 provider，并通过 ZITADEL 的 `urn:zitadel:iam:org:idp:id:<id>` scope 直达对应身份源。Auth Service 完成 code exchange 和 ID Token 校验后创建同一种拾光服务端 Session。该流程允许跳转到 ZITADEL 和外部身份源，但与账号密码 Session API 流程相互独立。
 
 ### 8.3 已登录访问其他产品
 
