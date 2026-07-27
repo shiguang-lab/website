@@ -23,7 +23,7 @@ export function App() {
       <Route path={SICHEN_LANDING_PATH} element={<SichenPage />} />
       <Route path="/login" element={<DeferredPage><LoginPage /></DeferredPage>} />
       <Route path="/register" element={<DeferredPage><RegisterPage /></DeferredPage>} />
-      <Route path="/account" element={<DeferredPage><AccountPage /></DeferredPage>} />
+      <Route path="/account/*" element={<DeferredPage><AccountPage /></DeferredPage>} />
       <Route path="/auth/callback" element={<DeferredPage><AuthCallbackPage /></DeferredPage>} />
       <Route path="/app/:appId/*" element={<DeferredPage><MicroAppPage /></DeferredPage>} />
       <Route path="*" element={<DeferredPage><NotFoundPage /></DeferredPage>} />

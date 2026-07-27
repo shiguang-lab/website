@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import IconIdCard from '@douyinfe/semi-icons/lib/es/icons/IconIdCard';
+import IconExternalOpen from '@douyinfe/semi-icons/lib/es/icons/IconExternalOpen';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { loginHref } from '../auth/loginRedirect';
@@ -54,7 +56,8 @@ function AccountMenu() {
           <span className="header-account-avatar large" aria-hidden="true">{initial}</span>
           <span><strong>{displayName}</strong><small>{secondary}</small></span>
         </div>
-        <a href={SICHEN_WEB_URL}>进入司辰工作台 <span aria-hidden="true">↗</span></a>
+        <Link to="/account/profile">账号中心 <IconIdCard aria-hidden="true" /></Link>
+        <a href={SICHEN_WEB_URL}>进入司辰工作台 <IconExternalOpen aria-hidden="true" /></a>
         <button type="button" onClick={handleLogout} disabled={loggingOut}>
           {loggingOut ? '正在退出…' : '退出登录'}
         </button>
@@ -110,7 +113,10 @@ export function SiteHeader({ productPage = false }) {
         {status === 'authenticated' && user ? (
           <div className="mobile-account">
             <span><b>{displayName}</b><small>{secondary}</small></span>
-            <button type="button" onClick={() => logout().catch(() => undefined)}>退出登录</button>
+            <div className="mobile-account-actions">
+              <Link to="/account/profile">账号中心</Link>
+              <button type="button" onClick={() => logout().catch(() => undefined)}>退出登录</button>
+            </div>
           </div>
         ) : (
           <Link to={signInHref} data-umami-ignore>登录</Link>

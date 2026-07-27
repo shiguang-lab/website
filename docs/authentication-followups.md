@@ -7,7 +7,7 @@
 
 - NAS 已部署 Website、Access Gateway、Auth Service、Redis 和 ZITADEL。
 - Website 账号密码登录、注册页面及 NAS Session API 已完成本地联调。
-- Website 已实现全局登录态、账号菜单、退出登录和登录回跳参数，但最新版静态资源尚未发布到 NAS。
+- Website 已实现全局登录态、账号菜单、退出登录、账号设置和登录回跳参数；GitHub/Google 首次登录会进入 Website 自定义注册页，不再进入 ZITADEL 内置注册页。
 - Website 内部页面使用相对 `return_to`；跨域回到 OPC 时必须使用完整 URL，例如：
 
   ```text
@@ -15,7 +15,17 @@
   ```
 
 - Auth Service 会对白名单中的 `return_to` 进行校验，并将其保存在一次性登录事务中；登录请求不能覆盖该地址。
-- ZITADEL 注册服务账号使用独立 PAT，并仅授予组织用户管理权限。
+- ZITADEL 注册服务账号使用独立 PAT，并仅授予组织用户管理权限；第三方首次注册由 Auth Service 服务端创建带 IDP Link 的用户。
+
+## GitHub/Google 自定义注册流程
+
+入口统一使用 ZITADEL `IDP Intent`：
+
+1. 已关联的外部身份直接创建 Website session，并回到原始 `return_to`。
+2. 未关联的外部身份只保存在 Auth Service 加密 Redis 一次性事务中，重定向到 Website `/register?mode=federated`。
+3. Website 提交用户名、邮箱和密码后，Auth Service 调用 `POST /v2/users/new`，在同一请求写入 `human.idpLinks`，然后建立 Website session。
+
+GitHub/Google 的 Provider 回调仍保持 `https://shiguanglab.com/api/auth/oidc/callback`；`/auth/callback` 是 Website 结果页，不填写到 Provider 控制台。
 
 ## 待办清单
 

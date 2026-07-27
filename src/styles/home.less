@@ -147,7 +147,8 @@ img, svg { display: block; }
 .header-account-identity strong,.header-account-identity small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .header-account-identity strong { color:#f6f8ff; font-size:13px; }
 .header-account-identity small { color:#7f8aa3; font-size:10px; font-weight:400; }
-.header-account-panel > a,.header-account-panel > button { width:100%; min-height:36px; display:flex; align-items:center; justify-content:space-between; padding:0 10px; border:0; border-radius:7px; color:#bec7d9; background:transparent; font-size:12px; font-weight:500; cursor:pointer; }
+.header-account-panel > a,.header-account-panel > button { width:100%; min-height:36px; display:flex; align-items:center; justify-content:space-between; box-sizing:border-box; padding:0 10px; border:0; border-radius:7px; color:#bec7d9; background:transparent; font-size:12px; font-weight:500; cursor:pointer; }
+.header-account-panel > a svg { width:14px; height:14px; color:#7f8aa3; }
 .header-account-panel > a:hover,.header-account-panel > button:hover:not(:disabled) { color:#fff; background:rgba(121,84,212,.16); }
 .header-account-panel > button:disabled { cursor:wait; opacity:.65; }
 .header-account-panel > p { margin:5px 9px 2px; color:#ff9ca8; font-size:10px; }
@@ -157,6 +158,8 @@ img, svg { display: block; }
 .mobile-account b { color:#f2f5fb; font-size:12px; }
 .mobile-account small { color:#7f8aa3; font-size:9px; }
 .mobile-account button { padding:6px 9px; border:1px solid rgba(151,167,214,.22); border-radius:6px; color:#bec7d9; background:transparent; font-size:10px; }
+.mobile-account-actions { display:flex; align-items:center; gap:7px; flex:0 0 auto; }
+.mobile-account-actions a { padding:6px 9px; border:1px solid rgba(151,167,214,.22); border-radius:6px; color:#d9dfea; font-size:10px; }
 .btn { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 22px; border-radius: 7px; border: 1px solid transparent; cursor: pointer; font-weight: 600; letter-spacing: .01em; transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease; }
 .btn:hover { transform: translateY(-2px); }
 .btn-sm { min-height: 36px; padding: 0 18px; font-size: 13px; }

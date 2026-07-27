@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import IconChevronRight from '@douyinfe/semi-icons/lib/es/icons/IconChevronRight';
+import IconIdCard from '@douyinfe/semi-icons/lib/es/icons/IconIdCard';
+import IconKey from '@douyinfe/semi-icons/lib/es/icons/IconKey';
+import IconUserGroup from '@douyinfe/semi-icons/lib/es/icons/IconUserGroup';
+import { Link, useLocation } from 'react-router-dom';
 import { loginHref } from '../auth/loginRedirect';
 import { AuthProviderIcon } from '../components/AuthProviderIcons';
+import { SiteHeader } from '../components/SiteHeader';
+import { useHomeEffects } from '../hooks/useHomeEffects';
 
 /** @typedef {{ id: string, name: string, roles: string[] }} Organization */
 /** @typedef {{ userId: string, displayName?: string, loginName?: string, roles: string[] }} OrgMember */
 
+/** @type {Record<string, string>} */
 const roleLabels = {
   'org:admin': '管理员',
   'org:member': '成员',
@@ -15,6 +23,27 @@ const assignableRoles = ['org:admin', 'org:member', 'org:viewer'];
 const externalProviders = [
   { id: 'github', label: 'GitHub' },
   { id: 'google', label: 'Google' },
+];
+
+const accountSections = [
+  {
+    id: 'profile',
+    label: '个人资料',
+    description: '查看账号身份信息',
+    icon: IconIdCard,
+  },
+  {
+    id: 'security',
+    label: '登录与安全',
+    description: '管理登录账号关联',
+    icon: IconKey,
+  },
+  {
+    id: 'organizations',
+    label: '组织与成员',
+    description: '管理组织角色权限',
+    icon: IconUserGroup,
+  },
 ];
 
 /** @param {string[] | undefined} roles */
@@ -68,6 +97,13 @@ function isLastAdmin(error) {
 }
 
 export function AccountPage() {
+  useHomeEffects();
+  const location = useLocation();
+  const requestedSection = location.pathname.split('/')[2];
+  const activeSection = accountSections.some((item) => item.id === requestedSection)
+    ? requestedSection
+    : 'profile';
+  const sectionMeta = accountSections.find((item) => item.id === activeSection) || accountSections[0];
   const [session, setSession] = useState(/** @type {Record<string, any> | null} */ (null));
   const [sessionStatus, setSessionStatus] = useState('loading');
 
@@ -129,12 +165,14 @@ export function AccountPage() {
   }, []);
 
   useEffect(() => {
+    if (activeSection !== 'security') return undefined;
     window.setTimeout(() => loadIDPLinks(), 0);
     const params = new URLSearchParams(window.location.search);
     const status = params.get('link_status');
     const provider = params.get('provider');
     if (status) {
       const label = externalProviders.find((item) => item.id === provider)?.label || '第三方账号';
+      /** @type {{ type: 'error' | 'success', text: string }} */
       const message = status === 'success'
         ? { type: 'success', text: `${label} 已成功关联。` }
         : status === 'conflict'
@@ -143,12 +181,14 @@ export function AccountPage() {
       window.setTimeout(() => setIdpMessage(message), 0);
       window.history.replaceState({}, '', `${window.location.pathname}${window.location.hash}`);
     }
-  }, [loadIDPLinks]);
+    return undefined;
+  }, [activeSection, loadIDPLinks]);
 
+  /** @param {string} provider */
   const startIDPLink = (provider) => {
     if (busyProvider) return;
     setBusyProvider(provider);
-    window.location.assign(`/api/auth/idp-links/start?provider=${encodeURIComponent(provider)}&return_to=%2Faccount`);
+    window.location.assign(`/api/auth/idp-links/start?provider=${encodeURIComponent(provider)}&return_to=%2Faccount%2Fsecurity`);
   };
 
   const loadOrgs = useCallback(async () => {
@@ -163,6 +203,7 @@ export function AccountPage() {
   }, []);
 
   useEffect(() => {
+    if (activeSection !== 'organizations') return undefined;
     let active = true;
     requestJSON('/api/account/orgs')
       .then((value) => {
@@ -176,7 +217,7 @@ export function AccountPage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [activeSection]);
 
   const loadMembers = useCallback(async (/** @type {string} */ orgId) => {
     setMembersStatus('loading');
@@ -318,53 +359,90 @@ export function AccountPage() {
   };
 
   return (
-    <main className="account-page">
-      <header className="account-header">
-        <a className="login-brand account-brand" href="/" aria-label="返回拾光首页">
-          <img src="/assets/微信图片_20260722101545_795_4.svg" alt="" />
-          <span><strong>拾光</strong><small>SHIGUANG</small></span>
-        </a>
-        <a className="account-home-link" href="/">返回首页 <b aria-hidden="true">→</b></a>
-      </header>
+    <div className="account-page">
+      <SiteHeader productPage />
+      <main className="account-layout">
+        <aside className="account-sidebar" aria-label="账号中心导航">
+          <div className="account-sidebar-title">
+            <span className="account-sidebar-title-icon"><IconIdCard /></span>
+            <strong>账号中心</strong>
+          </div>
+          <nav className="account-nav">
+            {accountSections.map((section) => {
+              const SectionIcon = section.icon;
+              return (
+                <Link
+                  key={section.id}
+                  className={activeSection === section.id ? 'is-active' : ''}
+                  to={`/account/${section.id}`}
+                  aria-current={activeSection === section.id ? 'page' : undefined}
+                >
+                  <SectionIcon aria-hidden="true" />
+                  <span><strong>{section.label}</strong><small>{section.description}</small></span>
+                  <IconChevronRight className="account-nav-arrow" aria-hidden="true" />
+                </Link>
+              );
+            })}
+          </nav>
+          <a className="account-sidebar-home" href="/">返回拾光首页 <IconChevronRight aria-hidden="true" /></a>
+        </aside>
 
-      <div className="account-shell">
-        <section className="account-hero">
-          <span className="account-kicker">SHIGUANG ACCOUNT</span>
-          <h1>账号中心 · 组织管理</h1>
-          <p>管理你所在的组织、成员与角色权限。</p>
-        </section>
+        <div className="account-content">
+          <header className="account-content-header">
+            <span>账号中心</span>
+            <h1>{sectionMeta.label}</h1>
+            <p>{sectionMeta.description}</p>
+          </header>
 
-        <section className="account-card account-session" aria-label="当前登录信息">
-          {sessionStatus === 'loading' && (
-            <div className="account-loading"><span aria-hidden="true" />正在加载账号信息…</div>
-          )}
-          {sessionStatus === 'error' && (
-            <p className="account-error" role="alert">账号信息加载失败，请刷新页面重试。</p>
-          )}
-          {sessionStatus === 'ready' && session && (
-            <div className="account-session-body">
-              <span className="account-avatar" aria-hidden="true">
-                {(session.displayName || session.subject || '拾').slice(0, 1)}
-              </span>
-              <div className="account-session-main">
-                <strong>{session.displayName || session.subject}</strong>
-                <span>
-                  {[session.email, session.organization].filter(Boolean).join(' · ') || '统一账号'}
-                </span>
+          {activeSection === 'profile' && (
+            <section className="account-card account-profile-card" aria-labelledby="account-profile-title">
+              <div className="account-card-head">
+                <h2 id="account-profile-title">基本资料</h2>
+                <span>你的拾光统一账号信息</span>
               </div>
-              <div className="account-session-roles" aria-label="账号角色">
-                {(Array.isArray(session.roles) ? session.roles : []).map((role) => (
-                  <em key={role}>{roleLabels[role] || role}</em>
-                ))}
-              </div>
-            </div>
+              {sessionStatus === 'loading' && (
+                <div className="account-loading"><span aria-hidden="true" />正在加载账号信息…</div>
+              )}
+              {sessionStatus === 'error' && (
+                <p className="account-error" role="alert">账号信息加载失败，请刷新页面重试。</p>
+              )}
+              {sessionStatus === 'ready' && session && (
+                <>
+                  <div className="account-profile-summary">
+                    <span className="account-avatar account-profile-avatar" aria-hidden="true">
+                      {(session.displayName || session.subject || '拾').slice(0, 1)}
+                    </span>
+                    <div>
+                      <strong>{session.displayName || session.subject}</strong>
+                      <span>{session.email || '拾光统一账号'}</span>
+                    </div>
+                    <span className="account-status-badge">账号正常</span>
+                  </div>
+                  <dl className="account-profile-fields">
+                    <div><dt>显示名称</dt><dd>{session.displayName || '未设置'}</dd></div>
+                    <div><dt>登录账号</dt><dd>{session.preferredUsername || session.email || session.subject}</dd></div>
+                    <div><dt>邮箱</dt><dd>{session.email || '未绑定'}</dd></div>
+                    <div><dt>账号 ID</dt><dd>{session.subject}</dd></div>
+                    <div><dt>默认组织</dt><dd>{session.organization || '暂无默认组织'}</dd></div>
+                    <div>
+                      <dt>账号角色</dt>
+                      <dd className="account-inline-roles">
+                        {(Array.isArray(session.roles) && session.roles.length > 0)
+                          ? session.roles.map((/** @type {string} */ role) => <em key={role}>{roleLabels[role] || role}</em>)
+                          : '普通用户'}
+                      </dd>
+                    </div>
+                  </dl>
+                </>
+              )}
+            </section>
           )}
-        </section>
 
-        <section className="account-card account-links-card" aria-labelledby="account-links-title">
+          {activeSection === 'security' && (
+            <section className="account-card account-links-card" aria-labelledby="account-links-title">
           <div className="account-card-head">
             <h2 id="account-links-title">登录方式</h2>
-            <span>关联后可直接使用</span>
+            <span>关联后可用于登录当前账号</span>
           </div>
           <p className="account-member-hint">将常用的第三方账号关联到当前拾光账号，不会通过邮箱自动合并账号。</p>
           {idpStatus === 'loading' && <div className="account-loading"><span aria-hidden="true" />正在加载关联方式…</div>}
@@ -384,9 +462,11 @@ export function AccountPage() {
             </div>
           )}
           {idpMessage && <p className={idpMessage.type === 'error' ? 'account-error' : 'account-success'} role={idpMessage.type === 'error' ? 'alert' : 'status'}>{idpMessage.text}</p>}
-        </section>
+            </section>
+          )}
 
-        <div className="account-columns">
+          {activeSection === 'organizations' && (
+            <div className="account-columns">
           <section className="account-card" aria-labelledby="account-orgs-title">
             <div className="account-card-head">
               <h2 id="account-orgs-title">我的组织</h2>
@@ -588,8 +668,10 @@ export function AccountPage() {
               </>
             )}
           </section>
+            </div>
+          )}
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

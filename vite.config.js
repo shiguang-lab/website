@@ -43,6 +43,12 @@ export default defineConfig(({ isSsrBuild, mode }) => {
             });
           },
         },
+        '/api/account': {
+          target: authProxyTarget,
+          changeOrigin: true,
+          cookieDomainRewrite: '',
+          secure: authProxyOrigin.startsWith('https://'),
+        },
       },
     },
     build: {

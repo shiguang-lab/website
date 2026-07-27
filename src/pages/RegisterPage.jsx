@@ -7,7 +7,7 @@ import { useAuth } from '../auth/useAuth';
 const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** @typedef {{ transactionId: string, csrfToken: string }} RegisterContext */
+/** @typedef {{ transactionId: string, csrfToken: string, provider?: string, email?: string, username?: string, displayName?: string }} RegisterContext */
 
 /** @param {Response} response */
 async function readJSON(response) {
@@ -25,6 +25,21 @@ async function createRegisterContext(signal) {
     method: 'POST',
     credentials: 'include',
     headers: { Accept: 'application/json' },
+    signal,
+  });
+  return readJSON(response);
+}
+
+/** @param {string} transactionID @param {AbortSignal=} signal */
+async function createFederatedRegisterContext(transactionID, signal) {
+  const response = await fetch('/api/auth/register/federated/context', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ transactionId: transactionID }),
     signal,
   });
   return readJSON(response);
@@ -101,6 +116,8 @@ export function RegisterPage() {
     [],
   );
   const returnTo = query.get('return_to') || query.get('redirect') || '/';
+  const federatedMode = query.get('mode') === 'federated';
+  const federatedTransactionID = query.get('transaction_id') || '';
   const loginHref = `/login?${new URLSearchParams({ return_to: returnTo }).toString()}`;
   const [context, setContext] = useState(/** @type {RegisterContext | null} */ (null));
   const [username, setUsername] = useState('');
@@ -114,9 +131,14 @@ export function RegisterPage() {
 
   useEffect(() => {
     const controller = new AbortController();
-    createRegisterContext(controller.signal)
+    const contextRequest = federatedMode && federatedTransactionID
+      ? createFederatedRegisterContext(federatedTransactionID, controller.signal)
+      : createRegisterContext(controller.signal);
+    contextRequest
       .then((value) => {
         setContext(value);
+        if (value.email) setEmail(value.email);
+        if (value.username && usernamePattern.test(value.username)) setUsername(value.username);
         setStatus('ready');
       })
       .catch((error) => {
@@ -126,7 +148,7 @@ export function RegisterPage() {
         }
       });
     return () => controller.abort();
-  }, []);
+  }, [federatedMode, federatedTransactionID]);
 
   /** @param {import('react').FormEvent<HTMLFormElement>} event */
   const submit = async (event) => {
@@ -160,7 +182,7 @@ export function RegisterPage() {
 
     setStatus('submitting');
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(federatedMode ? '/api/auth/register/federated' : '/api/auth/register', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -193,7 +215,11 @@ export function RegisterPage() {
         setMessage('注册失败，请稍后重试。');
       }
       try {
-        setContext(await createRegisterContext());
+        setContext(
+          await (federatedMode && federatedTransactionID
+            ? createFederatedRegisterContext(federatedTransactionID)
+            : createRegisterContext()),
+        );
         setStatus('ready');
       } catch {
         setContext(null);
@@ -258,9 +284,9 @@ export function RegisterPage() {
 
         <div className="login-panel register-panel">
           <div className="login-heading register-heading">
-            <span className="login-kicker">CREATE SHIGUANG ACCOUNT</span>
-            <h2 id="register-title">创建你的拾光账号</h2>
-            <p>开启你的 AI 之旅</p>
+            <span className="login-kicker">{federatedMode ? 'COMPLETE SHIGUANG ACCOUNT' : 'CREATE SHIGUANG ACCOUNT'}</span>
+            <h2 id="register-title">{federatedMode ? '完善你的拾光账号' : '创建你的拾光账号'}</h2>
+            <p>{federatedMode ? '完成设置后即可继续使用' : '开启你的 AI 之旅'}</p>
           </div>
 
           <form className="register-form" onSubmit={submit}>
@@ -378,22 +404,26 @@ export function RegisterPage() {
             </button>
           </form>
 
-          <div className="login-divider register-divider"><span>或使用以下方式注册</span></div>
-          <div className="login-providers" aria-label="其它注册方式">
-            {authProviders.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                aria-label={item.enabled ? `使用${item.label}注册` : `${item.label}注册暂未开放`}
-                title={item.enabled ? `使用${item.label}注册` : `${item.label}注册暂未开放`}
-                aria-disabled={!item.enabled}
-                disabled={!item.enabled}
-                onClick={() => item.enabled && startProviderRegistration(item.id)}
-              >
-                <AuthProviderIcon name={item.id} />
-              </button>
-            ))}
-          </div>
+          {!federatedMode && (
+            <>
+              <div className="login-divider register-divider"><span>或使用以下方式注册</span></div>
+              <div className="login-providers" aria-label="其它注册方式">
+                {authProviders.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-label={item.enabled ? `使用${item.label}注册` : `${item.label}注册暂未开放`}
+                    title={item.enabled ? `使用${item.label}注册` : `${item.label}注册暂未开放`}
+                    aria-disabled={!item.enabled}
+                    disabled={!item.enabled}
+                    onClick={() => item.enabled && startProviderRegistration(item.id)}
+                  >
+                    <AuthProviderIcon name={item.id} />
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </section>
     </main>
