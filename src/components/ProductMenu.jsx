@@ -15,6 +15,8 @@ const products = [
     description: '从灵感到高质量视觉，一句话完成创作',
     icon: IconAIImageLevel2,
     tone: 'cyan',
+    href: '/app/huiguang',
+    available: true,
   },
   {
     name: '跃影',

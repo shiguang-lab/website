@@ -1,7 +1,7 @@
 # 统一认证后续事项
 
 > 更新时间：2026-07-26  
-> 适用域名：`shiguanglab.com`、`sso.shiguanglab.com`、`opc.shiguanglab.com`
+> 适用域名：`shiguanglab.com`、`sso.shiguanglab.com`、`opc.shiguanglab.com`、`huiguang.shiguanglab.com`
 
 ## 当前状态
 

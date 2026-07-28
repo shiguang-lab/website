@@ -1,4 +1,3 @@
-import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import './styles/semi.less';
@@ -16,13 +15,11 @@ startUmamiAutoTracking();
 
 const root = document.getElementById('root');
 const application = (
-  <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
-  </StrictMode>
+  <BrowserRouter>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </BrowserRouter>
 );
 
 if (!root) throw new Error('Missing #root element');
