@@ -1,0 +1,127 @@
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+/**
+ * 销毁链路清理跟踪器。
+ *
+ * 子应用通过 patchDocumentEffect 注册的部分事件会被转发到主应用 window.document，
+ * patchWindowEffect 改写的 window.onXXX 也会写到主应用 window 上。两者若不在
+ * sandbox.destroy() 时反向清理，handler 闭包会持有 iframeWindow，整个子应用
+ * 上下文都无法被 GC，且主 window 上会留下 dangling handler。
+ *
+ * 跟踪器实例挂在每个 Wujie 沙箱上，在 sandbox.destroy() 末尾统一清理。
+ */
+
+export var EventCleanupTracker = /*#__PURE__*/function () {
+  function EventCleanupTracker() {
+    _classCallCheck(this, EventCleanupTracker);
+    /** 已经从 patchDocumentEffect 转发到主应用 window.document 的 listener */
+    _defineProperty(this, "mainDocumentListeners", new Set());
+    /** 已被 patchWindowEffect 改写过的主应用 window onXXX，记录原始状态以便还原 */
+    _defineProperty(this, "windowOnEventOverrides", new Map());
+  }
+  return _createClass(EventCleanupTracker, [{
+    key: "trackMainDocumentListener",
+    value: function trackMainDocumentListener(entry) {
+      this.mainDocumentListeners.add(entry);
+    }
+
+    /** removeEventListener 时同步从跟踪集合中剔除，避免 destroy 时再次解绑 */
+  }, {
+    key: "untrackMainDocumentListener",
+    value: function untrackMainDocumentListener(entry) {
+      var _iterator = _createForOfIteratorHelper(this.mainDocumentListeners),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var existing = _step.value;
+          if (existing.type === entry.type && existing.callback === entry.callback && existing.options === entry.options) {
+            this.mainDocumentListeners["delete"](existing);
+            break;
+          }
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
+
+    /** 清理主应用 window.document 上的 listener */
+  }, {
+    key: "cleanupMainDocumentListeners",
+    value: function cleanupMainDocumentListeners() {
+      var targetDocument = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.document;
+      this.mainDocumentListeners.forEach(function (_ref) {
+        var type = _ref.type,
+          callback = _ref.callback,
+          options = _ref.options;
+        try {
+          targetDocument.removeEventListener(type, callback, options);
+        } catch (_) {
+          /* noop: destroy 阶段任何异常都不应中断后续清理 */
+        }
+      });
+      this.mainDocumentListeners.clear();
+    }
+
+    /**
+     * 记录主应用 window.onXXX 被子应用覆盖前的状态，供 destroy 时还原。
+     * 同一 key 仅首次记录，避免把子应用后续写入的 handler 当作原值。
+     *
+     * 一些 onXXX 属性由 accessor 管理，cleanup 时需要通过赋值写回 originalValue，
+     * 让 setter 清掉内部保存的 handler；如果赋值新增了 own property，再按需 delete。
+     */
+  }, {
+    key: "trackWindowOnEvent",
+    value: function trackWindowOnEvent(key, originalValue, hadOwnProperty) {
+      if (!this.windowOnEventOverrides.has(key)) {
+        this.windowOnEventOverrides.set(key, {
+          key: key,
+          originalValue: originalValue,
+          hadOwnProperty: hadOwnProperty
+        });
+      }
+    }
+
+    /** 清理主应用 window 上的 onXXX */
+  }, {
+    key: "cleanupWindowOnEventOverrides",
+    value: function cleanupWindowOnEventOverrides() {
+      var targetWindow = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window;
+      this.windowOnEventOverrides.forEach(function (_ref2) {
+        var key = _ref2.key,
+          originalValue = _ref2.originalValue,
+          hadOwnProperty = _ref2.hadOwnProperty;
+        try {
+          // 直接赋值：对 prototype accessor 而言会调用 setter 把内部存储覆盖回原值；
+          // 对自定义 data property 而言会更新自身值。
+          targetWindow[key] = originalValue;
+        } catch (_) {
+          /* noop */
+        }
+        // 原本没有 own property（例如 patchWindowEffect 之前主 window 没设过自定义属性）
+        // 时，cleanup 后再 delete，避免 polluted 痕迹残留为 own。
+        if (!hadOwnProperty) {
+          try {
+            delete targetWindow[key];
+          } catch (_) {
+            /* noop */
+          }
+        }
+      });
+      this.windowOnEventOverrides.clear();
+    }
+  }, {
+    key: "cleanupAll",
+    value: function cleanupAll() {
+      var targetWindow = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window;
+      this.cleanupMainDocumentListeners(targetWindow.document);
+      this.cleanupWindowOnEventOverrides(targetWindow);
+    }
+  }]);
+}();
+//# sourceMappingURL=tracker.js.map

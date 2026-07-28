@@ -1,0 +1,590 @@
+import _toConsumableArray from "@babel/runtime/helpers/toConsumableArray";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+import { getExternalStyleSheets, getExternalScripts } from "./entry";
+import { getWujieById, rawAppendChild, rawElementContains, rawElementRemoveChild, rawHeadInsertBefore, rawBodyInsertBefore, rawInsertAdjacentElement, rawDocumentQuerySelector, rawAddEventListener, rawRemoveEventListener } from "./common";
+import { isFunction, isHijackingTag, warn, nextTick, getCurUrl, getAbsolutePath, execHooks, isScriptElement, setTagToScript, getTagFromScript, setAttrsToElement } from "./utils";
+import { insertScriptToIframe, patchElementEffect } from "./iframe";
+import { getPatchStyleElements } from "./shadow";
+import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
+import { WUJIE_SCRIPT_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER, WUJIE_TIPS_NO_SCRIPT, WUJIE_APP_ID } from "./constant";
+import { parseTagAttributes } from "./template";
+function patchCustomEvent(e, elementGetter) {
+  Object.defineProperties(e, {
+    srcElement: {
+      get: elementGetter
+    },
+    target: {
+      get: elementGetter
+    }
+  });
+  return e;
+}
+
+/**
+ * 手动触发事件回调
+ */
+function manualInvokeElementEvent(element, event) {
+  var customEvent = new CustomEvent(event);
+  var patchedEvent = patchCustomEvent(customEvent, function () {
+    return element;
+  });
+  if (isFunction(element["on".concat(event)])) {
+    element["on".concat(event)](patchedEvent);
+  } else {
+    element.dispatchEvent(patchedEvent);
+  }
+}
+
+/**
+ * 样式元素的css变量处理，每个stylesheetElement单独节流
+ */
+function handleStylesheetElementPatch(stylesheetElement, sandbox) {
+  if (!stylesheetElement.innerHTML || sandbox.degrade) return;
+  var patcher = function patcher() {
+    var _getPatchStyleElement = getPatchStyleElements([stylesheetElement.sheet]),
+      _getPatchStyleElement2 = _slicedToArray(_getPatchStyleElement, 2),
+      hostStyleSheetElement = _getPatchStyleElement2[0],
+      fontStyleSheetElement = _getPatchStyleElement2[1];
+    if (hostStyleSheetElement) {
+      sandbox.shadowRoot.head.appendChild(hostStyleSheetElement);
+    }
+    if (fontStyleSheetElement) {
+      var _sandbox$inject$fontS;
+      (_sandbox$inject$fontS = sandbox.inject.fontStyleSheetContainer) === null || _sandbox$inject$fontS === void 0 || _sandbox$inject$fontS.appendChild(fontStyleSheetElement);
+      fontStyleSheetElement.setAttribute(WUJIE_APP_ID, sandbox.id);
+      sandbox.fontStyleSheetElements.push(fontStyleSheetElement);
+    }
+    stylesheetElement._patcher = undefined;
+  };
+  if (stylesheetElement._patcher) {
+    clearTimeout(stylesheetElement._patcher);
+  }
+  stylesheetElement._patcher = setTimeout(patcher, 50);
+}
+
+/**
+ * 劫持处理样式元素的属性
+ * @internal 仅出于可测性导出，外部不应直接调用
+ */
+export function patchStylesheetElement(stylesheetElement, cssLoader, sandbox, curUrl) {
+  var _stylesheetElement$sh;
+  if (stylesheetElement._hasPatchStyle) return;
+  var innerHTMLDesc = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
+  var innerTextDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "innerText");
+  var textContentDesc = Object.getOwnPropertyDescriptor(Node.prototype, "textContent");
+  var RawInsertRule = (_stylesheetElement$sh = stylesheetElement.sheet) === null || _stylesheetElement$sh === void 0 ? void 0 : _stylesheetElement$sh.insertRule;
+  // 这个地方将cssRule加到innerHTML中去，防止子应用切换之后丢失
+  function patchSheetInsertRule() {
+    if (!RawInsertRule) return;
+    stylesheetElement.sheet.insertRule = function (rule, index) {
+      innerHTMLDesc ? stylesheetElement.innerHTML += rule : stylesheetElement.innerText += rule;
+      return RawInsertRule.call(stylesheetElement.sheet, rule, index);
+    };
+  }
+  patchSheetInsertRule();
+  if (innerHTMLDesc) {
+    Object.defineProperties(stylesheetElement, {
+      innerHTML: {
+        get: function get() {
+          return innerHTMLDesc.get.call(stylesheetElement);
+        },
+        set: function set(code) {
+          var _this = this;
+          innerHTMLDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
+          nextTick(function () {
+            return handleStylesheetElementPatch(_this, sandbox);
+          });
+        }
+      }
+    });
+  }
+  Object.defineProperties(stylesheetElement, {
+    innerText: {
+      get: function get() {
+        return innerTextDesc.get.call(stylesheetElement);
+      },
+      set: function set(code) {
+        var _this2 = this;
+        innerTextDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
+        nextTick(function () {
+          return handleStylesheetElementPatch(_this2, sandbox);
+        });
+      }
+    },
+    textContent: {
+      get: function get() {
+        return textContentDesc.get.call(stylesheetElement);
+      },
+      set: function set(code) {
+        var _this3 = this;
+        textContentDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
+        nextTick(function () {
+          return handleStylesheetElementPatch(_this3, sandbox);
+        });
+      }
+    },
+    appendChild: {
+      value: function value(node) {
+        var _this4 = this;
+        nextTick(function () {
+          return handleStylesheetElementPatch(_this4, sandbox);
+        });
+        if (node.nodeType === Node.TEXT_NODE) {
+          var res = rawAppendChild.call(stylesheetElement, stylesheetElement.ownerDocument.createTextNode(cssLoader(node.textContent, "", curUrl)));
+          // 当appendChild之后，样式元素的sheet对象发生改变，要重新patch
+          patchSheetInsertRule();
+          return res;
+        } else return rawAppendChild(node);
+      }
+    },
+    insertAdjacentElement: {
+      value: function value(position, element) {
+        if (element.nodeName === "STYLE") {
+          // 关联 issue: https://github.com/Tencent/wujie/issues/1059
+          //
+          // vite dev server 第一个 css 通过 head.appendChild 插入，后续每个 css 都走
+          // lastInsertedStyle.insertAdjacentElement("afterend", style)，hot update 时
+          // 直接 style.textContent = newContent。被 insertAdjacentElement 插入的 style
+          // 必须获得与"第一个 style"完全一致的劫持能力，否则：
+          //   1) 当前内容里的资源相对路径不会被 cssLoader 改写（@font-face 失效）；
+          //   2) 后续 textContent / innerHTML / appendChild / sheet.insertRule
+          //      绕过 wujie，hot update 全部脱管；
+          //   3) 链式 insertAdjacentElement 创建的下游 style 直接走原生实现。
+          // 因此这里必须复用与 case "STYLE" 完全一致的处理流程：先用 cssLoader 改写
+          // 当前内容，再 patchStylesheetElement 把劫持递归装到新 style 上。
+          var _stylesheetElement = element;
+          var content = _stylesheetElement.innerHTML;
+          if (content) _stylesheetElement.innerHTML = cssLoader(content, "", curUrl);
+          var res = rawInsertAdjacentElement.call(this, position, element);
+          sandbox.styleSheetElements.push(_stylesheetElement);
+          patchStylesheetElement(_stylesheetElement, cssLoader, sandbox, curUrl);
+          handleStylesheetElementPatch(_stylesheetElement, sandbox);
+          return res;
+        } else return rawInsertAdjacentElement.call(this, position, element);
+      }
+    },
+    _hasPatchStyle: {
+      get: function get() {
+        return true;
+      }
+    }
+  });
+}
+
+// href 延迟赋值的兜底超时（毫秒）：超过该时间仍未拿到 href，则放弃监听并触发 error，
+// 防止「href 永不到达」时 observer 闭包长期钉住子应用上下文。沿用 tinymce maxLoadTime 量级。
+var DEFER_STYLE_HREF_TIMEOUT = 5000;
+
+/**
+ * 处理「先 appendChild(link) 后 setAttribute('href')」的延迟 href 场景。
+ *
+ * 通过 MutationObserver 监听 href 属性赋值，命中后走传入的 loadStyleSheet 完成加载。
+ * 生命周期管理（避免内存泄漏）：
+ *   1. 命中 / 超时 / 子应用已销毁 时立即 disconnect 并从 sandbox 出队；
+ *   2. observer 登记到 sandbox.deferredStyleObservers，destroy 阶段统一兜底 disconnect；
+ *   3. 回调内通过 wujieId 动态获取 sandbox，不捕获 sandbox/iframe，子应用销毁后闭包不再 pin 上下文。
+ */
+export function deferStyleSheetByHref(opts) {
+  var element = opts.element;
+  var wujieId = opts.wujieId,
+    iframeWindow = opts.iframeWindow,
+    loadStyleSheet = opts.loadStyleSheet;
+  // 部分环境（jsdom / 老浏览器）可能不支持 MutationObserver，直接放弃延迟处理
+  var MutationObserverCtor = iframeWindow.MutationObserver;
+  if (typeof MutationObserverCtor !== "function") return;
+  var settled = false;
+  var timer = null;
+  var observer = new MutationObserverCtor(function () {
+    var _element;
+    if (settled) return;
+    var attrHref = (_element = element) === null || _element === void 0 ? void 0 : _element.getAttribute("href");
+    if (!attrHref) return;
+    var realHref = element.href || attrHref;
+    var target = element;
+    finalize(function () {
+      return target && loadStyleSheet(realHref, target);
+    });
+  });
+
+  // 统一收尾：disconnect + 出队 + 清理定时器，再执行收尾动作
+  function finalize(action) {
+    if (settled) return;
+    settled = true;
+    if (timer !== null) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    try {
+      observer.disconnect();
+    } catch (_) {
+      /* noop */
+    }
+    // 动态获取 sandbox，子应用销毁后直接放手，闭包不再钉住上下文
+    var sandbox = getWujieById(wujieId);
+    var observers = sandbox === null || sandbox === void 0 ? void 0 : sandbox.deferredStyleObservers;
+    if (Array.isArray(observers)) {
+      var index = observers.indexOf(observer);
+      if (index !== -1) observers.splice(index, 1);
+    }
+    if (sandbox) action === null || action === void 0 || action();
+    element = null;
+  }
+  var sandbox = getWujieById(wujieId);
+  // 子应用已不存在则无需监听
+  if (!sandbox || !Array.isArray(sandbox.deferredStyleObservers)) return;
+  sandbox.deferredStyleObservers.push(observer);
+  observer.observe(element, {
+    attributes: true,
+    attributeFilter: ["href"]
+  });
+  // 超时兜底：长时间没等到 href，放弃监听并触发 error，让上游（如 tinymce）的失败回调收尾
+  timer = setTimeout(function () {
+    var target = element;
+    finalize();
+    if (target) manualInvokeElementEvent(target, "error");
+  }, DEFER_STYLE_HREF_TIMEOUT);
+}
+var dynamicScriptExecStack = Promise.resolve();
+function rewriteAppendOrInsertChild(opts) {
+  return function appendChildOrInsertBefore(newChild, refChild) {
+    var _this5 = this;
+    var element = newChild;
+    var rawDOMAppendOrInsertBefore = opts.rawDOMAppendOrInsertBefore,
+      wujieId = opts.wujieId;
+    var sandbox = getWujieById(wujieId);
+    var styleSheetElements = sandbox.styleSheetElements,
+      replace = sandbox.replace,
+      fetch = sandbox.fetch,
+      plugins = sandbox.plugins,
+      iframe = sandbox.iframe,
+      lifecycles = sandbox.lifecycles,
+      proxyLocation = sandbox.proxyLocation,
+      fiber = sandbox.fiber;
+    if (!isHijackingTag(element.tagName) || !wujieId) {
+      var res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
+      patchElementEffect(element, iframe.contentWindow);
+      execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
+      return res;
+    }
+    var iframeDocument = iframe.contentDocument;
+    var curUrl = getCurUrl(proxyLocation);
+
+    // TODO 过滤可以开放
+    if (element.tagName) {
+      var _element$tagName;
+      switch ((_element$tagName = element.tagName) === null || _element$tagName === void 0 ? void 0 : _element$tagName.toUpperCase()) {
+        case "LINK":
+          {
+            var _ref = element,
+              href = _ref.href,
+              rel = _ref.rel,
+              type = _ref.type;
+            var styleFlag = rel === "stylesheet" || type === "text/css" || href.endsWith(".css");
+            // 非 stylesheet 不做处理
+            if (!styleFlag) {
+              var _res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
+              execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
+              return _res;
+            }
+
+            // 拉取 css 内容并以 <style> 注入子应用、回调 link 的 load/error 事件。
+            // 抽成闭包以便「append 时已有 href」与「append 后才 setAttribute('href')」两条路径复用。
+            var loadStyleSheet = function loadStyleSheet(realHref, linkElement) {
+              var attrHref = linkElement.getAttribute("href");
+              var styleHref = attrHref ? getAbsolutePath(attrHref, proxyLocation.href) : realHref;
+              var exclude = isMatchUrl(styleHref, getEffectLoaders("cssExcludes", plugins));
+              if (!styleHref || exclude) return;
+
+              // 立即创建占位 <style> 元素，避免异步加载期间重复插入
+              // 保留原始 link 的属性（如 class），以便 checkLinkAndLoad 等去重逻辑能找到
+              var rawAttrs = parseTagAttributes(linkElement.outerHTML);
+              var placeholderElement = iframeDocument.createElement("style");
+              setAttrsToElement(placeholderElement, rawAttrs);
+              placeholderElement.setAttribute("data-wujie-css-href", styleHref);
+              rawDOMAppendOrInsertBefore.call(_this5, placeholderElement, refChild);
+              getExternalStyleSheets([{
+                src: styleHref,
+                ignore: isMatchUrl(styleHref, getEffectLoaders("cssIgnores", plugins))
+              }], fetch, lifecycles.loadError).forEach(function (_ref2) {
+                var src = _ref2.src,
+                  ignore = _ref2.ignore,
+                  contentPromise = _ref2.contentPromise;
+                return contentPromise.then(function (content) {
+                  if (ignore && src) {
+                    var _placeholderElement$p;
+                    // 忽略的元素应该直接把对应元素插入，而不是用新的 link 标签进行替代插入，保证 element 的上下文正常
+                    // 移除占位元素，插入原始 link
+                    (_placeholderElement$p = placeholderElement.parentNode) === null || _placeholderElement$p === void 0 || _placeholderElement$p.removeChild(placeholderElement);
+                    rawDOMAppendOrInsertBefore.call(_this5, linkElement, refChild);
+                  } else {
+                    // 填充 CSS 内容到占位元素
+                    // 处理css-loader插件
+                    var cssLoader = getCssLoader({
+                      plugins: plugins,
+                      replace: replace
+                    });
+                    placeholderElement.innerHTML = cssLoader(content, src, curUrl);
+                    styleSheetElements.push(placeholderElement);
+                    // 处理样式补丁
+                    handleStylesheetElementPatch(placeholderElement, sandbox);
+                    manualInvokeElementEvent(linkElement, "load");
+                  }
+                  if (element === linkElement) element = null;
+                }, function () {
+                  manualInvokeElementEvent(linkElement, "error");
+                  if (element === linkElement) element = null;
+                });
+              });
+            };
+            if (href) {
+              // 排除css
+              if (!isMatchUrl(href, getEffectLoaders("cssExcludes", plugins))) {
+                loadStyleSheet(href, element);
+              }
+            } else {
+              // 关联 issue: https://github.com/Tencent/wujie/issues/224 https://github.com/Tencent/wujie/issues/974
+              //
+              // 部分库（如 tinymce 的 StyleSheetLoader）先 appendChild(link) 再
+              // setAttribute('href', url)。此时 href 为空，若直接丢弃则该样式永远不会被加载，
+              // 后续在游离 link 上设置 href 也不会触发浏览器加载，skin.min.css 等资源缺失。
+              // 这里监听 href 的后续赋值，拿到真实 href 后再走与上面完全一致的加载流程。
+              deferStyleSheetByHref({
+                element: element,
+                wujieId: wujieId,
+                iframeWindow: iframe.contentWindow,
+                loadStyleSheet: loadStyleSheet
+              });
+            }
+            var comment = iframeDocument.createComment("dynamic link ".concat(href, " replaced by wujie"));
+            return rawDOMAppendOrInsertBefore.call(this, comment, refChild);
+          }
+        case "STYLE":
+          {
+            var stylesheetElement = newChild;
+            styleSheetElements.push(stylesheetElement);
+            var content = stylesheetElement.innerHTML;
+            var cssLoader = getCssLoader({
+              plugins: plugins,
+              replace: replace
+            });
+            content && (stylesheetElement.innerHTML = cssLoader(content, "", curUrl));
+            var _res2 = rawDOMAppendOrInsertBefore.call(this, element, refChild);
+            // 处理样式补丁
+            patchStylesheetElement(stylesheetElement, cssLoader, sandbox, curUrl);
+            handleStylesheetElementPatch(stylesheetElement, sandbox);
+            execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
+            return _res2;
+          }
+        case "SCRIPT":
+          {
+            setTagToScript(element);
+            var _ref3 = element,
+              src = _ref3.src,
+              text = _ref3.text,
+              _type = _ref3.type,
+              crossOrigin = _ref3.crossOrigin;
+            // 排除js
+            if (src && !isMatchUrl(src, getEffectLoaders("jsExcludes", plugins))) {
+              var execScript = function execScript(scriptResult) {
+                // 假如子应用被连续渲染两次，两次渲染会导致处理流程的交叉污染
+                if (sandbox.iframe === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
+                var onload = function onload() {
+                  manualInvokeElementEvent(element, "load");
+                  element = null;
+                };
+                insertScriptToIframe(_objectSpread(_objectSpread({}, scriptResult), {}, {
+                  onload: onload
+                }), sandbox.iframe.contentWindow, element);
+              };
+              var scriptOptions = {
+                src: src,
+                module: _type === "module",
+                crossorigin: crossOrigin !== null,
+                crossoriginType: crossOrigin || "",
+                ignore: isMatchUrl(src, getEffectLoaders("jsIgnores", plugins)),
+                attrs: parseTagAttributes(element.outerHTML)
+              };
+              getExternalScripts([scriptOptions], fetch, lifecycles.loadError, fiber).forEach(function (scriptResult) {
+                dynamicScriptExecStack = dynamicScriptExecStack.then(function () {
+                  return scriptResult.contentPromise.then(function (content) {
+                    var _sandbox$execQueue;
+                    if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
+                    var execQueueLength = (_sandbox$execQueue = sandbox.execQueue) === null || _sandbox$execQueue === void 0 ? void 0 : _sandbox$execQueue.length;
+                    sandbox.execQueue.push(function () {
+                      return fiber ? sandbox.requestIdleCallback(function () {
+                        execScript(_objectSpread(_objectSpread({}, scriptResult), {}, {
+                          content: content
+                        }));
+                      }) : execScript(_objectSpread(_objectSpread({}, scriptResult), {}, {
+                        content: content
+                      }));
+                    });
+                    // 同步脚本如果都执行完了，需要手动触发执行
+                    if (!execQueueLength) sandbox.execQueue.shift()();
+                  }, function () {
+                    manualInvokeElementEvent(element, "error");
+                    element = null;
+                  });
+                });
+              });
+            } else {
+              var _sandbox$execQueue2;
+              var execQueueLength = (_sandbox$execQueue2 = sandbox.execQueue) === null || _sandbox$execQueue2 === void 0 ? void 0 : _sandbox$execQueue2.length;
+              sandbox.execQueue.push(function () {
+                return fiber ? sandbox.requestIdleCallback(function () {
+                  insertScriptToIframe({
+                    src: null,
+                    content: text,
+                    attrs: parseTagAttributes(element.outerHTML)
+                  }, sandbox.iframe.contentWindow, element);
+                }) : insertScriptToIframe({
+                  src: null,
+                  content: text,
+                  attrs: parseTagAttributes(element.outerHTML)
+                }, sandbox.iframe.contentWindow, element);
+              });
+              if (!execQueueLength) sandbox.execQueue.shift()();
+            }
+            // inline script never trigger the onload and onerror event
+            var _comment = iframeDocument.createComment("dynamic script ".concat(src, " replaced by wujie"));
+            return rawDOMAppendOrInsertBefore.call(this, _comment, refChild);
+          }
+        // 修正子应用内部iframe的window.parent指向
+        case "IFRAME":
+          {
+            // 嵌套的子应用的js-iframe需要插入子应用的js-iframe内部
+            if (element.getAttribute(WUJIE_DATA_FLAG) === "") {
+              return rawAppendChild.call(rawDocumentQuerySelector.call(this.ownerDocument, "html"), element);
+            }
+            var _res3 = rawDOMAppendOrInsertBefore.call(this, element, refChild);
+            execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
+            return _res3;
+          }
+        default:
+      }
+    }
+  };
+}
+function findScriptElementFromIframe(rawElement, wujieId) {
+  var wujieTag = getTagFromScript(rawElement);
+  var sandbox = getWujieById(wujieId);
+  var iframe = sandbox.iframe;
+  var targetScript = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.querySelector("script[".concat(WUJIE_SCRIPT_ID, "='").concat(wujieTag, "']"));
+  if (targetScript === null) {
+    warn(WUJIE_TIPS_NO_SCRIPT, "<script ".concat(WUJIE_SCRIPT_ID, "='").concat(wujieTag, "'/>"));
+  }
+  return {
+    targetScript: targetScript,
+    iframe: iframe
+  };
+}
+function rewriteContains(opts) {
+  return function contains(other) {
+    var element = other;
+    var rawElementContains = opts.rawElementContains,
+      wujieId = opts.wujieId;
+    if (element && isScriptElement(element)) {
+      var _findScriptElementFro = findScriptElementFromIframe(element, wujieId),
+        targetScript = _findScriptElementFro.targetScript;
+      return targetScript !== null;
+    }
+    return rawElementContains(element);
+  };
+}
+function rewriteRemoveChild(opts) {
+  return function removeChild(child) {
+    var element = child;
+    var rawElementRemoveChild = opts.rawElementRemoveChild,
+      wujieId = opts.wujieId;
+    if (element && isScriptElement(element)) {
+      var _findScriptElementFro2 = findScriptElementFromIframe(element, wujieId),
+        targetScript = _findScriptElementFro2.targetScript,
+        iframe = _findScriptElementFro2.iframe;
+      if (targetScript !== null) {
+        return iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.removeChild(targetScript);
+      }
+      return null;
+    }
+    return rawElementRemoveChild(element);
+  };
+}
+
+/**
+ * 记录head和body的事件，等重新渲染复用head和body时需要清空事件
+ */
+function patchEventListener(element) {
+  var listenerMap = new Map();
+  element._cacheListeners = listenerMap;
+  element.addEventListener = function (type, listener, options) {
+    var listeners = listenerMap.get(type) || [];
+    listenerMap.set(type, [].concat(_toConsumableArray(listeners), [listener]));
+    return rawAddEventListener.call(element, type, listener, options);
+  };
+  element.removeEventListener = function (type, listener, options) {
+    var typeListeners = listenerMap.get(type);
+    var index = typeListeners === null || typeListeners === void 0 ? void 0 : typeListeners.indexOf(listener);
+    if (typeListeners !== null && typeListeners !== void 0 && typeListeners.length && index !== -1) {
+      typeListeners.splice(index, 1);
+    }
+    return rawRemoveEventListener.call(element, type, listener, options);
+  };
+}
+
+/**
+ * 清空head和body的绑定的事件
+ */
+export function removeEventListener(element) {
+  var listenerMap = element._cacheListeners;
+  _toConsumableArray(listenerMap.entries()).forEach(function (_ref4) {
+    var _ref5 = _slicedToArray(_ref4, 2),
+      type = _ref5[0],
+      listeners = _ref5[1];
+    listeners.forEach(function (listener) {
+      return rawRemoveEventListener.call(element, type, listener);
+    });
+  });
+}
+
+/**
+ * patch head and body in render
+ * intercept appendChild and insertBefore
+ */
+export function patchRenderEffect(render, id, degrade) {
+  // 降级场景dom渲染在iframe中，iframe移动后事件自动销毁，不需要记录
+  if (!degrade) {
+    patchEventListener(render.head);
+    patchEventListener(render.body);
+  }
+  render.head.appendChild = rewriteAppendOrInsertChild({
+    rawDOMAppendOrInsertBefore: rawAppendChild,
+    wujieId: id
+  });
+  render.head.insertBefore = rewriteAppendOrInsertChild({
+    rawDOMAppendOrInsertBefore: rawHeadInsertBefore,
+    wujieId: id
+  });
+  render.head.removeChild = rewriteRemoveChild({
+    rawElementRemoveChild: rawElementRemoveChild.bind(render.head),
+    wujieId: id
+  });
+  render.head.contains = rewriteContains({
+    rawElementContains: rawElementContains.bind(render.head),
+    wujieId: id
+  });
+  render.contains = rewriteContains({
+    rawElementContains: rawElementContains.bind(render),
+    wujieId: id
+  });
+  render.body.appendChild = rewriteAppendOrInsertChild({
+    rawDOMAppendOrInsertBefore: rawAppendChild,
+    wujieId: id
+  });
+  render.body.insertBefore = rewriteAppendOrInsertChild({
+    rawDOMAppendOrInsertBefore: rawBodyInsertBefore,
+    wujieId: id
+  });
+}
+//# sourceMappingURL=effect.js.map

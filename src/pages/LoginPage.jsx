@@ -72,6 +72,15 @@ async function createLoginContext(returnTo, signal) {
   return readJSON(response);
 }
 
+/** @param {string | null} status */
+function emailLinkStatusMessage(status) {
+  if (status === 'browser') return '请在发送验证码的同一浏览器中打开邮件链接，或返回原页面手动输入验证码。';
+  if (status === 'expired' || status === 'invalid') return '邮件验证码链接无效或已过期，请重新发送。';
+  if (status === 'rate_limited') return '验证尝试次数过多，请稍后重新发送验证码。';
+  if (status === 'error') return '邮件验证码验证失败，请重新发送后再试。';
+  return '';
+}
+
 /** @param {{ name: 'user' | 'mail' | 'lock' | 'eye' | 'eyeOff' }} props */
 function LoginIcon({ name }) {
   if (name === 'user') {
@@ -143,6 +152,7 @@ export function LoginPage() {
     [],
   );
   const returnTo = query.get('return_to') || query.get('redirect') || '/';
+  const initialMode = query.get('mode') === 'email' ? 'email' : 'account';
   const registerHref = `/register?${new URLSearchParams({ return_to: returnTo }).toString()}`;
   const loginHelpHref = `/login-help?${new URLSearchParams({ return_to: returnTo }).toString()}`;
   const [context, setContext] = useState(/** @type {LoginContext | null} */ (null));
@@ -151,12 +161,16 @@ export function LoginPage() {
   const [emailCode, setEmailCode] = useState('');
   const [emailStep, setEmailStep] = useState('address');
   const [resendSeconds, setResendSeconds] = useState(0);
-  const [mode, setMode] = useState('account');
+  const [mode, setMode] = useState(initialMode);
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState('initializing');
   const [pendingAction, setPendingAction] = useState('');
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(() => emailLinkStatusMessage(query.get('email_status')));
   const activeMode = loginModes.find((item) => item.id === mode) || loginModes[0];
+  const emailSendConfirmed =
+    mode === 'email' && emailStep === 'code' && pendingAction !== 'send' && !message;
+  const feedbackMessage =
+    message || (emailSendConfirmed ? '验证码已发送至当前邮箱，请注意查收。' : '');
 
   useEffect(() => {
     const controller = new AbortController();
@@ -267,8 +281,8 @@ export function LoginPage() {
       setMessage('请先发送邮箱验证码。');
       return;
     }
-    if (mode === 'email' && !/^\d{6}$/.test(emailCode)) {
-      setMessage('请输入 6 位邮箱验证码。');
+    if (mode === 'email' && !/^\d{8}$/.test(emailCode)) {
+      setMessage('请输入 8 位邮箱验证码。');
       return;
     }
     if (!context) {
@@ -473,10 +487,10 @@ export function LoginPage() {
                   type="text"
                   inputMode="numeric"
                   autoComplete="one-time-code"
-                  placeholder="请输入 6 位验证码"
+                  placeholder="请输入 8 位验证码"
                   value={emailCode}
-                  onChange={(event) => setEmailCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
-                  maxLength={6}
+                  onChange={(event) => setEmailCode(event.target.value.replace(/\D/g, '').slice(0, 8))}
+                  maxLength={8}
                   disabled={status === 'submitting'}
                   required
                 />
@@ -510,8 +524,12 @@ export function LoginPage() {
               <Link to={loginHelpHref}>无法登录？</Link>
             </div>
 
-            <p className="login-error login-message-slot" role="alert" aria-live="polite">
-              {message}
+            <p
+              className={`login-error login-message-slot${emailSendConfirmed ? ' login-message-success' : ''}`}
+              role={emailSendConfirmed ? 'status' : 'alert'}
+              aria-live="polite"
+            >
+              {feedbackMessage}
             </p>
             <button
               className="login-submit"
