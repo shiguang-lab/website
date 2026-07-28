@@ -235,7 +235,7 @@ export function LoginPage() {
       setResendSeconds(Number.isFinite(value.resendAfter) ? value.resendAfter : 60);
       setPendingAction('');
       setStatus('ready');
-      setMessage(`验证码已发送至 ${email}`);
+      setMessage('');
     } catch (error) {
       setPendingAction('');
       if (error instanceof Error && 'status' in error && error.status === 429) {
@@ -510,14 +510,9 @@ export function LoginPage() {
               <Link to={loginHelpHref}>无法登录？</Link>
             </div>
 
-            {message && (
-              <p
-                className={`login-error${mode === 'email' && emailStep === 'code' && message.startsWith('验证码已发送') ? ' is-success' : ''}`}
-                role="alert"
-              >
-                {message}
-              </p>
-            )}
+            <p className="login-error login-message-slot" role="alert" aria-live="polite">
+              {message}
+            </p>
             <button
               className="login-submit"
               type="submit"
