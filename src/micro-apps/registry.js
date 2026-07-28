@@ -4,11 +4,6 @@ const env = import.meta.env;
 
 /** @type {Record<string, MicroApp>} */
 export const microApps = {
-  huiguang: {
-    name: 'shiguang-huiguang',
-    title: '绘光',
-    url: env.VITE_APP_HUIGUANG_URL || 'https://huiguang.shiguanglab.com',
-  },
   sichen: {
     name: 'shiguang-sichen',
     title: '司辰',

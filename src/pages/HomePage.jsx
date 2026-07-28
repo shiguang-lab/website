@@ -1,7 +1,7 @@
 import { useHomeEffects } from '../hooks/useHomeEffects';
 import { SiteHeader } from '../components/SiteHeader';
 import { Link } from 'react-router-dom';
-import { SICHEN_LANDING_PATH } from '../config/productUrls';
+import { HUIGUANG_WEB_URL, SICHEN_LANDING_PATH } from '../config/productUrls';
 
 export function HomePage() {
   useHomeEffects();
@@ -171,7 +171,7 @@ export function HomePage() {
         <p>拾光致力于打造领先的 AI 协作平台，<br />让每个人都能用 AI 创造价值。</p>
         <div className="socials"><a href="#" aria-label="GitHub">⌁</a><a href="#" aria-label="X">𝕏</a><a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="邮件">✉</a></div>
       </div>
-      <div className="footer-col"><h4>产品</h4><a href="#products">绘光 · AI 图片</a><a href="#products">跃影 · AI 视频</a><a href="#products">入戏 · AI 短剧</a><Link to={SICHEN_LANDING_PATH}>司辰 · 多智能体</Link></div>
+      <div className="footer-col"><h4>产品</h4><a href={HUIGUANG_WEB_URL} target="_blank" rel="noopener noreferrer">绘光 · AI 图片</a><a href="#products">跃影 · AI 视频</a><a href="#products">入戏 · AI 短剧</a><Link to={SICHEN_LANDING_PATH}>司辰 · 多智能体</Link></div>
       <div className="footer-col"><h4>解决方案</h4><a href="#solutions">个人用户</a><a href="#solutions">中小团队</a><a href="#solutions">企业客户</a><a href="#solutions">教育行业</a><a href="#developers">开发者</a></div>
       <div className="footer-col" id="resources"><h4>资源</h4><a href="#">文档中心</a><a href="#">帮助中心</a><a href="#">更新日志</a><a href="#">API 文档</a><a href="#">博客</a></div>
       <div className="footer-col"><h4>公司</h4><a href="#">关于我们</a><a href="#">加入我们</a><a href="mailto:support@shiguanglab.com">联系我们</a><Link to="/privacy">隐私政策</Link><Link to="/terms">用户协议</Link></div>
