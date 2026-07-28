@@ -72,13 +72,22 @@ async function createLoginContext(returnTo, signal) {
   return readJSON(response);
 }
 
-/** @param {{ name: 'user' | 'lock' | 'eye' | 'eyeOff' }} props */
+/** @param {{ name: 'user' | 'mail' | 'lock' | 'eye' | 'eyeOff' }} props */
 function LoginIcon({ name }) {
   if (name === 'user') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="12" cy="8" r="3.25" />
         <path d="M5.75 19c.55-3.3 2.64-5 6.25-5s5.7 1.7 6.25 5" />
+      </svg>
+    );
+  }
+
+  if (name === 'mail') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3.5" y="5.5" width="17" height="13" rx="2" />
+        <path d="m5 7 7 5 7-5" />
       </svg>
     );
   }
@@ -139,9 +148,13 @@ export function LoginPage() {
   const [context, setContext] = useState(/** @type {LoginContext | null} */ (null));
   const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
+  const [emailCode, setEmailCode] = useState('');
+  const [emailStep, setEmailStep] = useState('address');
+  const [resendSeconds, setResendSeconds] = useState(0);
   const [mode, setMode] = useState('account');
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState('initializing');
+  const [pendingAction, setPendingAction] = useState('');
   const [message, setMessage] = useState('');
   const activeMode = loginModes.find((item) => item.id === mode) || loginModes[0];
 
@@ -161,10 +174,84 @@ export function LoginPage() {
     return () => controller.abort();
   }, [returnTo]);
 
+  useEffect(() => {
+    if (resendSeconds <= 0) return undefined;
+    const timer = window.setTimeout(() => setResendSeconds((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resendSeconds]);
+
   /** @param {string} provider */
   const startFederatedLogin = (provider) => {
     const search = new URLSearchParams({ provider, return_to: returnTo });
     window.location.assign(`/api/auth/federated/start?${search.toString()}`);
+  };
+
+  const renewContext = async () => {
+    setContext(null);
+    setStatus('initializing');
+    const nextContext = await createLoginContext(returnTo);
+    setContext(nextContext);
+    setStatus('ready');
+    return nextContext;
+  };
+
+  const requestEmailCode = async () => {
+    const email = loginName.trim().toLowerCase();
+    if (!emailPattern.test(email)) {
+      setMessage('请输入有效的邮箱地址。');
+      return;
+    }
+    let activeContext = context;
+    if (!activeContext) {
+      try {
+        activeContext = await renewContext();
+      } catch {
+        setMessage('安全登录初始化失败，请稍后重试。');
+        setStatus('error');
+        return;
+      }
+    }
+    setPendingAction('send');
+    setStatus('submitting');
+    setMessage('');
+    try {
+      const response = await fetch('/api/auth/login/email/code', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transactionId: activeContext.transactionId,
+          email,
+          csrfToken: activeContext.csrfToken,
+        }),
+      });
+      const value = await readJSON(response);
+      setLoginName(email);
+      setEmailStep('code');
+      setEmailCode('');
+      setResendSeconds(Number.isFinite(value.resendAfter) ? value.resendAfter : 60);
+      setPendingAction('');
+      setStatus('ready');
+      setMessage(`验证码已发送至 ${email}`);
+    } catch (error) {
+      setPendingAction('');
+      if (error instanceof Error && 'status' in error && error.status === 429) {
+        setMessage('验证码发送过于频繁，请稍后再试。');
+        setStatus('ready');
+        return;
+      }
+      setEmailStep('address');
+      try {
+        await renewContext();
+        setMessage('验证码发送失败，请稍后重试。');
+      } catch {
+        setMessage('安全登录初始化失败，请稍后重试。');
+        setStatus('error');
+      }
+    }
   };
 
   /** @param {import('react').FormEvent<HTMLFormElement>} event */
@@ -176,23 +263,29 @@ export function LoginPage() {
       setMessage('请输入有效的邮箱地址。');
       return;
     }
+    if (mode === 'email' && emailStep !== 'code') {
+      setMessage('请先发送邮箱验证码。');
+      return;
+    }
+    if (mode === 'email' && !/^\d{6}$/.test(emailCode)) {
+      setMessage('请输入 6 位邮箱验证码。');
+      return;
+    }
     if (!context) {
-      setStatus('initializing');
       setMessage('');
       try {
-        const nextContext = await createLoginContext(returnTo);
-        setContext(nextContext);
-        setStatus('ready');
+        await renewContext();
       } catch {
         setMessage('安全登录初始化失败，请稍后重试。');
         setStatus('error');
       }
       return;
     }
+    setPendingAction(mode === 'email' ? 'verify' : 'password');
     setStatus('submitting');
     setMessage('');
     try {
-      const response = await fetch('/api/auth/login/password', {
+      const response = await fetch(mode === 'email' ? '/api/auth/login/email/verify' : '/api/auth/login/password', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -201,30 +294,34 @@ export function LoginPage() {
         },
         body: JSON.stringify({
           transactionId: context.transactionId,
-          loginName: mode === 'email' ? normalizedLoginName.toLowerCase() : normalizedLoginName,
-          password,
+          ...(mode === 'email'
+            ? { code: emailCode }
+            : { loginName: normalizedLoginName, password }),
           csrfToken: context.csrfToken,
         }),
       });
       const value = await readJSON(response);
       await settleRedirect(value.redirect, navigate, refresh);
     } catch (error) {
-      setPassword('');
+      setPendingAction('');
+      if (mode === 'email') setEmailCode('');
+      else setPassword('');
       setMessage(
         error instanceof Error && 'status' in error && error.status === 429
           ? '尝试次数过多，请稍后再试。'
           : mode === 'email'
-            ? '登录失败，请检查邮箱和密码后重试。'
+            ? '验证码错误或已过期，请重新输入或发送新验证码。'
             : genericError,
       );
-      setContext(null);
-      setStatus('initializing');
-      try {
-        const nextContext = await createLoginContext(returnTo);
-        setContext(nextContext);
+      if (mode === 'email' && error instanceof Error && 'status' in error && error.status === 401) {
         setStatus('ready');
-      } catch {
-        setStatus('error');
+      } else {
+        if (mode === 'email') setEmailStep('address');
+        try {
+          await renewContext();
+        } catch {
+          setStatus('error');
+        }
       }
     }
   };
@@ -300,6 +397,10 @@ export function LoginPage() {
                   setMode(item.id);
                   setLoginName('');
                   setPassword('');
+                  setEmailCode('');
+                  setEmailStep('address');
+                  setResendSeconds(0);
+                  setPendingAction('');
                   setMessage('');
                 }}
               >
@@ -311,7 +412,7 @@ export function LoginPage() {
           <form className="login-form" onSubmit={submit}>
             <label className="login-field" htmlFor="login-name">
               <span className="sr-only">{activeMode.inputLabel}</span>
-              <LoginIcon name="user" />
+              <LoginIcon name={mode === 'email' ? 'mail' : 'user'} />
               <input
                 id="login-name"
                 name={mode === 'email' ? 'email' : 'username'}
@@ -322,60 +423,119 @@ export function LoginPage() {
                 spellCheck="false"
                 placeholder={activeMode.placeholder}
                 value={loginName}
-                onChange={(event) => setLoginName(event.target.value)}
+                onChange={(event) => {
+                  setLoginName(event.target.value);
+                  if (mode === 'email' && emailStep === 'code') {
+                    setEmailStep('address');
+                    setEmailCode('');
+                    setResendSeconds(0);
+                    setMessage('');
+                  }
+                }}
                 disabled={status === 'submitting'}
                 required
                 autoFocus
               />
             </label>
-            <label className="login-field" htmlFor="login-password">
-              <span className="sr-only">密码</span>
-              <LoginIcon name="lock" />
-              <input
-                id="login-password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                placeholder="请输入密码"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                disabled={status === 'submitting'}
-                required
-              />
-              <button
-                className="login-password-toggle"
-                type="button"
-                aria-label={showPassword ? '隐藏密码' : '显示密码'}
-                onClick={() => setShowPassword((value) => !value)}
-              >
-                <LoginIcon name={showPassword ? 'eye' : 'eyeOff'} />
-              </button>
-            </label>
+            {mode === 'account' && (
+              <label className="login-field" htmlFor="login-password">
+                <span className="sr-only">密码</span>
+                <LoginIcon name="lock" />
+                <input
+                  id="login-password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  placeholder="请输入密码"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  disabled={status === 'submitting'}
+                  required
+                />
+                <button
+                  className="login-password-toggle"
+                  type="button"
+                  aria-label={showPassword ? '隐藏密码' : '显示密码'}
+                  onClick={() => setShowPassword((value) => !value)}
+                >
+                  <LoginIcon name={showPassword ? 'eye' : 'eyeOff'} />
+                </button>
+              </label>
+            )}
+
+            {mode === 'email' && (
+              <label className="login-field" htmlFor="login-email-code">
+                <span className="sr-only">邮箱验证码</span>
+                <LoginIcon name="lock" />
+                <input
+                  id="login-email-code"
+                  name="one-time-code"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="请输入 6 位验证码"
+                  value={emailCode}
+                  onChange={(event) => setEmailCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                  maxLength={6}
+                  disabled={status === 'submitting'}
+                  required
+                />
+                <button
+                  className="login-code-send"
+                  type="button"
+                  disabled={status === 'initializing' || status === 'submitting' || resendSeconds > 0}
+                  onClick={requestEmailCode}
+                >
+                  {pendingAction === 'send'
+                    ? '发送中...'
+                    : resendSeconds > 0
+                      ? `${resendSeconds}s`
+                      : emailStep === 'code'
+                        ? '重新发送'
+                        : '发送验证码'}
+                </button>
+              </label>
+            )}
 
             <div className="login-form-options">
               <span>
                 {status === 'initializing'
                   ? '正在建立安全登录连接…'
                   : mode === 'email'
-                    ? '邮箱账号 · 安全登录'
+                    ? emailStep === 'code'
+                      ? '邮箱验证码 · 安全登录'
+                      : '无密码邮箱登录'
                     : '统一账号 · 安全登录'}
               </span>
               <Link to={loginHelpHref}>无法登录？</Link>
             </div>
 
-            {message && <p className="login-error" role="alert">{message}</p>}
+            {message && (
+              <p
+                className={`login-error${mode === 'email' && emailStep === 'code' && message.startsWith('验证码已发送') ? ' is-success' : ''}`}
+                role="alert"
+              >
+                {message}
+              </p>
+            )}
             <button
               className="login-submit"
               type="submit"
               disabled={status === 'initializing' || status === 'submitting'}
             >
               {status === 'submitting'
-                ? '正在验证...'
+                ? pendingAction === 'send'
+                  ? '验证并登录'
+                  : mode === 'email'
+                    ? '正在验证...'
+                    : '正在登录...'
                 : status === 'initializing'
                   ? '正在准备...'
                   : status === 'error'
                     ? '重新准备登录'
-                    : '登录'}
+                    : mode === 'email'
+                        ? '验证并登录'
+                        : '登录'}
             </button>
           </form>
 
@@ -403,7 +563,7 @@ export function LoginPage() {
           </div>
           <div className="login-trust">
             <i aria-hidden="true">✓</i>
-            密码加密传输 · 会话安全保护
+            {mode === 'email' ? '一次性验证码 · 会话安全保护' : '密码加密传输 · 会话安全保护'}
           </div>
         </div>
       </section>
