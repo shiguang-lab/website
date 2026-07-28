@@ -11,6 +11,8 @@ npm run dev
 ```
 
 产品入口为 `/app/:appId/*`。在 `.env.local` 配置对应的 `VITE_APP_*_URL` 后，无界会在该路由加载子应用。
+绘光是独立产品站，官网产品菜单直接打开
+`https://huiguang.shiguanglab.com`，不通过无界嵌入。
 
 本地 `/login`、`/register` 和 `/api/auth/*` 默认通过 Vite 代理到
 `https://shiguanglab.com` 的 NAS 认证服务。代理只在开发服务器中启用，

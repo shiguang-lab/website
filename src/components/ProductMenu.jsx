@@ -4,10 +4,10 @@ import IconChevronDown from '@douyinfe/semi-icons/lib/es/icons/IconChevronDown';
 import IconPlayCircle from '@douyinfe/semi-icons/lib/es/icons/IconPlayCircle';
 import IconVideo from '@douyinfe/semi-icons/lib/es/icons/IconVideo';
 import { Link } from 'react-router-dom';
-import { SICHEN_LANDING_PATH } from '../config/productUrls';
+import { HUIGUANG_WEB_URL, SICHEN_LANDING_PATH } from '../config/productUrls';
 import { SichenMark } from './SichenMark';
 
-/** @type {Array<{ name: string, category: string, description: string, icon: import('react').ComponentType, tone: string, href?: string, available?: boolean }>} */
+/** @type {Array<{ name: string, category: string, description: string, icon: import('react').ComponentType, tone: string, href?: string, external?: boolean, available?: boolean }>} */
 const products = [
   {
     name: '绘光',
@@ -15,6 +15,9 @@ const products = [
     description: '从灵感到高质量视觉，一句话完成创作',
     icon: IconAIImageLevel2,
     tone: 'cyan',
+    href: HUIGUANG_WEB_URL,
+    external: true,
+    available: true,
   },
   {
     name: '跃影',
@@ -96,6 +99,9 @@ function ProductItem({ product, mobile = false }) {
   );
 
   if (product.href) {
+    if (product.external) {
+      return <a className="product-menu-item active" href={product.href} target="_blank" rel="noopener noreferrer" role={mobile ? undefined : 'menuitem'}>{content}</a>;
+    }
     return <Link className="product-menu-item active" to={product.href} role={mobile ? undefined : 'menuitem'}>{content}</Link>;
   }
 
