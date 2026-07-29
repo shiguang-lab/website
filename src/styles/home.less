@@ -493,8 +493,8 @@ img, svg { display: block; }
 }
 
 @media (max-width: 820px) {
-  .container { width:min(100% - 32px,var(--max)); }
-  .site-header .nav-wrap { width:min(100% - 32px,var(--max)); }
+  .container { width:min(calc(100% - 32px),var(--max)); }
+  .site-header .nav-wrap { width:min(calc(100% - 32px),var(--max)); }
   .desktop-nav { display:none; }
   .header-actions .btn { display:none; }
   .header-auth-loading,.header-account { display:none; }
@@ -534,8 +534,9 @@ img, svg { display: block; }
 }
 
 @media (max-width: 560px) {
-  .container { width:min(calc(100% - 20px),var(--max)); }
-  .mobile-panel { left:10px; right:10px; }
+  .container { width:min(calc(100% - 32px),var(--max)); }
+  .site-header .nav-wrap { width:min(calc(100% - 32px),var(--max)); }
+  .mobile-panel { left:16px; right:16px; }
   .section-space { padding-top:78px; }
   .hero { min-height:720px; }
   .hero-layout { padding-top:86px; min-height:650px; }

@@ -158,9 +158,9 @@ export function SichenPage() {
             <div className="sichen-console">
               <img
                 className="sichen-product-shot"
-                src="/assets/sichen-command-center-v3.webp"
-                width={1919}
-                height={1142}
+                src="/assets/sichen-command-center-v4.webp"
+                width={3600}
+                height={2084}
                 alt="司辰产品总览界面，包含工作空间、执行、资产、Agents、Skills、监测和全局交付看板"
                 fetchPriority="high"
                 decoding="async"
