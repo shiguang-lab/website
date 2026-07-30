@@ -9,10 +9,7 @@ import './styles/login.less';
 import './styles/legal.less';
 import './styles/account.less';
 import { App } from './App';
-import { startUmamiAutoTracking } from './analytics/umami';
 import { AuthProvider } from './auth/AuthProvider';
-
-startUmamiAutoTracking();
 
 const root = document.getElementById('root');
 const application = (

@@ -15,7 +15,7 @@ import { useHomeEffects } from '../hooks/useHomeEffects';
 
 /** @typedef {{ id: string, name: string, roles: string[] }} Organization */
 /** @typedef {{ userId: string, displayName?: string, loginName?: string, roles: string[] }} OrgMember */
-/** @typedef {{ id: string, loginName?: string, displayName?: string, givenName?: string, familyName?: string, nickName?: string, preferredLanguage?: string, gender?: string, email?: string, emailVerified?: boolean, phone?: string, phoneVerified?: boolean, state?: string }} AccountProfile */
+/** @typedef {{ id: string, loginName?: string, displayName?: string, givenName?: string, familyName?: string, nickName?: string, preferredLanguage?: string, gender?: string, email?: string, emailVerified?: boolean, phone?: string, phoneVerified?: boolean, avatarURL?: string, state?: string }} AccountProfile */
 
 /** @type {Record<string, string>} */
 const roleLabels = {
@@ -28,6 +28,7 @@ const assignableRoles = ['org:admin', 'org:member', 'org:viewer'];
 const externalProviders = [
   { id: 'github', label: 'GitHub' },
   { id: 'google', label: 'Google' },
+  { id: 'feishu', label: '飞书' },
 ];
 
 const accountSections = [
@@ -183,7 +184,7 @@ export function AccountPage() {
     window.setTimeout(() => loadProfile(), 0);
   }, [activeSection, loadProfile]);
 
-  const saveProfile = useCallback(async (values) => {
+  const saveProfile = useCallback(async (/** @type {Partial<AccountProfile>} */ values) => {
     setSavingProfile(true);
     setProfileMessage(null);
     try {
@@ -202,7 +203,7 @@ export function AccountPage() {
     } finally {
       setSavingProfile(false);
     }
-  }, [profile, refreshAuth]);
+  }, [refreshAuth]);
 
   const startEditing = useCallback(() => {
     if (!profile) return;
@@ -225,7 +226,7 @@ export function AccountPage() {
     setProfileMessage(null);
   }, []);
 
-  const handleAvatarChange = useCallback(async (event) => {
+  const handleAvatarChange = useCallback(async (/** @type {import('react').ChangeEvent<HTMLInputElement>} */ event) => {
     const file = event.target.files?.[0];
     if (!file) return;
     setProfileMessage(null);
@@ -307,6 +308,18 @@ export function AccountPage() {
     }
   }, []);
 
+  const loadMembers = useCallback(async (/** @type {string} */ orgId) => {
+    setMembersStatus('loading');
+    setMemberMessage(null);
+    try {
+      const value = await requestJSON(`/api/account/orgs/${encodeURIComponent(orgId)}/members`);
+      setMembers(Array.isArray(value?.members) ? value.members : []);
+      setMembersStatus('ready');
+    } catch (error) {
+      if (!isStatus(error, 401)) setMembersStatus('error');
+    }
+  }, []);
+
   useEffect(() => {
     if (activeSection !== 'organizations') return undefined;
     let active = true;
@@ -328,19 +341,7 @@ export function AccountPage() {
     return () => {
       active = false;
     };
-  }, [activeSection, orgPathId]);
-
-  const loadMembers = useCallback(async (/** @type {string} */ orgId) => {
-    setMembersStatus('loading');
-    setMemberMessage(null);
-    try {
-      const value = await requestJSON(`/api/account/orgs/${encodeURIComponent(orgId)}/members`);
-      setMembers(Array.isArray(value?.members) ? value.members : []);
-      setMembersStatus('ready');
-    } catch (error) {
-      if (!isStatus(error, 401)) setMembersStatus('error');
-    }
-  }, []);
+  }, [activeSection, loadMembers, orgPathId]);
 
   /** @param {Organization} org */
   const openOrg = (org) => {

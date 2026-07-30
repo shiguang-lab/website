@@ -32,6 +32,12 @@ export function AuthProviderIcon({ name }) {
     );
   }
 
+  if (name === 'feishu') {
+    return (
+      <img src="/assets/feishu-logo.png" width="700" height="700" alt="" aria-hidden="true" />
+    );
+  }
+
   if (name === 'linkedin') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">

@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { startUmamiAutoTracking, syncUmamiIdentity } from '../analytics/umami';
 import { AuthContext } from './auth-context';
 
 /** @typedef {import('./auth-context').AuthUser} AuthUser */
@@ -26,6 +28,7 @@ async function requestSession(signal) {
 
 /** @param {{ children: import('react').ReactNode }} props */
 export function AuthProvider({ children }) {
+  const { pathname } = useLocation();
   const [status, setStatus] = useState(/** @type {AuthStatus} */ ('loading'));
   const [user, setUser] = useState(/** @type {AuthUser | null} */ (null));
 
@@ -52,6 +55,15 @@ export function AuthProvider({ children }) {
     });
     return () => controller.abort();
   }, [applySession]);
+
+  useEffect(() => {
+    startUmamiAutoTracking();
+  }, [pathname]);
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    syncUmamiIdentity(status === 'authenticated' ? user?.subject : null);
+  }, [status, user?.subject]);
 
   const logout = useCallback(async () => {
     const response = await fetch('/api/auth/logout', {

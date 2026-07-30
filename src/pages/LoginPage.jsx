@@ -8,7 +8,7 @@ const genericError = '登录失败，请检查账号和密码后重试。';
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * 登录方式。`enabled: false` 的方式以禁用态展示(不可切换):
+ * 登录方式。`enabled: false` 的方式保留配置但不渲染:
  * - sso:企业 SSO,等企业 IdP 接入后放开。
  */
 const loginModes = [
@@ -225,6 +225,7 @@ export function LoginPage() {
         return;
       }
     }
+    if (!activeContext) return;
     setPendingAction('send');
     setStatus('submitting');
     setMessage('');
@@ -396,7 +397,7 @@ export function LoginPage() {
           </div>
 
           <div className="login-tabs" role="tablist" aria-label="登录方式">
-            {loginModes.map((item) => (
+            {loginModes.filter((item) => item.enabled).map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -560,7 +561,7 @@ export function LoginPage() {
           </p>
           <div className="login-divider"><span>或通过以下方式登录</span></div>
           <div className="login-providers" aria-label="其它登录方式">
-            {authProviders.map((item) => (
+            {authProviders.filter((item) => item.enabled).map((item) => (
               <button
                 key={item.id}
                 type="button"

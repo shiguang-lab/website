@@ -2,6 +2,10 @@ const AUTO_TRACK_SELECTOR = 'a[href], button';
 const MAX_LABEL_LENGTH = 80;
 /** @type {Array<[string, Record<string, string>]>} */
 const pendingEvents = [];
+/** @type {string | undefined} */
+let pendingIdentity;
+/** @type {string | undefined} */
+let appliedIdentity;
 
 /** @param {string | null | undefined} value */
 function normalizeLabel(value) {
@@ -37,11 +41,45 @@ function getSafeHref(anchor) {
   }
 }
 
-function flushPendingEvents() {
+function flushPendingAnalytics() {
+  if (window.umami?.identify && pendingIdentity !== undefined) {
+    const identity = pendingIdentity;
+    pendingIdentity = undefined;
+
+    if (identity !== appliedIdentity) {
+      if (identity) {
+        window.umami.identify(identity, { userId: identity });
+      } else {
+        window.umami.identify('');
+      }
+      appliedIdentity = identity;
+    }
+  }
+
   if (!window.umami?.track) return;
   for (const [name, data] of pendingEvents.splice(0)) {
     window.umami.track(name, data);
   }
+}
+
+/**
+ * Associates subsequent analytics with the authenticated IAM subject. Passing
+ * null clears an identity previously applied in the current page lifecycle.
+ * @param {string | null | undefined} userId
+ */
+export function syncUmamiIdentity(userId) {
+  const identity = userId?.trim() || '';
+
+  // A fresh tracker is anonymous already, so avoid sending an empty identify
+  // request on every public page load.
+  if (!identity && appliedIdentity === undefined) {
+    pendingIdentity = undefined;
+    appliedIdentity = '';
+    return;
+  }
+
+  pendingIdentity = identity;
+  flushPendingAnalytics();
 }
 
 /** @param {string} name @param {Record<string, string>} [data] */
@@ -88,9 +126,9 @@ export function startUmamiAutoTracking() {
   tracker.src = 'https://analytics.shiguanglab.com/script.js';
   tracker.dataset.websiteId = 'bc04a3d8-e637-4b26-82e0-ffd2ad86053d';
   tracker.dataset.autoTrack = 'true';
-  tracker.addEventListener('load', flushPendingEvents, { once: true });
+  tracker.addEventListener('load', flushPendingAnalytics, { once: true });
   document.head.append(tracker);
 
   document.addEventListener('click', handleClick, { capture: true });
-  flushPendingEvents();
+  flushPendingAnalytics();
 }

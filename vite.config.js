@@ -9,6 +9,7 @@ function downloadSizes() {
     mac: 'public/downloads/sichen-macos-universal.dmg',
     linux: 'public/downloads/sichen-linux-x86_64.AppImage',
   };
+  /** @type {Record<string, number | null>} */
   const sizes = {};
   for (const [key, file] of Object.entries(artifacts)) {
     try {

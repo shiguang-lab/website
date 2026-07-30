@@ -24,6 +24,18 @@ const linuxDownloadUrl = import.meta.env.VITE_SICHEN_LINUX_DOWNLOAD_URL || '/dow
 /** 构建时注入的安装包真实大小(MB);产物缺失时对应项为 null。 */
 const downloadSizes = typeof __SICHEN_DOWNLOAD_SIZES__ === 'undefined' ? {} : __SICHEN_DOWNLOAD_SIZES__;
 
+/** @typedef {'windows' | 'mac' | 'linux'} DesktopPlatform */
+
+/**
+ * @type {Array<{
+ *   id: DesktopPlatform;
+ *   name: string;
+ *   requirement: string;
+ *   packaging: string;
+ *   url: string;
+ *   sizeMb?: number | null;
+ * }>}
+ */
 const desktopBuilds = [
   {
     id: 'windows',
@@ -118,7 +130,7 @@ const workflow = [
 
 export function SichenPage() {
   useHomeEffects();
-  const [platform, setPlatform] = useState(null);
+  const [platform, setPlatform] = useState(/** @type {DesktopPlatform | null} */ (null));
   useEffect(() => {
     // 挂载后异步识别平台:预渲染 HTML 无高亮,水合一致,识别结果在微任务中落地。
     Promise.resolve().then(() => setPlatform(detectPlatform()));

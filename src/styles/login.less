@@ -309,14 +309,14 @@
 }
 
 .login-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   margin: 0 0 30px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .login-tabs button {
   position: relative;
+  flex: 1;
   min-height: 48px;
   padding: 0 8px 15px;
   border: 0;
@@ -627,9 +627,10 @@
 
 .login-providers {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 16px;
   margin-top: 22px;
 }
 
@@ -672,6 +673,13 @@
   height: 23px;
   overflow: visible;
   fill: currentColor;
+}
+
+.login-providers img {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .login-providers .provider-eye {
@@ -943,6 +951,13 @@
 }
 
 @media (max-width: 520px) {
+  .login-providers {
+    display: grid;
+    grid-template-columns: repeat(3, 46px);
+    justify-content: center;
+    gap: 16px;
+  }
+
   .login-brand img {
     width: 34px;
     height: 34px;

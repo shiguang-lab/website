@@ -413,7 +413,7 @@ export function RegisterPage() {
             <>
               <div className="login-divider register-divider"><span>或使用以下方式注册</span></div>
               <div className="login-providers" aria-label="其它注册方式">
-                {authProviders.map((item) => (
+                {authProviders.filter((item) => item.enabled).map((item) => (
                   <button
                     key={item.id}
                     type="button"
