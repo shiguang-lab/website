@@ -6,6 +6,12 @@ import IconUserGroup from '@douyinfe/semi-icons/lib/es/icons/IconUserGroup';
 import IconEdit from '@douyinfe/semi-icons/lib/es/icons/IconEdit';
 import IconCamera from '@douyinfe/semi-icons/lib/es/icons/IconCamera';
 import IconSave from '@douyinfe/semi-icons/lib/es/icons/IconSave';
+import IconCoinMoneyStroked from '@douyinfe/semi-icons/lib/es/icons/IconCoinMoneyStroked';
+import IconCalendarStroked from '@douyinfe/semi-icons/lib/es/icons/IconCalendarStroked';
+import IconGiftStroked from '@douyinfe/semi-icons/lib/es/icons/IconGiftStroked';
+import IconHistory from '@douyinfe/semi-icons/lib/es/icons/IconHistory';
+import IconRefresh from '@douyinfe/semi-icons/lib/es/icons/IconRefresh';
+import IconTickCircle from '@douyinfe/semi-icons/lib/es/icons/IconTickCircle';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { loginHref } from '../auth/loginRedirect';
 import { useAuth } from '../auth/useAuth';
@@ -15,7 +21,11 @@ import { useHomeEffects } from '../hooks/useHomeEffects';
 
 /** @typedef {{ id: string, name: string, roles: string[] }} Organization */
 /** @typedef {{ userId: string, displayName?: string, loginName?: string, roles: string[] }} OrgMember */
-/** @typedef {{ id: string, loginName?: string, displayName?: string, givenName?: string, familyName?: string, nickName?: string, preferredLanguage?: string, gender?: string, email?: string, emailVerified?: boolean, phone?: string, phoneVerified?: boolean, avatarURL?: string, state?: string }} AccountProfile */
+/** @typedef {{ id: string, loginName?: string, displayName?: string, givenName?: string, familyName?: string, nickName?: string, preferredLanguage?: string, gender?: string, email?: string, emailVerified?: boolean, phone?: string, phoneVerified?: boolean, state?: string, avatarURL?: string }} AccountProfile */
+/** @typedef {{ userId: string, accountId: string, balance: number, totalCredited: number, totalDebited: number, version: number }} PointsSummary */
+/** @typedef {{ id: string, businessDate: string, timezone: string, streakDays: number, rewardPoints: number, ledgerId: string, createdAt: string, created: boolean }} CheckIn */
+/** @typedef {{ checkedIn: boolean, checkIn: CheckIn | null }} TodayCheckIn */
+/** @typedef {{ id: string, entryType: string, delta: number, balanceAfter: number, businessRefType: string, businessRefId: string, reason?: string, occurredAt: string }} LedgerEntry */
 
 /** @type {Record<string, string>} */
 const roleLabels = {
@@ -31,6 +41,18 @@ const externalProviders = [
   { id: 'feishu', label: '飞书' },
 ];
 
+/** @type {Record<string, string>} */
+const ledgerLabels = {
+  REGISTER_BONUS: '注册赠送',
+  DAILY_CHECK_IN: '每日签到',
+  ADMIN_ADJUST: '积分调整',
+  CONSUME: '积分消费',
+  REFUND: '积分退回',
+  EXPIRE: '积分过期',
+  TRANSFER_IN: '组织转入',
+  TRANSFER_OUT: '组织转出',
+};
+
 const accountSections = [
   {
     id: 'profile',
@@ -45,12 +67,36 @@ const accountSections = [
     icon: IconKey,
   },
   {
+    id: 'points',
+    label: '积分中心',
+    description: '余额、签到与积分明细',
+    icon: IconCoinMoneyStroked,
+  },
+  {
     id: 'organizations',
     label: '组织与成员',
     description: '管理组织角色权限',
     icon: IconUserGroup,
   },
 ];
+
+/** @param {string} value */
+function formatLedgerTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '--';
+  return new Intl.DateTimeFormat('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date);
+}
+
+/** @param {number} value */
+function formatPoints(value) {
+  return new Intl.NumberFormat('zh-CN').format(Number.isFinite(value) ? value : 0);
+}
 
 /** @param {string[] | undefined} roles */
 function roleText(roles) {
@@ -137,6 +183,13 @@ export function AccountPage() {
   const [editValues, setEditValues] = useState(/** @type {Partial<AccountProfile>} */ ({}));
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMessage, setProfileMessage] = useState(/** @type {{ type: 'error' | 'success', text: string } | null} */ (null));
+
+  const [pointsSummary, setPointsSummary] = useState(/** @type {PointsSummary | null} */ (null));
+  const [todayCheckIn, setTodayCheckIn] = useState(/** @type {TodayCheckIn | null} */ (null));
+  const [ledgerEntries, setLedgerEntries] = useState(/** @type {LedgerEntry[]} */ ([]));
+  const [pointsStatus, setPointsStatus] = useState('idle');
+  const [checkInStatus, setCheckInStatus] = useState('idle');
+  const [pointsMessage, setPointsMessage] = useState(/** @type {{ type: 'error' | 'success', text: string } | null} */ (null));
 
   const [orgs, setOrgs] = useState(/** @type {Organization[]} */ ([]));
   const [orgsStatus, setOrgsStatus] = useState('loading');
@@ -225,6 +278,55 @@ export function AccountPage() {
     setEditing(false);
     setProfileMessage(null);
   }, []);
+
+  const loadPoints = useCallback(async () => {
+    setPointsStatus('loading');
+    setPointsMessage(null);
+    try {
+      const [summary, today, ledger] = await Promise.all([
+        requestJSON('/api/platform/v1/me/points'),
+        requestJSON('/api/platform/v1/me/check-ins/today'),
+        requestJSON('/api/platform/v1/me/points/ledger?limit=50'),
+      ]);
+      setPointsSummary(summary);
+      setTodayCheckIn(today);
+      setLedgerEntries(Array.isArray(ledger?.items) ? ledger.items : []);
+      setPointsStatus('ready');
+    } catch (error) {
+      if (!isStatus(error, 401)) setPointsStatus('error');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeSection !== 'points') return;
+    window.setTimeout(() => loadPoints(), 0);
+  }, [activeSection, loadPoints]);
+
+  const submitCheckIn = useCallback(async () => {
+    if (checkInStatus === 'submitting' || todayCheckIn?.checkedIn) return;
+    setCheckInStatus('submitting');
+    setPointsMessage(null);
+    try {
+      const value = await requestJSON('/api/platform/v1/me/check-ins', { method: 'POST' });
+      setTodayCheckIn({ checkedIn: true, checkIn: value });
+      const [summary, ledger] = await Promise.all([
+        requestJSON('/api/platform/v1/me/points'),
+        requestJSON('/api/platform/v1/me/points/ledger?limit=50'),
+      ]);
+      setPointsSummary(summary);
+      setLedgerEntries(Array.isArray(ledger?.items) ? ledger.items : []);
+      setPointsMessage({
+        type: 'success',
+        text: value.created ? `签到成功，获得 ${formatPoints(value.rewardPoints)} 积分。` : '今日已签到。',
+      });
+      setCheckInStatus('idle');
+    } catch (error) {
+      if (!isStatus(error, 401)) {
+        setPointsMessage({ type: 'error', text: '签到失败，请稍后重试。' });
+        setCheckInStatus('idle');
+      }
+    }
+  }, [checkInStatus, todayCheckIn]);
 
   const handleAvatarChange = useCallback(async (/** @type {import('react').ChangeEvent<HTMLInputElement>} */ event) => {
     const file = event.target.files?.[0];
@@ -676,6 +778,119 @@ export function AccountPage() {
                 <p className={profileMessage.type === 'error' ? 'account-error' : 'account-success'} role={profileMessage.type === 'error' ? 'alert' : 'status'}>
                   {profileMessage.text}
                 </p>
+              )}
+            </section>
+          )}
+
+          {activeSection === 'points' && (
+            <section className="account-card account-points-card" aria-labelledby="account-points-title">
+              <div className="account-card-head">
+                <h2 id="account-points-title">个人积分</h2>
+                <button
+                  type="button"
+                  className="account-icon-button"
+                  onClick={loadPoints}
+                  disabled={pointsStatus === 'loading'}
+                  title="刷新积分"
+                  aria-label="刷新积分"
+                >
+                  <IconRefresh aria-hidden="true" />
+                </button>
+              </div>
+
+              {pointsStatus === 'loading' && (
+                <div className="account-loading account-points-loading"><span aria-hidden="true" />正在加载积分…</div>
+              )}
+              {pointsStatus === 'error' && (
+                <div className="account-empty account-points-empty">
+                  <p className="account-error" role="alert">积分信息加载失败。</p>
+                  <button type="button" className="account-ghost-button" onClick={loadPoints}>重新加载</button>
+                </div>
+              )}
+
+              {pointsStatus === 'ready' && pointsSummary && todayCheckIn && (
+                <>
+                  <div className="account-points-overview">
+                    <div className="account-points-balance">
+                      <span className="account-points-icon"><IconCoinMoneyStroked aria-hidden="true" /></span>
+                      <div>
+                        <span>可用积分</span>
+                        <strong>{formatPoints(pointsSummary.balance)}</strong>
+                      </div>
+                    </div>
+
+                    <dl className="account-points-stats">
+                      <div>
+                        <dt><IconGiftStroked aria-hidden="true" />累计获得</dt>
+                        <dd>{formatPoints(pointsSummary.totalCredited)}</dd>
+                      </div>
+                      <div>
+                        <dt><IconHistory aria-hidden="true" />累计使用</dt>
+                        <dd>{formatPoints(pointsSummary.totalDebited)}</dd>
+                      </div>
+                    </dl>
+
+                    <div className="account-check-in">
+                      <div>
+                        <span><IconCalendarStroked aria-hidden="true" />每日签到</span>
+                        <strong>
+                          {todayCheckIn.checkedIn
+                            ? `连续 ${todayCheckIn.checkIn?.streakDays || 1} 天`
+                            : '今日待签到'}
+                        </strong>
+                      </div>
+                      <button
+                        type="button"
+                        className={todayCheckIn.checkedIn ? 'account-check-in-button is-complete' : 'account-check-in-button'}
+                        onClick={submitCheckIn}
+                        disabled={todayCheckIn.checkedIn || checkInStatus === 'submitting'}
+                      >
+                        {todayCheckIn.checkedIn
+                          ? <><IconTickCircle aria-hidden="true" />已签到</>
+                          : checkInStatus === 'submitting'
+                            ? '签到中…'
+                            : <><IconCalendarStroked aria-hidden="true" />立即签到</>}
+                      </button>
+                    </div>
+                  </div>
+
+                  {pointsMessage && (
+                    <p className={pointsMessage.type === 'error' ? 'account-error' : 'account-success'} role={pointsMessage.type === 'error' ? 'alert' : 'status'}>
+                      {pointsMessage.text}
+                    </p>
+                  )}
+
+                  <div className="account-ledger-head">
+                    <div>
+                      <h3>积分明细</h3>
+                      <span>最近 {ledgerEntries.length} 条</span>
+                    </div>
+                  </div>
+
+                  {ledgerEntries.length === 0 ? (
+                    <p className="account-empty account-ledger-empty">暂无积分记录。</p>
+                  ) : (
+                    <ol className="account-ledger-list">
+                      {ledgerEntries.map((entry) => (
+                        <li key={entry.id}>
+                          <span className={entry.delta > 0 ? 'account-ledger-direction is-credit' : 'account-ledger-direction is-debit'} aria-hidden="true">
+                            {entry.delta > 0 ? '+' : '−'}
+                          </span>
+                          <div className="account-ledger-main">
+                            <strong>{ledgerLabels[entry.entryType] || entry.entryType}</strong>
+                            <span>{entry.reason || formatLedgerTime(entry.occurredAt)}</span>
+                          </div>
+                          <div className="account-ledger-amount">
+                            <strong className={entry.delta > 0 ? 'is-credit' : 'is-debit'}>
+                              {entry.delta > 0 ? '+' : ''}{formatPoints(entry.delta)}
+                            </strong>
+                            <span>余额 {formatPoints(entry.balanceAfter)}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </>
               )}
             </section>
           )}

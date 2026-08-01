@@ -50,6 +50,12 @@ export default defineConfig(({ isSsrBuild, mode }) => {
           cookieDomainRewrite: '',
           secure: authProxyOrigin.startsWith('https://'),
         },
+        '/api/platform': {
+          target: authProxyTarget,
+          changeOrigin: true,
+          cookieDomainRewrite: '',
+          secure: authProxyOrigin.startsWith('https://'),
+        },
       },
     },
     build: {
