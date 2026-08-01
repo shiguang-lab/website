@@ -1,3 +1,4 @@
+import { Scrollbar } from '@shiguang/components';
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { SICHEN_LANDING_PATH } from './config/productUrls';
@@ -21,18 +22,20 @@ function DeferredPage({ children }) {
 
 export function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path={SICHEN_LANDING_PATH} element={<SichenPage />} />
-      <Route path="/login" element={<DeferredPage><LoginPage /></DeferredPage>} />
-      <Route path="/register" element={<DeferredPage><RegisterPage /></DeferredPage>} />
-      <Route path="/account/*" element={<AccountPage />} />
-      <Route path="/auth/callback" element={<DeferredPage><AuthCallbackPage /></DeferredPage>} />
-      <Route path="/terms" element={<DeferredPage><TermsPage /></DeferredPage>} />
-      <Route path="/privacy" element={<DeferredPage><PrivacyPage /></DeferredPage>} />
-      <Route path="/login-help" element={<DeferredPage><LoginHelpPage /></DeferredPage>} />
-      <Route path="/app/:appId/*" element={<DeferredPage><MicroAppPage /></DeferredPage>} />
-      <Route path="*" element={<DeferredPage><NotFoundPage /></DeferredPage>} />
-    </Routes>
+    <Scrollbar className="site-scrollbar" scrollX={false}>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path={SICHEN_LANDING_PATH} element={<SichenPage />} />
+        <Route path="/login" element={<DeferredPage><LoginPage /></DeferredPage>} />
+        <Route path="/register" element={<DeferredPage><RegisterPage /></DeferredPage>} />
+        <Route path="/account/*" element={<AccountPage />} />
+        <Route path="/auth/callback" element={<DeferredPage><AuthCallbackPage /></DeferredPage>} />
+        <Route path="/terms" element={<DeferredPage><TermsPage /></DeferredPage>} />
+        <Route path="/privacy" element={<DeferredPage><PrivacyPage /></DeferredPage>} />
+        <Route path="/login-help" element={<DeferredPage><LoginHelpPage /></DeferredPage>} />
+        <Route path="/app/:appId/*" element={<DeferredPage><MicroAppPage /></DeferredPage>} />
+        <Route path="*" element={<DeferredPage><NotFoundPage /></DeferredPage>} />
+      </Routes>
+    </Scrollbar>
   );
 }

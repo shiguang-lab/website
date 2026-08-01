@@ -18,6 +18,7 @@
     "@douyinfe/semi-foundation": "^2.101.1",
     "@douyinfe/semi-icons": "^2.101.1",
     "@douyinfe/semi-ui": "^2.101.1",
+    "@shiguang/components": "git+ssh://git@github.com/shiguang-lab/components.git#ca2d2a20f62686883816f4b66488d416d5ca7692",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.1",

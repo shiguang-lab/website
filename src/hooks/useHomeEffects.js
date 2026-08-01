@@ -6,8 +6,9 @@ export function useHomeEffects() {
     const menuButton = document.querySelector('[data-menu-button]');
     const mobilePanel = document.querySelector('[data-mobile-panel]');
     const tilt = document.querySelector('[data-tilt]');
+    const scrollViewport = document.querySelector('.site-scrollbar [data-overlayscrollbars-contents]');
 
-    const onScroll = () => header?.classList.toggle('scrolled', window.scrollY > 18);
+    const onScroll = () => header?.classList.toggle('scrolled', (scrollViewport?.scrollTop ?? 0) > 18);
     const onMenuClick = () => {
       const isOpen = mobilePanel?.classList.toggle('open') ?? false;
       menuButton?.setAttribute('aria-expanded', String(isOpen));
@@ -21,7 +22,7 @@ export function useHomeEffects() {
     };
 
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
+    scrollViewport?.addEventListener('scroll', onScroll, { passive: true });
     menuButton?.addEventListener('click', onMenuClick);
     mobilePanel?.addEventListener('click', onPanelClick);
 
@@ -53,7 +54,7 @@ export function useHomeEffects() {
 
     return () => {
       observer.disconnect();
-      window.removeEventListener('scroll', onScroll);
+      scrollViewport?.removeEventListener('scroll', onScroll);
       menuButton?.removeEventListener('click', onMenuClick);
       mobilePanel?.removeEventListener('click', onPanelClick);
       tilt?.removeEventListener('pointermove', onTilt);

@@ -57,7 +57,7 @@ export default defineConfig(({ isSsrBuild, mode }) => {
       sourcemap: true,
     },
     ssr: {
-      noExternal: ['@douyinfe/semi-icons'],
+      noExternal: ['@douyinfe/semi-icons', '@shiguang/components'],
     },
   };
 });
