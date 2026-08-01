@@ -17,9 +17,9 @@ importers:
       '@douyinfe/semi-ui':
         specifier: ^2.101.1
         version: 2.101.1(@floating-ui/dom@1.8.0)(@tiptap/suggestion@3.29.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.29.0(@tiptap/pm@3.29.0))(@tiptap/pm@3.29.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@shiguang/components':
-        specifier: git+ssh://git@github.com/shiguang-lab/components.git#ca2d2a20f62686883816f4b66488d416d5ca7692
-        version: git+https://git@github.com:shiguang-lab/components.git#ca2d2a20f62686883816f4b66488d416d5ca7692(@types/react@19.2.17)(date-fns@2.30.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@shiguang2/components':
+        specifier: ^0.1.5
+        version: 0.1.5(@types/react@19.2.17)(date-fns@2.30.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       ahooks:
         specifier: ^3.9.6
         version: 3.9.7(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -839,9 +839,8 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@shiguang/components@git+https://git@github.com:shiguang-lab/components.git#ca2d2a20f62686883816f4b66488d416d5ca7692':
-    resolution: {commit: ca2d2a20f62686883816f4b66488d416d5ca7692, repo: git@github.com:shiguang-lab/components.git, type: git}
-    version: 0.1.5
+  '@shiguang2/components@0.1.5':
+    resolution: {integrity: sha512-Gr+rXAqG7+OAYh8Xj2LnVPTj+OehCvnlRWVEXLoSpyjUPpU2Jrjf0qtAtMtk6wnx5V8Rrk0Lec5Cl+KuQ06HRA==}
     engines: {node: '>=18'}
     peerDependencies:
       react: '>=18.0.0 <20.0.0'
@@ -4311,7 +4310,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@shiguang/components@git+https://git@github.com:shiguang-lab/components.git#ca2d2a20f62686883816f4b66488d416d5ca7692(@types/react@19.2.17)(date-fns@2.30.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@shiguang2/components@0.1.5(@types/react@19.2.17)(date-fns@2.30.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@ant-design/icons': 5.6.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@antv/infographic': 0.2.19

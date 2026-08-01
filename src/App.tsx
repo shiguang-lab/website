@@ -1,4 +1,4 @@
-import { Scrollbar } from '@shiguang/components';
+import { Scrollbar } from '@shiguang2/components';
 import { lazy, Suspense, type ReactNode } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { SICHEN_LANDING_PATH } from './config/productUrls';
