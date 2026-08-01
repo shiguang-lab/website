@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemoizedFn } from 'ahooks';
+import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import IconChevronRight from '@douyinfe/semi-icons/lib/es/icons/IconChevronRight';
 import IconIdCard from '@douyinfe/semi-icons/lib/es/icons/IconIdCard';
 import IconKey from '@douyinfe/semi-icons/lib/es/icons/IconKey';
@@ -19,16 +20,34 @@ import { AuthProviderIcon } from '../components/AuthProviderIcons';
 import { SiteHeader } from '../components/SiteHeader';
 import { useHomeEffects } from '../hooks/useHomeEffects';
 
-/** @typedef {{ id: string, name: string, roles: string[] }} Organization */
-/** @typedef {{ userId: string, displayName?: string, loginName?: string, roles: string[] }} OrgMember */
-/** @typedef {{ id: string, loginName?: string, displayName?: string, givenName?: string, familyName?: string, nickName?: string, preferredLanguage?: string, gender?: string, email?: string, emailVerified?: boolean, phone?: string, phoneVerified?: boolean, state?: string, avatarURL?: string }} AccountProfile */
-/** @typedef {{ userId: string, accountId: string, balance: number, totalCredited: number, totalDebited: number, version: number }} PointsSummary */
-/** @typedef {{ id: string, businessDate: string, timezone: string, streakDays: number, rewardPoints: number, ledgerId: string, createdAt: string, created: boolean }} CheckIn */
-/** @typedef {{ checkedIn: boolean, checkIn: CheckIn | null }} TodayCheckIn */
-/** @typedef {{ id: string, entryType: string, delta: number, balanceAfter: number, businessRefType: string, businessRefId: string, reason?: string, occurredAt: string }} LedgerEntry */
+interface Organization { id: string; name: string; roles: string[] }
+interface OrgMember { userId: string; displayName?: string; loginName?: string; roles: string[] }
+interface AccountProfile {
+  id: string;
+  loginName?: string;
+  displayName?: string;
+  givenName?: string;
+  familyName?: string;
+  nickName?: string;
+  preferredLanguage?: string;
+  gender?: string;
+  email?: string;
+  emailVerified?: boolean;
+  phone?: string;
+  phoneVerified?: boolean;
+  state?: string;
+  avatarURL?: string;
+}
+interface PointsSummary { userId: string; accountId: string; balance: number; totalCredited: number; totalDebited: number; version: number }
+interface CheckIn { id: string; businessDate: string; timezone: string; streakDays: number; rewardPoints: number; ledgerId: string; createdAt: string; created: boolean }
+interface TodayCheckIn { checkedIn: boolean; checkIn: CheckIn | null }
+interface LedgerEntry { id: string; entryType: string; delta: number; balanceAfter: number; businessRefType: string; businessRefId: string; reason?: string; occurredAt: string }
+interface IDPLink { provider: string; userName?: string; userId?: string }
+interface Feedback { type: 'error' | 'success'; text: string }
+interface ApiError extends Error { status: number; apiError?: string }
+type RequestStatus = 'idle' | 'loading' | 'ready' | 'error' | 'submitting';
 
-/** @type {Record<string, string>} */
-const roleLabels = {
+const roleLabels: Record<string, string> = {
   'org:admin': '管理员',
   'org:member': '成员',
   'org:viewer': '只读',
@@ -41,8 +60,7 @@ const externalProviders = [
   { id: 'feishu', label: '飞书' },
 ];
 
-/** @type {Record<string, string>} */
-const ledgerLabels = {
+const ledgerLabels: Record<string, string> = {
   REGISTER_BONUS: '注册赠送',
   DAILY_CHECK_IN: '每日签到',
   ADMIN_ADJUST: '积分调整',
@@ -80,8 +98,7 @@ const accountSections = [
   },
 ];
 
-/** @param {string} value */
-function formatLedgerTime(value) {
+function formatLedgerTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '--';
   return new Intl.DateTimeFormat('zh-CN', {
@@ -93,27 +110,23 @@ function formatLedgerTime(value) {
   }).format(date);
 }
 
-/** @param {number} value */
-function formatPoints(value) {
+function formatPoints(value: number) {
   return new Intl.NumberFormat('zh-CN').format(Number.isFinite(value) ? value : 0);
 }
 
-/** @param {string[] | undefined} roles */
-function roleText(roles) {
+function roleText(roles: string[] | undefined) {
   if (!Array.isArray(roles) || roles.length === 0) return '成员';
   return roles.map((role) => roleLabels[role] || role).join(' · ');
 }
 
-/** @param {string | undefined} state */
-function accountStateText(state) {
+function accountStateText(state: string | undefined) {
   if (!state || state === 'USER_STATE_ACTIVE' || state === 'STATE_ACTIVE') return '账号正常';
   if (state.includes('INACTIVE')) return '账号已停用';
   if (state.includes('LOCKED')) return '账号已锁定';
   return state;
 }
 
-/** @param {string | undefined} gender */
-function genderText(gender) {
+function genderText(gender: string | undefined) {
   if (!gender) return '未设置';
   if (gender.includes('FEMALE')) return '女';
   if (gender.includes('MALE')) return '男';
@@ -126,11 +139,7 @@ function redirectToLogin() {
   window.location.assign(loginHref(window.location));
 }
 
-/**
- * @param {string} path
- * @param {{ method?: string, body?: string }=} options
- */
-async function requestJSON(path, options = {}) {
+async function requestJSON<T>(path: string, options: { method?: string; body?: string } = {}): Promise<T> {
   const response = await fetch(path, {
     method: options.method || 'GET',
     credentials: 'include',
@@ -144,25 +153,27 @@ async function requestJSON(path, options = {}) {
     redirectToLogin();
     throw Object.assign(new Error('unauthorized'), { status: 401 });
   }
-  if (response.status === 204) return null;
-  const value = await response.json().catch(() => ({}));
+  if (response.status === 204) return null as T;
+  const value = await response.json().catch(() => ({})) as T & { error?: string };
   if (!response.ok) {
     throw Object.assign(new Error(value.error || 'request_failed'), {
       status: response.status,
-      error: value.error,
-    });
+      apiError: value.error,
+    } satisfies Partial<ApiError>);
   }
   return value;
 }
 
-/** @param {unknown} error @param {number} status */
-function isStatus(error, status) {
-  return error instanceof Error && 'status' in error && error.status === status;
+function isApiError(error: unknown): error is ApiError {
+  return error instanceof Error && 'status' in error && typeof error.status === 'number';
 }
 
-/** @param {unknown} error */
-function isLastAdmin(error) {
-  return isStatus(error, 409) && /** @type {{ error?: string }} */ (error).error === 'last_admin';
+function isStatus(error: unknown, status: number): error is ApiError {
+  return isApiError(error) && error.status === status;
+}
+
+function isLastAdmin(error: unknown) {
+  return isStatus(error, 409) && error.apiError === 'last_admin';
 }
 
 export function AccountPage() {
@@ -177,71 +188,68 @@ export function AccountPage() {
     ? requestedSection
     : 'profile';
   const sectionMeta = accountSections.find((item) => item.id === activeSection) || accountSections[0];
-  const [profile, setProfile] = useState(/** @type {AccountProfile | null} */ (null));
-  const [profileStatus, setProfileStatus] = useState('loading');
+  const [profile, setProfile] = useState<AccountProfile | null>(null);
+  const [profileStatus, setProfileStatus] = useState<RequestStatus>('loading');
   const [editing, setEditing] = useState(false);
-  const [editValues, setEditValues] = useState(/** @type {Partial<AccountProfile>} */ ({}));
+  const [editValues, setEditValues] = useState<Partial<AccountProfile>>({});
   const [savingProfile, setSavingProfile] = useState(false);
-  const [profileMessage, setProfileMessage] = useState(/** @type {{ type: 'error' | 'success', text: string } | null} */ (null));
+  const [profileMessage, setProfileMessage] = useState<Feedback | null>(null);
 
-  const [pointsSummary, setPointsSummary] = useState(/** @type {PointsSummary | null} */ (null));
-  const [todayCheckIn, setTodayCheckIn] = useState(/** @type {TodayCheckIn | null} */ (null));
-  const [ledgerEntries, setLedgerEntries] = useState(/** @type {LedgerEntry[]} */ ([]));
-  const [pointsStatus, setPointsStatus] = useState('idle');
-  const [checkInStatus, setCheckInStatus] = useState('idle');
-  const [pointsMessage, setPointsMessage] = useState(/** @type {{ type: 'error' | 'success', text: string } | null} */ (null));
+  const [pointsSummary, setPointsSummary] = useState<PointsSummary | null>(null);
+  const [todayCheckIn, setTodayCheckIn] = useState<TodayCheckIn | null>(null);
+  const [ledgerEntries, setLedgerEntries] = useState<LedgerEntry[]>([]);
+  const [pointsStatus, setPointsStatus] = useState<RequestStatus>('idle');
+  const [checkInStatus, setCheckInStatus] = useState<RequestStatus>('idle');
+  const [pointsMessage, setPointsMessage] = useState<Feedback | null>(null);
 
-  const [orgs, setOrgs] = useState(/** @type {Organization[]} */ ([]));
-  const [orgsStatus, setOrgsStatus] = useState('loading');
+  const [orgs, setOrgs] = useState<Organization[]>([]);
+  const [orgsStatus, setOrgsStatus] = useState<RequestStatus>('loading');
 
   const [createName, setCreateName] = useState('');
-  const [createStatus, setCreateStatus] = useState('idle');
-  const [createMessage, setCreateMessage] = useState(/** @type {{ type: 'error' | 'success', text: string } | null} */ (null));
+  const [createStatus, setCreateStatus] = useState<RequestStatus>('idle');
+  const [createMessage, setCreateMessage] = useState<Feedback | null>(null);
 
-  const [selectedOrgId, setSelectedOrgId] = useState(/** @type {string | null} */ (null));
-  const [members, setMembers] = useState(/** @type {OrgMember[]} */ ([]));
-  const [membersStatus, setMembersStatus] = useState('idle');
-  const [memberMessage, setMemberMessage] = useState(/** @type {{ type: 'error' | 'success', text: string } | null} */ (null));
-  const [busyMemberId, setBusyMemberId] = useState(/** @type {string | null} */ (null));
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
+  const [members, setMembers] = useState<OrgMember[]>([]);
+  const [membersStatus, setMembersStatus] = useState<RequestStatus>('idle');
+  const [memberMessage, setMemberMessage] = useState<Feedback | null>(null);
+  const [busyMemberId, setBusyMemberId] = useState<string | null>(null);
 
   const [inviteLoginName, setInviteLoginName] = useState('');
   const [inviteRole, setInviteRole] = useState('org:member');
-  const [inviteStatus, setInviteStatus] = useState('idle');
-  const [inviteMessage, setInviteMessage] = useState(/** @type {{ type: 'error' | 'success', text: string } | null} */ (null));
+  const [inviteStatus, setInviteStatus] = useState<RequestStatus>('idle');
+  const [inviteMessage, setInviteMessage] = useState<Feedback | null>(null);
 
-  const [idpLinks, setIdpLinks] = useState(/** @type {{ provider: string, userName?: string, userId?: string }[]} */ ([]));
-  const [idpStatus, setIdpStatus] = useState('loading');
-  const [idpMessage, setIdpMessage] = useState(/** @type {{ type: 'error' | 'success', text: string } | null} */ (null));
-  const [busyProvider, setBusyProvider] = useState(/** @type {string | null} */ (null));
+  const [idpLinks, setIdpLinks] = useState<IDPLink[]>([]);
+  const [idpStatus, setIdpStatus] = useState<RequestStatus>('loading');
+  const [idpMessage, setIdpMessage] = useState<Feedback | null>(null);
+  const [busyProvider, setBusyProvider] = useState<string | null>(null);
 
-  const selectedOrg = useMemo(
-    () => orgs.find((org) => org.id === (selectedOrgId || orgPathId)) || null,
-    [orgs, selectedOrgId, orgPathId],
-  );
+  const selectedOrg = orgs.find((org) => org.id === (selectedOrgId || orgPathId)) || null;
   const isAdmin = Boolean(selectedOrg && selectedOrg.roles && selectedOrg.roles.includes('org:admin'));
 
-  const loadProfile = useCallback(async () => {
+  const loadProfile = useMemoizedFn(async () => {
     setProfileStatus('loading');
     try {
-      const value = await requestJSON('/api/account/profile');
+      const value = await requestJSON<AccountProfile>('/api/account/profile');
       setProfile(value);
       setProfileStatus('ready');
       await refreshAuth();
     } catch (error) {
       if (!isStatus(error, 401)) setProfileStatus('error');
     }
-  }, [refreshAuth]);
+  });
 
   useEffect(() => {
     if (activeSection !== 'profile') return;
     window.setTimeout(() => loadProfile(), 0);
   }, [activeSection, loadProfile]);
 
-  const saveProfile = useCallback(async (/** @type {Partial<AccountProfile>} */ values) => {
+  const saveProfile = useMemoizedFn(async (values: Partial<AccountProfile>) => {
     setSavingProfile(true);
     setProfileMessage(null);
     try {
-      const updated = await requestJSON('/api/account/profile', {
+      const updated = await requestJSON<AccountProfile>('/api/account/profile', {
         method: 'PATCH',
         body: JSON.stringify(values),
       });
@@ -256,9 +264,9 @@ export function AccountPage() {
     } finally {
       setSavingProfile(false);
     }
-  }, [refreshAuth]);
+  });
 
-  const startEditing = useCallback(() => {
+  const startEditing = useMemoizedFn(() => {
     if (!profile) return;
     setEditValues({
       displayName: profile.displayName || '',
@@ -272,21 +280,21 @@ export function AccountPage() {
     });
     setProfileMessage(null);
     setEditing(true);
-  }, [profile]);
+  });
 
-  const cancelEditing = useCallback(() => {
+  const cancelEditing = useMemoizedFn(() => {
     setEditing(false);
     setProfileMessage(null);
-  }, []);
+  });
 
-  const loadPoints = useCallback(async () => {
+  const loadPoints = useMemoizedFn(async () => {
     setPointsStatus('loading');
     setPointsMessage(null);
     try {
       const [summary, today, ledger] = await Promise.all([
-        requestJSON('/api/platform/v1/me/points'),
-        requestJSON('/api/platform/v1/me/check-ins/today'),
-        requestJSON('/api/platform/v1/me/points/ledger?limit=50'),
+        requestJSON<PointsSummary>('/api/platform/v1/me/points'),
+        requestJSON<TodayCheckIn>('/api/platform/v1/me/check-ins/today'),
+        requestJSON<{ items?: LedgerEntry[] }>('/api/platform/v1/me/points/ledger?limit=50'),
       ]);
       setPointsSummary(summary);
       setTodayCheckIn(today);
@@ -295,23 +303,23 @@ export function AccountPage() {
     } catch (error) {
       if (!isStatus(error, 401)) setPointsStatus('error');
     }
-  }, []);
+  });
 
   useEffect(() => {
     if (activeSection !== 'points') return;
     window.setTimeout(() => loadPoints(), 0);
   }, [activeSection, loadPoints]);
 
-  const submitCheckIn = useCallback(async () => {
+  const submitCheckIn = useMemoizedFn(async () => {
     if (checkInStatus === 'submitting' || todayCheckIn?.checkedIn) return;
     setCheckInStatus('submitting');
     setPointsMessage(null);
     try {
-      const value = await requestJSON('/api/platform/v1/me/check-ins', { method: 'POST' });
+      const value = await requestJSON<CheckIn>('/api/platform/v1/me/check-ins', { method: 'POST' });
       setTodayCheckIn({ checkedIn: true, checkIn: value });
       const [summary, ledger] = await Promise.all([
-        requestJSON('/api/platform/v1/me/points'),
-        requestJSON('/api/platform/v1/me/points/ledger?limit=50'),
+        requestJSON<PointsSummary>('/api/platform/v1/me/points'),
+        requestJSON<{ items?: LedgerEntry[] }>('/api/platform/v1/me/points/ledger?limit=50'),
       ]);
       setPointsSummary(summary);
       setLedgerEntries(Array.isArray(ledger?.items) ? ledger.items : []);
@@ -326,9 +334,9 @@ export function AccountPage() {
         setCheckInStatus('idle');
       }
     }
-  }, [checkInStatus, todayCheckIn]);
+  });
 
-  const handleAvatarChange = useCallback(async (/** @type {import('react').ChangeEvent<HTMLInputElement>} */ event) => {
+  const handleAvatarChange = useMemoizedFn(async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     setProfileMessage(null);
@@ -351,7 +359,7 @@ export function AccountPage() {
         const err = await response.json().catch(() => ({ error: 'upload_failed' }));
         throw Object.assign(new Error(err.error || 'upload_failed'), { status: response.status });
       }
-      const result = await response.json();
+      const result = await response.json() as { avatarURL: string };
       setProfile(prev => prev ? { ...prev, avatarURL: result.avatarURL } : prev);
       setProfileMessage({ type: 'success', text: '头像已更新。' });
     } catch (error) {
@@ -359,18 +367,18 @@ export function AccountPage() {
         setProfileMessage({ type: 'error', text: '头像上传失败。' });
       }
     }
-  }, []);
+  });
 
-  const loadIDPLinks = useCallback(async () => {
+  const loadIDPLinks = useMemoizedFn(async () => {
     setIdpStatus('loading');
     try {
-      const value = await requestJSON('/api/auth/idp-links');
+      const value = await requestJSON<{ links?: IDPLink[] }>('/api/auth/idp-links');
       setIdpLinks(Array.isArray(value?.links) ? value.links : []);
       setIdpStatus('ready');
     } catch (error) {
       if (!isStatus(error, 401)) setIdpStatus('error');
     }
-  }, []);
+  });
 
   useEffect(() => {
     if (activeSection !== 'security') return undefined;
@@ -380,8 +388,7 @@ export function AccountPage() {
     const provider = params.get('provider');
     if (status) {
       const label = externalProviders.find((item) => item.id === provider)?.label || '第三方账号';
-      /** @type {{ type: 'error' | 'success', text: string }} */
-      const message = status === 'success'
+      const message: Feedback = status === 'success'
         ? { type: 'success', text: `${label} 已成功关联。` }
         : status === 'conflict'
           ? { type: 'error', text: `${label} 已关联到其他拾光账号。` }
@@ -392,40 +399,39 @@ export function AccountPage() {
     return undefined;
   }, [activeSection, loadIDPLinks]);
 
-  /** @param {string} provider */
-  const startIDPLink = (provider) => {
+  const startIDPLink = (provider: string) => {
     if (busyProvider) return;
     setBusyProvider(provider);
     window.location.assign(`/api/auth/idp-links/start?provider=${encodeURIComponent(provider)}&return_to=%2Faccount%2Fsecurity`);
   };
 
-  const loadOrgs = useCallback(async () => {
+  const loadOrgs = useMemoizedFn(async () => {
     setOrgsStatus('loading');
     try {
-      const value = await requestJSON('/api/account/orgs');
+      const value = await requestJSON<{ organizations?: Organization[] }>('/api/account/orgs');
       setOrgs(Array.isArray(value?.organizations) ? value.organizations : []);
       setOrgsStatus('ready');
     } catch (error) {
       if (!isStatus(error, 401)) setOrgsStatus('error');
     }
-  }, []);
+  });
 
-  const loadMembers = useCallback(async (/** @type {string} */ orgId) => {
+  const loadMembers = useMemoizedFn(async (orgId: string) => {
     setMembersStatus('loading');
     setMemberMessage(null);
     try {
-      const value = await requestJSON(`/api/account/orgs/${encodeURIComponent(orgId)}/members`);
+      const value = await requestJSON<{ members?: OrgMember[] }>(`/api/account/orgs/${encodeURIComponent(orgId)}/members`);
       setMembers(Array.isArray(value?.members) ? value.members : []);
       setMembersStatus('ready');
     } catch (error) {
       if (!isStatus(error, 401)) setMembersStatus('error');
     }
-  }, []);
+  });
 
   useEffect(() => {
     if (activeSection !== 'organizations') return undefined;
     let active = true;
-    requestJSON('/api/account/orgs')
+    requestJSON<{ organizations?: Organization[] }>('/api/account/orgs')
       .then((value) => {
         if (!active) return;
         const loaded = Array.isArray(value?.organizations) ? value.organizations : [];
@@ -445,13 +451,11 @@ export function AccountPage() {
     };
   }, [activeSection, loadMembers, orgPathId]);
 
-  /** @param {Organization} org */
-  const openOrg = (org) => {
+  const openOrg = (org: Organization) => {
     navigate(`/account/organizations/${org.id}/members`);
   };
 
-  /** @param {import('react').FormEvent<HTMLFormElement>} event */
-  const createOrg = async (event) => {
+  const createOrg = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (createStatus === 'submitting') return;
     const name = createName.trim();
@@ -462,7 +466,7 @@ export function AccountPage() {
     setCreateStatus('submitting');
     setCreateMessage(null);
     try {
-      const created = await requestJSON('/api/account/orgs', {
+      const created = await requestJSON<Organization>('/api/account/orgs', {
         method: 'POST',
         body: JSON.stringify({ name }),
       });
@@ -480,8 +484,7 @@ export function AccountPage() {
     }
   };
 
-  /** @param {import('react').FormEvent<HTMLFormElement>} event */
-  const inviteMember = async (event) => {
+  const inviteMember = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!selectedOrg || inviteStatus === 'submitting') return;
     const loginName = inviteLoginName.trim();
@@ -492,7 +495,7 @@ export function AccountPage() {
     setInviteStatus('submitting');
     setInviteMessage(null);
     try {
-      await requestJSON(`/api/account/orgs/${encodeURIComponent(selectedOrg.id)}/members`, {
+      await requestJSON<unknown>(`/api/account/orgs/${encodeURIComponent(selectedOrg.id)}/members`, {
         method: 'POST',
         body: JSON.stringify({ loginName, role: inviteRole }),
       });
@@ -512,13 +515,12 @@ export function AccountPage() {
     }
   };
 
-  /** @param {OrgMember} member @param {string} role */
-  const changeMemberRole = async (member, role) => {
+  const changeMemberRole = async (member: OrgMember, role: string) => {
     if (!selectedOrg || busyMemberId) return;
     setBusyMemberId(member.userId);
     setMemberMessage(null);
     try {
-      await requestJSON(
+      await requestJSON<unknown>(
         `/api/account/orgs/${encodeURIComponent(selectedOrg.id)}/members/${encodeURIComponent(member.userId)}`,
         { method: 'PATCH', body: JSON.stringify({ role }) },
       );
@@ -538,15 +540,14 @@ export function AccountPage() {
     }
   };
 
-  /** @param {OrgMember} member */
-  const removeMember = async (member) => {
+  const removeMember = async (member: OrgMember) => {
     if (!selectedOrg || busyMemberId) return;
     const label = member.displayName || member.loginName || member.userId;
     if (typeof window !== 'undefined' && !window.confirm(`确认将 ${label} 移出组织「${selectedOrg.name}」吗？`)) return;
     setBusyMemberId(member.userId);
     setMemberMessage(null);
     try {
-      await requestJSON(
+      await requestJSON<unknown>(
         `/api/account/orgs/${encodeURIComponent(selectedOrg.id)}/members/${encodeURIComponent(member.userId)}`,
         { method: 'DELETE' },
       );

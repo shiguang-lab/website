@@ -1,11 +1,15 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  readonly VITE_APP_SICHEN_URL?: string;
   readonly VITE_APP_CHAT_URL?: string;
   readonly VITE_APP_KNOWLEDGE_URL?: string;
   readonly VITE_APP_WORKFLOW_URL?: string;
   readonly VITE_APP_MARKET_URL?: string;
   readonly VITE_APP_TEAM_URL?: string;
+  readonly VITE_SICHEN_WINDOWS_DOWNLOAD_URL?: string;
+  readonly VITE_SICHEN_MAC_DOWNLOAD_URL?: string;
+  readonly VITE_SICHEN_LINUX_DOWNLOAD_URL?: string;
 }
 
 interface ImportMeta {
@@ -16,8 +20,8 @@ declare const __SICHEN_DOWNLOAD_SIZES__: Partial<Record<'windows' | 'mac' | 'lin
 
 interface Window {
   umami?: {
-    track: (name: string, data?: Record<string, string>) => void;
-    identify: (id: string, data?: Record<string, unknown>) => void;
+    track?: (name: string, data?: Record<string, string>) => void;
+    identify?: (id: string, data?: Record<string, unknown>) => void;
   };
   __SHIGUANG_UMAMI_AUTO_TRACKING__?: boolean;
 }

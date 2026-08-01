@@ -3,12 +3,23 @@ import IconArrowRight from '@douyinfe/semi-icons/lib/es/icons/IconArrowRight';
 import IconChevronDown from '@douyinfe/semi-icons/lib/es/icons/IconChevronDown';
 import IconPlayCircle from '@douyinfe/semi-icons/lib/es/icons/IconPlayCircle';
 import IconVideo from '@douyinfe/semi-icons/lib/es/icons/IconVideo';
+import type { ComponentType } from 'react';
 import { Link } from 'react-router-dom';
 import { HUIGUANG_WEB_URL, SICHEN_LANDING_PATH } from '../config/productUrls';
 import { SichenMark } from './SichenMark';
 
-/** @type {Array<{ name: string, category: string, description: string, icon: import('react').ComponentType, tone: string, href?: string, external?: boolean, available?: boolean }>} */
-const products = [
+interface Product {
+  name: string;
+  category: string;
+  description: string;
+  icon: ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+  tone: string;
+  href?: string;
+  external?: boolean;
+  available?: boolean;
+}
+
+const products: Product[] = [
   {
     name: '绘光',
     category: 'AI 图片生成',
@@ -44,7 +55,7 @@ const products = [
   },
 ];
 
-export function ProductMenu({ mobile = false }) {
+export function ProductMenu({ mobile = false }: { mobile?: boolean }) {
   if (mobile) {
     return (
       <div className="mobile-products">
@@ -79,12 +90,11 @@ export function ProductMenu({ mobile = false }) {
   );
 }
 
-/** @param {{ product: (typeof products)[number], mobile?: boolean }} props */
-function ProductItem({ product, mobile = false }) {
+function ProductItem({ product, mobile = false }: { product: Product; mobile?: boolean }) {
   const Icon = product.icon;
   const content = (
     <>
-      <span className={`product-menu-icon ${product.tone}`}><Icon aria-hidden="true" /></span>
+      <span className={`product-menu-icon ${product.tone}`}><Icon aria-hidden /></span>
       <span className="product-menu-copy">
         <span className="product-menu-title">
           <strong>{product.name}</strong>

@@ -1,9 +1,10 @@
 /**
  * 平台标识图标。Windows 四格徽标、macOS/iOS 苹果剪影、Linux 终端提示符、
  * Android 机器人,统一 currentColor 着色,尺寸由外层字号控制。
- * @param {{ name: 'windows' | 'mac' | 'ios' | 'android' | 'linux', className?: string }} props
  */
-export function PlatformGlyph({ name, className }) {
+export type PlatformName = 'windows' | 'mac' | 'ios' | 'android' | 'linux';
+
+export function PlatformGlyph({ name, className }: { name: PlatformName; className?: string }) {
   if (name === 'android') {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

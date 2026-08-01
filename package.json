@@ -7,10 +7,10 @@
     "dev": "vite",
     "build": "npm run build:client && npm run build:ssr && npm run prerender",
     "build:client": "vite build",
-    "build:ssr": "vite build --ssr src/entry-server.jsx --outDir .ssr",
+    "build:ssr": "vite build --ssr src/entry-server.tsx --outDir .ssr",
     "prerender": "node scripts/prerender.mjs",
     "preview": "vite preview",
-    "test": "node --test src/**/*.test.js",
+    "test": "node --test src/**/*.test.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
@@ -19,6 +19,7 @@
     "@douyinfe/semi-icons": "^2.101.1",
     "@douyinfe/semi-ui": "^2.101.1",
     "@shiguang/components": "git+ssh://git@github.com/shiguang-lab/components.git#ca2d2a20f62686883816f4b66488d416d5ca7692",
+    "ahooks": "^3.9.6",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.1",
@@ -37,7 +38,8 @@
     "globals": "^17.7.0",
     "less": "^4.8.0",
     "tailwindcss": "^4.3.3",
-    "typescript": "^7.0.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1",
     "vite": "^8.1.5"
   }
 }

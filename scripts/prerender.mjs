@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
-import { SICHEN_LANDING_PATH } from '../src/config/productUrls.js';
+import { SICHEN_LANDING_PATH } from '../src/config/productUrls.ts';
 
 const root = process.cwd();
 const distDir = path.join(root, 'dist');

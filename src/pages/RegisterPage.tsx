@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Link, useNavigate, type NavigateFunction } from 'react-router-dom';
 import { AuthProviderIcon } from '../components/AuthProviderIcons';
 import { authProviders } from '../config/authProviders';
 import { useAuth } from '../auth/useAuth';
@@ -7,11 +7,23 @@ import { useAuth } from '../auth/useAuth';
 const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** @typedef {{ transactionId: string, csrfToken: string, provider?: string, email?: string, username?: string, displayName?: string }} RegisterContext */
+interface RegisterContext {
+  transactionId: string;
+  csrfToken: string;
+  provider?: string;
+  email?: string;
+  username?: string;
+  displayName?: string;
+}
 
-/** @param {Response} response */
-async function readJSON(response) {
-  const value = await response.json().catch(() => ({}));
+interface ErrorPayload {
+  error?: string;
+}
+
+type RegisterStatus = 'initializing' | 'ready' | 'submitting' | 'success' | 'error';
+
+async function readJSON<T>(response: Response): Promise<T> {
+  const value = await response.json().catch(() => ({})) as T & ErrorPayload;
   if (!response.ok) {
     const error = Object.assign(new Error(value.error || 'request_failed'), { status: response.status });
     throw error;
@@ -19,19 +31,17 @@ async function readJSON(response) {
   return value;
 }
 
-/** @param {AbortSignal=} signal */
-async function createRegisterContext(signal) {
+async function createRegisterContext(signal?: AbortSignal): Promise<RegisterContext> {
   const response = await fetch('/api/auth/register/context', {
     method: 'POST',
     credentials: 'include',
     headers: { Accept: 'application/json' },
     signal,
   });
-  return readJSON(response);
+  return readJSON<RegisterContext>(response);
 }
 
-/** @param {string} transactionID @param {AbortSignal=} signal */
-async function createFederatedRegisterContext(transactionID, signal) {
+async function createFederatedRegisterContext(transactionID: string, signal?: AbortSignal): Promise<RegisterContext> {
   const response = await fetch('/api/auth/register/federated/context', {
     method: 'POST',
     credentials: 'include',
@@ -42,11 +52,10 @@ async function createFederatedRegisterContext(transactionID, signal) {
     body: JSON.stringify({ transactionId: transactionID }),
     signal,
   });
-  return readJSON(response);
+  return readJSON<RegisterContext>(response);
 }
 
-/** @param {{ name: 'user' | 'mail' | 'lock' | 'eye' | 'eyeOff' }} props */
-function RegisterIcon({ name }) {
+function RegisterIcon({ name }: { name: 'user' | 'mail' | 'lock' | 'eye' | 'eyeOff' }) {
   if (name === 'user') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -94,11 +103,12 @@ function RegisterIcon({ name }) {
 /**
  * 登录/注册成功后的回跳:本站路径走路由切换(先刷新会话上下文),
  * 跨源地址(其它产品域)才整页跳转。
- * @param {string} target
- * @param {(to: string) => void} navigate
- * @param {() => Promise<unknown>} refresh
  */
-async function settleRedirect(target, navigate, refresh) {
+async function settleRedirect(
+  target: string | undefined,
+  navigate: NavigateFunction,
+  refresh: (signal?: AbortSignal) => Promise<unknown>,
+) {
   const value = typeof target === 'string' && target ? target : '/';
   if (value.startsWith('/') && !value.startsWith('//')) {
     await refresh().catch(() => undefined);
@@ -111,22 +121,19 @@ async function settleRedirect(target, navigate, refresh) {
 export function RegisterPage() {
   const navigate = useNavigate();
   const { refresh } = useAuth();
-  const query = useMemo(
-    () => new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search),
-    [],
-  );
+  const query = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search);
   const returnTo = query.get('return_to') || query.get('redirect') || '/';
   const federatedMode = query.get('mode') === 'federated';
   const federatedTransactionID = query.get('transaction_id') || '';
   const loginHref = `/login?${new URLSearchParams({ return_to: returnTo }).toString()}`;
-  const [context, setContext] = useState(/** @type {RegisterContext | null} */ (null));
+  const [context, setContext] = useState<RegisterContext | null>(null);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [accepted, setAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [status, setStatus] = useState('initializing');
+  const [status, setStatus] = useState<RegisterStatus>('initializing');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -141,8 +148,8 @@ export function RegisterPage() {
         if (value.username && usernamePattern.test(value.username)) setUsername(value.username);
         setStatus('ready');
       })
-      .catch((error) => {
-        if (error.name !== 'AbortError') {
+      .catch((error: unknown) => {
+        if (!(error instanceof Error) || error.name !== 'AbortError') {
           setMessage('安全注册初始化失败，请稍后重试。');
           setStatus('error');
         }
@@ -150,8 +157,7 @@ export function RegisterPage() {
     return () => controller.abort();
   }, [federatedMode, federatedTransactionID]);
 
-  /** @param {import('react').FormEvent<HTMLFormElement>} event */
-  const submit = async (event) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setMessage('');
 
@@ -197,7 +203,7 @@ export function RegisterPage() {
           password,
         }),
       });
-      const value = await readJSON(response);
+      const value = await readJSON<{ redirect?: string }>(response);
       if (value.redirect) {
         await settleRedirect(value.redirect, navigate, refresh);
         return;
@@ -228,8 +234,7 @@ export function RegisterPage() {
     }
   };
 
-  /** @param {string} provider */
-  const startProviderRegistration = (provider) => {
+  const startProviderRegistration = (provider: string) => {
     const search = new URLSearchParams({ provider, return_to: returnTo });
     window.location.assign(`/api/auth/register/provider?${search.toString()}`);
   };

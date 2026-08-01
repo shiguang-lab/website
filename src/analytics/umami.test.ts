@@ -4,31 +4,33 @@ import test from 'node:test';
 let importSequence = 0;
 
 function createBrowser() {
-  /** @type {Map<string, () => void>} */
-  const trackerListeners = new Map();
-  const tracker = /** @type {HTMLScriptElement} */ (/** @type {unknown} */ ({
+  const trackerListeners = new Map<string, () => void>();
+  const tracker = {
     dataset: {},
-    /** @param {string} name @param {EventListenerOrEventListenerObject} listener */
-    addEventListener(name, listener) {
-      trackerListeners.set(name, /** @type {() => void} */ (listener));
+    addEventListener(name: string, listener: EventListenerOrEventListenerObject) {
+      trackerListeners.set(name, listener as () => void);
     },
-  }));
+  } as unknown as HTMLScriptElement;
 
-  globalThis.window = /** @type {Window & typeof globalThis} */ (/** @type {unknown} */ ({
-    location: { pathname: '/' },
-  }));
-  globalThis.document = /** @type {Document} */ (/** @type {unknown} */ ({
+  Object.defineProperty(globalThis, 'window', {
+    configurable: true,
+    value: { location: { pathname: '/', href: 'https://example.test/' } } as unknown as Window & typeof globalThis,
+  });
+  Object.defineProperty(globalThis, 'document', {
+    configurable: true,
+    value: {
     createElement: () => tracker,
     head: { append: () => undefined },
     addEventListener: () => undefined,
-  }));
+    } as unknown as Document,
+  });
 
   return { tracker, trackerListeners };
 }
 
 async function loadAnalytics() {
   importSequence += 1;
-  return import(`./umami.js?test=${importSequence}`);
+  return import(`./umami.ts?test=${importSequence}`);
 }
 
 test.afterEach(() => {
@@ -38,8 +40,7 @@ test.afterEach(() => {
 
 test('applies a queued user identity when the Umami SDK loads', async () => {
   const { trackerListeners } = createBrowser();
-  /** @type {unknown[][]} */
-  const identifyCalls = [];
+  const identifyCalls: unknown[][] = [];
   const analytics = await loadAnalytics();
 
   analytics.syncUmamiIdentity('  zitadel-user-1  ');
@@ -59,8 +60,7 @@ test('applies a queued user identity when the Umami SDK loads', async () => {
 
 test('deduplicates an identity and clears it after logout', async () => {
   createBrowser();
-  /** @type {unknown[][]} */
-  const identifyCalls = [];
+  const identifyCalls: unknown[][] = [];
   window.umami = {
     identify: (...args) => identifyCalls.push(args),
     track: () => undefined,
@@ -79,8 +79,7 @@ test('deduplicates an identity and clears it after logout', async () => {
 
 test('keeps a fresh anonymous tracker anonymous without an identify request', async () => {
   createBrowser();
-  /** @type {string[]} */
-  const identifyCalls = [];
+  const identifyCalls: string[] = [];
   window.umami = {
     identify: (id) => identifyCalls.push(id),
     track: () => undefined,

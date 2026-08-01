@@ -1,13 +1,23 @@
-import { useState } from 'react';
+import { useState, type ComponentType } from 'react';
 import WujieReact from 'wujie-react';
+import type { MicroApp } from '../micro-apps/registry';
 
-const WujieApp = /** @type {any} */ (WujieReact);
+interface WujieAppProps {
+  width: string;
+  height: string;
+  name: string;
+  url?: string;
+  sync: boolean;
+  alive: boolean;
+  props: Record<string, string>;
+  loadError: (url: string, error: unknown) => void;
+}
 
-/** @param {{ app: { name: string, title: string, url?: string } }} props */
-export default function WujieHost({ app }) {
+const WujieApp = WujieReact as unknown as ComponentType<WujieAppProps>;
+
+export default function WujieHost({ app }: { app: MicroApp }) {
   const [loadError, setLoadError] = useState('');
-  /** @param {string} _url @param {unknown} error */
-  const onLoadError = (_url, error) => {
+  const onLoadError = (_url: string, error: unknown) => {
     void _url;
     setLoadError(error instanceof Error ? error.message : '子应用加载失败');
   };

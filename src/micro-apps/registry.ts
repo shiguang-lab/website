@@ -1,9 +1,12 @@
 const env = import.meta.env;
 
-/** @typedef {{ name: string, title: string, url?: string }} MicroApp */
+export interface MicroApp {
+  name: string;
+  title: string;
+  url?: string;
+}
 
-/** @type {Record<string, MicroApp>} */
-export const microApps = {
+export const microApps: Record<string, MicroApp> = {
   sichen: {
     name: 'shiguang-sichen',
     title: '司辰',
@@ -36,7 +39,6 @@ export const microApps = {
   },
 };
 
-/** @param {string} appId */
-export function getMicroApp(appId) {
+export function getMicroApp(appId: string) {
   return microApps[appId];
 }

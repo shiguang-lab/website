@@ -1,12 +1,18 @@
 import IconArrowLeft from '@douyinfe/semi-icons/lib/es/icons/IconArrowLeft';
+import type { ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PageMeta } from '../components/PageMeta';
 
 const effectiveDate = '2026 年 7 月 27 日';
 const supportEmail = 'support@shiguanglab.com';
 
-/** @param {{ eyebrow: string, title: string, description: string }} props */
-function LegalHeader({ eyebrow, title, description }) {
+interface LegalHeaderProps {
+  eyebrow: string;
+  title: string;
+  description: string;
+}
+
+function LegalHeader({ eyebrow, title, description }: LegalHeaderProps) {
   const navigate = useNavigate();
 
   return (
@@ -32,16 +38,15 @@ function LegalHeader({ eyebrow, title, description }) {
   );
 }
 
-/**
- * @param {{
- *   type: 'terms' | 'privacy',
- *   title: string,
- *   description: string,
- *   nav: Array<{ id: string, label: string }>,
- *   children: import('react').ReactNode
- * }} props
- */
-function LegalLayout({ type, title, description, nav, children }) {
+interface LegalLayoutProps {
+  type: 'terms' | 'privacy';
+  title: string;
+  description: string;
+  nav: Array<{ id: string; label: string }>;
+  children: ReactNode;
+}
+
+function LegalLayout({ type, title, description, nav, children }: LegalLayoutProps) {
   return (
     <main className="legal-page">
       <PageMeta title={`${title} · 拾光`} description={description} />

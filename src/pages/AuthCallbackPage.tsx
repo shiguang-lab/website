@@ -1,14 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 
 export function AuthCallbackPage() {
   const navigate = useNavigate();
   const { refresh } = useAuth();
-  const query = useMemo(
-    () => new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search),
-    [],
-  );
+  const query = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search);
   const status = query.get('status') === 'success' ? 'success' : 'error';
   const target = query.get('return_to');
   const [settled, setSettled] = useState(false);

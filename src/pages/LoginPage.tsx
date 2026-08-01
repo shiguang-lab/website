@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState, type FormEvent, type HTMLInputTypeAttribute } from 'react';
+import { Link, useNavigate, type NavigateFunction } from 'react-router-dom';
 import { AuthProviderIcon } from '../components/AuthProviderIcons';
 import { authProviders } from '../config/authProviders';
 import { useAuth } from '../auth/useAuth';
@@ -7,11 +7,36 @@ import { useAuth } from '../auth/useAuth';
 const genericError = '登录失败，请检查账号和密码后重试。';
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+type LoginModeId = 'account' | 'email' | 'sso';
+type LoginStatus = 'initializing' | 'ready' | 'submitting' | 'error';
+type EmailStep = 'address' | 'code';
+
+interface LoginMode {
+  id: LoginModeId;
+  label: string;
+  inputLabel: string;
+  placeholder: string;
+  autoComplete: string;
+  inputMode: 'text' | 'email';
+  inputType: HTMLInputTypeAttribute;
+  enabled: boolean;
+  disabledHint?: string;
+}
+
+interface LoginContext {
+  transactionId: string;
+  csrfToken: string;
+}
+
+interface ErrorPayload {
+  error?: string;
+}
+
 /**
  * 登录方式。`enabled: false` 的方式保留配置但不渲染:
  * - sso:企业 SSO,等企业 IdP 接入后放开。
  */
-const loginModes = [
+const loginModes: LoginMode[] = [
   {
     id: 'account',
     label: '账号登录',
@@ -45,11 +70,8 @@ const loginModes = [
   },
 ];
 
-/** @typedef {{ transactionId: string, csrfToken: string }} LoginContext */
-
-/** @param {Response} response */
-async function readJSON(response) {
-  const value = await response.json().catch(() => ({}));
+async function readJSON<T>(response: Response): Promise<T> {
+  const value = await response.json().catch(() => ({})) as T & ErrorPayload;
   if (!response.ok) {
     const error = Object.assign(new Error(value.error || 'request_failed'), { status: response.status });
     throw error;
@@ -57,8 +79,7 @@ async function readJSON(response) {
   return value;
 }
 
-/** @param {string} returnTo @param {AbortSignal=} signal */
-async function createLoginContext(returnTo, signal) {
+async function createLoginContext(returnTo: string, signal?: AbortSignal): Promise<LoginContext> {
   const response = await fetch('/api/auth/login/context', {
     method: 'POST',
     credentials: 'include',
@@ -69,11 +90,10 @@ async function createLoginContext(returnTo, signal) {
     body: JSON.stringify({ returnTo }),
     signal,
   });
-  return readJSON(response);
+  return readJSON<LoginContext>(response);
 }
 
-/** @param {string | null} status */
-function emailLinkStatusMessage(status) {
+function emailLinkStatusMessage(status: string | null) {
   if (status === 'browser') return '请在发送验证码的同一浏览器中打开邮件链接，或返回原页面手动输入验证码。';
   if (status === 'expired' || status === 'invalid') return '邮件验证码链接无效或已过期，请重新发送。';
   if (status === 'rate_limited') return '验证尝试次数过多，请稍后重新发送验证码。';
@@ -81,8 +101,7 @@ function emailLinkStatusMessage(status) {
   return '';
 }
 
-/** @param {{ name: 'user' | 'mail' | 'lock' | 'eye' | 'eyeOff' }} props */
-function LoginIcon({ name }) {
+function LoginIcon({ name }: { name: 'user' | 'mail' | 'lock' | 'eye' | 'eyeOff' }) {
   if (name === 'user') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -130,11 +149,12 @@ function LoginIcon({ name }) {
 /**
  * 登录/注册成功后的回跳:本站路径走路由切换(先刷新会话上下文),
  * 跨源地址(其它产品域)才整页跳转。
- * @param {string} target
- * @param {(to: string) => void} navigate
- * @param {() => Promise<unknown>} refresh
  */
-async function settleRedirect(target, navigate, refresh) {
+async function settleRedirect(
+  target: string | undefined,
+  navigate: NavigateFunction,
+  refresh: (signal?: AbortSignal) => Promise<unknown>,
+) {
   const value = typeof target === 'string' && target ? target : '/';
   if (value.startsWith('/') && !value.startsWith('//')) {
     await refresh().catch(() => undefined);
@@ -147,23 +167,20 @@ async function settleRedirect(target, navigate, refresh) {
 export function LoginPage() {
   const navigate = useNavigate();
   const { refresh } = useAuth();
-  const query = useMemo(
-    () => new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search),
-    [],
-  );
+  const query = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search);
   const returnTo = query.get('return_to') || query.get('redirect') || '/';
   const initialMode = query.get('mode') === 'email' ? 'email' : 'account';
   const registerHref = `/register?${new URLSearchParams({ return_to: returnTo }).toString()}`;
   const loginHelpHref = `/login-help?${new URLSearchParams({ return_to: returnTo }).toString()}`;
-  const [context, setContext] = useState(/** @type {LoginContext | null} */ (null));
+  const [context, setContext] = useState<LoginContext | null>(null);
   const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
   const [emailCode, setEmailCode] = useState('');
-  const [emailStep, setEmailStep] = useState('address');
+  const [emailStep, setEmailStep] = useState<EmailStep>('address');
   const [resendSeconds, setResendSeconds] = useState(0);
-  const [mode, setMode] = useState(initialMode);
+  const [mode, setMode] = useState<LoginModeId>(initialMode);
   const [showPassword, setShowPassword] = useState(false);
-  const [status, setStatus] = useState('initializing');
+  const [status, setStatus] = useState<LoginStatus>('initializing');
   const [pendingAction, setPendingAction] = useState('');
   const [message, setMessage] = useState(() => emailLinkStatusMessage(query.get('email_status')));
   const activeMode = loginModes.find((item) => item.id === mode) || loginModes[0];
@@ -179,8 +196,8 @@ export function LoginPage() {
         setContext(value);
         setStatus('ready');
       })
-      .catch((error) => {
-        if (error.name !== 'AbortError') {
+      .catch((error: unknown) => {
+        if (!(error instanceof Error) || error.name !== 'AbortError') {
           setMessage('安全登录初始化失败，请稍后重试。');
           setStatus('error');
         }
@@ -194,8 +211,7 @@ export function LoginPage() {
     return () => window.clearTimeout(timer);
   }, [resendSeconds]);
 
-  /** @param {string} provider */
-  const startFederatedLogin = (provider) => {
+  const startFederatedLogin = (provider: string) => {
     const search = new URLSearchParams({ provider, return_to: returnTo });
     window.location.assign(`/api/auth/federated/start?${search.toString()}`);
   };
@@ -243,11 +259,11 @@ export function LoginPage() {
           csrfToken: activeContext.csrfToken,
         }),
       });
-      const value = await readJSON(response);
+      const value = await readJSON<{ resendAfter?: number }>(response);
       setLoginName(email);
       setEmailStep('code');
       setEmailCode('');
-      setResendSeconds(Number.isFinite(value.resendAfter) ? value.resendAfter : 60);
+      setResendSeconds(typeof value.resendAfter === 'number' && Number.isFinite(value.resendAfter) ? value.resendAfter : 60);
       setPendingAction('');
       setStatus('ready');
       setMessage('');
@@ -269,8 +285,7 @@ export function LoginPage() {
     }
   };
 
-  /** @param {import('react').FormEvent<HTMLFormElement>} event */
-  const submit = async (event) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (status === 'submitting' || status === 'initializing') return;
     const normalizedLoginName = loginName.trim();
@@ -315,7 +330,7 @@ export function LoginPage() {
           csrfToken: context.csrfToken,
         }),
       });
-      const value = await readJSON(response);
+      const value = await readJSON<{ redirect?: string }>(response);
       await settleRedirect(value.redirect, navigate, refresh);
     } catch (error) {
       setPendingAction('');

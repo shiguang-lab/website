@@ -6,16 +6,13 @@ import { useAuth } from '../auth/useAuth';
 import { loginHref } from '../auth/loginRedirect';
 import { SICHEN_LANDING_PATH, SICHEN_WEB_URL } from '../config/productUrls';
 import { ProductMenu } from './ProductMenu';
+import type { AuthUser } from '../auth/auth-context';
 
-/** @typedef {import('../auth/auth-context').AuthUser} AuthUser */
-
-/** @param {AuthUser | null | undefined} user */
-function accountDisplayName(user) {
+function accountDisplayName(user: AuthUser | null | undefined) {
   return user?.displayName || user?.preferredUsername || '拾光用户';
 }
 
-/** @param {AuthUser | null | undefined} user @param {string} displayName */
-function accountSecondary(user, displayName) {
+function accountSecondary(user: AuthUser | null | undefined, displayName: string) {
   const email = user?.email?.trim();
   const identityLabels = [displayName, user?.preferredUsername]
     .filter(Boolean)
@@ -67,7 +64,7 @@ function AccountMenu() {
   );
 }
 
-export function SiteHeader({ productPage = false }) {
+export function SiteHeader({ productPage = false }: { productPage?: boolean }) {
   const prefix = productPage ? '/' : '';
   const location = useLocation();
   const { status, user, logout } = useAuth();

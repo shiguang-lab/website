@@ -2,19 +2,18 @@ import { useEffect } from 'react';
 
 export function useHomeEffects() {
   useEffect(() => {
-    const header = document.querySelector('[data-header]');
-    const menuButton = document.querySelector('[data-menu-button]');
-    const mobilePanel = document.querySelector('[data-mobile-panel]');
-    const tilt = document.querySelector('[data-tilt]');
-    const scrollViewport = document.querySelector('.site-scrollbar [data-overlayscrollbars-contents]');
+    const header = document.querySelector<HTMLElement>('[data-header]');
+    const menuButton = document.querySelector<HTMLButtonElement>('[data-menu-button]');
+    const mobilePanel = document.querySelector<HTMLElement>('[data-mobile-panel]');
+    const tilt = document.querySelector<HTMLElement>('[data-tilt]');
+    const scrollViewport = document.querySelector<HTMLElement>('.site-scrollbar [data-overlayscrollbars-contents]');
 
     const onScroll = () => header?.classList.toggle('scrolled', (scrollViewport?.scrollTop ?? 0) > 18);
     const onMenuClick = () => {
       const isOpen = mobilePanel?.classList.toggle('open') ?? false;
       menuButton?.setAttribute('aria-expanded', String(isOpen));
     };
-    /** @param {Event} event */
-    const onPanelClick = (event) => {
+    const onPanelClick = (event: Event) => {
       if (event.target instanceof HTMLAnchorElement) {
         mobilePanel?.classList.remove('open');
         menuButton?.setAttribute('aria-expanded', 'false');
@@ -34,10 +33,9 @@ export function useHomeEffects() {
         }
       }
     }, { threshold: 0.12 });
-    document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
+    document.querySelectorAll<HTMLElement>('.reveal').forEach((element) => observer.observe(element));
 
-    /** @param {Event} event */
-    const onTilt = (event) => {
+    const onTilt = (event: Event) => {
       if (!(tilt instanceof HTMLElement) || !(event instanceof PointerEvent)) return;
       const rect = tilt.getBoundingClientRect();
       const x = (event.clientX - rect.left) / rect.width - 0.5;

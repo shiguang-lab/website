@@ -21,8 +21,12 @@ const sichenMeta = {
   description: '司辰帮助个人与团队组织多个 AI Agent 分工协作，用技能、工作流和工具连接推进复杂任务。',
 };
 
-/** @type {Record<string, { title: string, description: string }>} */
-const routeMeta = {
+interface PageMetadata {
+  title: string;
+  description: string;
+}
+
+const routeMeta: Record<string, PageMetadata> = {
   '/terms': {
     title: '拾光用户协议',
     description: '拾光统一账号及 AI 助手、知识库、工作流、应用、插件与团队服务的使用规则。',
@@ -37,8 +41,7 @@ const routeMeta = {
   },
 };
 
-/** @param {string} url */
-export function render(url) {
+export function render(url: string) {
   const html = renderToString(
     <StaticRouter location={url}>
       <AuthProvider>

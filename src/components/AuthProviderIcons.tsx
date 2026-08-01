@@ -1,5 +1,4 @@
-/** @param {{ name: string }} props */
-export function AuthProviderIcon({ name }) {
+export function AuthProviderIcon({ name }: { name: string }) {
   if (name === 'wechat') {
     return (
       <svg viewBox="0 0 32 32" aria-hidden="true">

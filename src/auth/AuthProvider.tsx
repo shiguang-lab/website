@@ -1,52 +1,50 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCreation, useMemoizedFn } from 'ahooks';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { startUmamiAutoTracking, syncUmamiIdentity } from '../analytics/umami';
-import { AuthContext } from './auth-context';
+import { AuthContext, type AuthStatus, type AuthUser } from './auth-context';
 
-/** @typedef {import('./auth-context').AuthUser} AuthUser */
-/** @typedef {'loading' | 'anonymous' | 'authenticated'} AuthStatus */
+interface ErrorPayload {
+  error?: string;
+}
 
-/** @param {Response} response */
-async function readJSON(response) {
-  const value = await response.json().catch(() => ({}));
+async function readJSON<T>(response: Response): Promise<T> {
+  const value = await response.json().catch(() => ({})) as T & ErrorPayload;
   if (!response.ok) {
     throw Object.assign(new Error(value.error || 'request_failed'), { status: response.status });
   }
   return value;
 }
 
-/** @param {AbortSignal=} signal @returns {Promise<AuthUser | null>} */
-async function requestSession(signal) {
+async function requestSession(signal?: AbortSignal): Promise<AuthUser | null> {
   const response = await fetch('/api/auth/session', {
     credentials: 'include',
     headers: { Accept: 'application/json' },
     signal,
   });
   if (response.status === 401) return null;
-  return readJSON(response);
+  return readJSON<AuthUser>(response);
 }
 
-/** @param {{ children: import('react').ReactNode }} props */
-export function AuthProvider({ children }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
-  const [status, setStatus] = useState(/** @type {AuthStatus} */ ('loading'));
-  const [user, setUser] = useState(/** @type {AuthUser | null} */ (null));
+  const [status, setStatus] = useState<AuthStatus>('loading');
+  const [user, setUser] = useState<AuthUser | null>(null);
 
-  const applySession = useCallback((/** @type {AuthUser | null} */ value) => {
+  const applySession = useMemoizedFn((value: AuthUser | null) => {
     setUser(value);
     setStatus(value ? 'authenticated' : 'anonymous');
     return value;
-  }, []);
+  });
 
-  /** @type {(signal?: AbortSignal) => Promise<AuthUser | null>} */
-  const refresh = useCallback(async (signal) => {
+  const refresh = useMemoizedFn(async (signal?: AbortSignal): Promise<AuthUser | null> => {
     try {
       return applySession(await requestSession(signal));
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') return null;
       return applySession(null);
     }
-  }, [applySession]);
+  });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -65,18 +63,18 @@ export function AuthProvider({ children }) {
     syncUmamiIdentity(status === 'authenticated' ? user?.subject : null);
   }, [status, user?.subject]);
 
-  const logout = useCallback(async () => {
+  const logout = useMemoizedFn(async (): Promise<{ redirect?: string }> => {
     const response = await fetch('/api/auth/logout', {
       method: 'POST',
       credentials: 'include',
       headers: { Accept: 'application/json' },
     });
-    const value = await readJSON(response);
+    const value = await readJSON<{ redirect?: string }>(response);
     applySession(null);
     return value;
-  }, [applySession]);
+  });
 
-  const value = useMemo(() => ({ status, user, refresh, logout }), [logout, refresh, status, user]);
+  const value = useCreation(() => ({ status, user, refresh, logout }), [logout, refresh, status, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -9,9 +9,10 @@ import IconPhone from '@douyinfe/semi-icons/lib/es/icons/IconPhone';
 import IconPulse from '@douyinfe/semi-icons/lib/es/icons/IconPulse';
 import IconSetting from '@douyinfe/semi-icons/lib/es/icons/IconSetting';
 import IconUserGroup from '@douyinfe/semi-icons/lib/es/icons/IconUserGroup';
-import { useEffect, useState } from 'react';
+import { useMount } from 'ahooks';
+import { useState } from 'react';
 import { PageMeta } from '../components/PageMeta';
-import { PlatformGlyph } from '../components/PlatformGlyph';
+import { PlatformGlyph, type PlatformName } from '../components/PlatformGlyph';
 import { SichenMark } from '../components/SichenMark';
 import { SiteHeader } from '../components/SiteHeader';
 import { SICHEN_WEB_URL } from '../config/productUrls';
@@ -24,19 +25,18 @@ const linuxDownloadUrl = import.meta.env.VITE_SICHEN_LINUX_DOWNLOAD_URL || '/dow
 /** 构建时注入的安装包真实大小(MB);产物缺失时对应项为 null。 */
 const downloadSizes = typeof __SICHEN_DOWNLOAD_SIZES__ === 'undefined' ? {} : __SICHEN_DOWNLOAD_SIZES__;
 
-/** @typedef {'windows' | 'mac' | 'linux'} DesktopPlatform */
+type DesktopPlatform = Extract<PlatformName, 'windows' | 'mac' | 'linux'>;
 
-/**
- * @type {Array<{
- *   id: DesktopPlatform;
- *   name: string;
- *   requirement: string;
- *   packaging: string;
- *   url: string;
- *   sizeMb?: number | null;
- * }>}
- */
-const desktopBuilds = [
+interface DesktopBuild {
+  id: DesktopPlatform;
+  name: string;
+  requirement: string;
+  packaging: string;
+  url: string;
+  sizeMb?: number | null;
+}
+
+const desktopBuilds: DesktopBuild[] = [
   {
     id: 'windows',
     name: 'Windows',
@@ -89,7 +89,7 @@ function QrPlaceholder() {
 }
 
 /** 按 UA 识别访问者桌面平台,用于默认高亮对应下载项。 */
-function detectPlatform() {
+function detectPlatform(): DesktopPlatform | null {
   if (typeof navigator === 'undefined') return null;
   const ua = navigator.userAgent;
   if (/Windows/i.test(ua)) return 'windows';
@@ -130,11 +130,11 @@ const workflow = [
 
 export function SichenPage() {
   useHomeEffects();
-  const [platform, setPlatform] = useState(/** @type {DesktopPlatform | null} */ (null));
-  useEffect(() => {
+  const [platform, setPlatform] = useState<DesktopPlatform | null>(null);
+  useMount(() => {
     // 挂载后异步识别平台:预渲染 HTML 无高亮,水合一致,识别结果在微任务中落地。
     Promise.resolve().then(() => setPlatform(detectPlatform()));
-  }, []);
+  });
 
   return (
     <div className="page-shell sichen-page">

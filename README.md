@@ -33,7 +33,7 @@ npm run preview
 
 ## Umami 埋点
 
-Umami tracker 在 `index.html` 中统一加载，自动追踪页面访问。`src/analytics/umami.js` 会自动采集门户内所有按钮和超链接点击：
+Umami tracker 在 `index.html` 中统一加载，自动追踪页面访问。`src/analytics/umami.ts` 会自动采集门户内所有按钮和超链接点击：
 
 - 按钮统一上报 `button_click`
 - 超链接统一上报 `link_click`
@@ -46,9 +46,9 @@ Umami tracker 在 `index.html` 中统一加载，自动追踪页面访问。`src
 ## 目录
 
 ```text
-src/pages/HomePage.jsx       首页静态内容
-src/pages/MicroAppPage.jsx   微前端运行时壳层
-src/micro-apps/registry.js   产品注册表
+src/pages/HomePage.tsx       首页静态内容
+src/pages/MicroAppPage.tsx   微前端运行时壳层
+src/micro-apps/registry.ts   产品注册表
 src/styles/home.less         首页原有视觉样式
 src/styles/tailwind.less     Tailwind v4（tw: 前缀）
 scripts/prerender.mjs        SSG 与 SEO 文件生成

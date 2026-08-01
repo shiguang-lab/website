@@ -1,19 +1,14 @@
 const AUTO_TRACK_SELECTOR = 'a[href], button';
 const MAX_LABEL_LENGTH = 80;
-/** @type {Array<[string, Record<string, string>]>} */
-const pendingEvents = [];
-/** @type {string | undefined} */
-let pendingIdentity;
-/** @type {string | undefined} */
-let appliedIdentity;
+const pendingEvents: Array<[string, Record<string, string>]> = [];
+let pendingIdentity: string | undefined;
+let appliedIdentity: string | undefined;
 
-/** @param {string | null | undefined} value */
-function normalizeLabel(value) {
+function normalizeLabel(value: string | null | undefined) {
   return value?.replace(/\s+/g, ' ').trim().slice(0, MAX_LABEL_LENGTH) || '';
 }
 
-/** @param {HTMLAnchorElement | HTMLButtonElement} element */
-function getLabel(element) {
+function getLabel(element: HTMLAnchorElement | HTMLButtonElement) {
   return normalizeLabel(
     element.getAttribute('data-analytics-label')
       || element.getAttribute('aria-label')
@@ -23,15 +18,13 @@ function getLabel(element) {
   );
 }
 
-/** @param {HTMLAnchorElement | HTMLButtonElement} element */
-function getSection(element) {
+function getSection(element: HTMLAnchorElement | HTMLButtonElement) {
   const section = element.closest('section[id], header, main, footer');
   if (!section) return '';
   return section.id || section.tagName.toLowerCase();
 }
 
-/** @param {HTMLAnchorElement} anchor */
-function getSafeHref(anchor) {
+function getSafeHref(anchor: HTMLAnchorElement) {
   try {
     const url = new URL(anchor.href, window.location.href);
     const path = `${url.pathname}${url.hash}`;
@@ -65,9 +58,8 @@ function flushPendingAnalytics() {
 /**
  * Associates subsequent analytics with the authenticated IAM subject. Passing
  * null clears an identity previously applied in the current page lifecycle.
- * @param {string | null | undefined} userId
  */
-export function syncUmamiIdentity(userId) {
+export function syncUmamiIdentity(userId: string | null | undefined) {
   const identity = userId?.trim() || '';
 
   // A fresh tracker is anonymous already, so avoid sending an empty identify
@@ -82,8 +74,7 @@ export function syncUmamiIdentity(userId) {
   flushPendingAnalytics();
 }
 
-/** @param {string} name @param {Record<string, string>} [data] */
-export function trackEvent(name, data = {}) {
+export function trackEvent(name: string, data: Record<string, string> = {}) {
   if (window.umami?.track) {
     window.umami.track(name, data);
     return;
@@ -92,8 +83,7 @@ export function trackEvent(name, data = {}) {
   if (pendingEvents.length < 20) pendingEvents.push([name, data]);
 }
 
-/** @param {MouseEvent} event */
-function handleClick(event) {
+function handleClick(event: MouseEvent) {
   if (!(event.target instanceof Element)) return;
 
   const element = event.target.closest(AUTO_TRACK_SELECTOR);
@@ -105,8 +95,7 @@ function handleClick(event) {
   if (element instanceof HTMLButtonElement && (element.disabled || element.getAttribute('aria-disabled') === 'true')) return;
 
   const isLink = element instanceof HTMLAnchorElement;
-  /** @type {Record<string, string>} */
-  const data = {
+  const data: Record<string, string> = {
     label: getLabel(element) || (isLink ? 'unnamed-link' : 'unnamed-button'),
     page: window.location.pathname,
     section: getSection(element),

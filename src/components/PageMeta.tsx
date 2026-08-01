@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 
-/** @param {{ title: string, description: string }} props */
-export function PageMeta({ title, description }) {
+export function PageMeta({ title, description }: { title: string; description: string }) {
   useEffect(() => {
     document.title = title;
     const meta = document.querySelector('meta[name="description"]');

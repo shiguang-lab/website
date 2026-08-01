@@ -1,5 +1,5 @@
 import { Scrollbar } from '@shiguang/components';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { SICHEN_LANDING_PATH } from './config/productUrls';
 import { HomePage } from './pages/HomePage';
@@ -15,8 +15,7 @@ const TermsPage = lazy(() => import('./pages/LegalPage').then((module) => ({ def
 const PrivacyPage = lazy(() => import('./pages/LegalPage').then((module) => ({ default: module.PrivacyPage })));
 const LoginHelpPage = lazy(() => import('./pages/LoginHelpPage').then((module) => ({ default: module.LoginHelpPage })));
 
-/** @param {{ children: import('react').ReactNode }} props */
-function DeferredPage({ children }) {
+function DeferredPage({ children }: { children: ReactNode }) {
   return <Suspense fallback={<div className="tw:min-h-screen tw:bg-[#f7f8fa]" />}>{children}</Suspense>;
 }
 
