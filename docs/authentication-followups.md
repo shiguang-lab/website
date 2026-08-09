@@ -8,10 +8,11 @@
 - NAS 已部署 Website、Access Gateway、Auth Service、Redis 和 ZITADEL。
 - Website 账号密码登录、注册页面及 NAS Session API 已完成本地联调。
 - Website 已实现全局登录态、账号菜单、退出登录、账号设置和登录回跳参数；GitHub/Google 首次登录会进入 Website 自定义注册页，不再进入 ZITADEL 内置注册页。
-- Website 内部页面使用相对 `return_to`；跨域回到 OPC 时必须使用完整 URL，例如：
+- Website 内部页面使用相对 `return_to`；跨域回到 OPC、积分系统等独立工作台时必须使用完整 URL，例如：
 
   ```text
   https://shiguanglab.com/login?return_to=https%3A%2F%2Fopc.shiguanglab.com%2Fworkspaces
+  https://shiguanglab.com/login?return_to=https%3A%2F%2Fpoints.shiguanglab.com%2F
   ```
 
 - Auth Service 会对白名单中的 `return_to` 进行校验，并将其保存在一次性登录事务中；登录请求不能覆盖该地址。
