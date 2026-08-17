@@ -1,3 +1,5 @@
+import { HUIGUANG_WEB_URL, LINGGUANG_WEB_URL, POINTS_WEB_URL, YINGGUANG_WEB_URL } from '../config/productUrls.ts';
+
 export type PortalProductId = 'huiguang' | 'yingguang' | 'lingguang' | 'points';
 
 export interface PortalRoleDefinition {
@@ -26,7 +28,7 @@ export const PORTAL_PRODUCTS: PortalProductDefinition[] = [
     englishName: 'HUIGUANG',
     category: 'AI 图片创作',
     description: '图像生成、创作任务与资产管理',
-    href: 'https://huiguang.shiguanglab.com',
+    href: HUIGUANG_WEB_URL,
     tone: 'huiguang',
     roles: [
       { id: 'huiguang:user', label: '使用用户', description: '进入绘光并使用基础创作能力', risk: 'standard' },
@@ -40,7 +42,7 @@ export const PORTAL_PRODUCTS: PortalProductDefinition[] = [
     englishName: 'YINGGUANG',
     category: 'AI 视频创作',
     description: '视频任务、成片资产与运营恢复',
-    href: 'https://yingguang.shiguanglab.com',
+    href: YINGGUANG_WEB_URL,
     tone: 'yingguang',
     roles: [
       { id: 'yingguang:user', label: '创作者', description: '创建视频任务并管理本人资产', risk: 'standard' },
@@ -53,7 +55,7 @@ export const PORTAL_PRODUCTS: PortalProductDefinition[] = [
     englishName: 'LINGGUANG',
     category: 'Skills 应用市场',
     description: '发现、安装、发布与审核 Skills',
-    href: 'https://lingguang.shiguanglab.com',
+    href: LINGGUANG_WEB_URL,
     tone: 'lingguang',
     roles: [
       { id: 'lingguang:consumer', label: '使用用户', description: '浏览并在授权租户中安装 Skills', risk: 'standard' },
@@ -68,7 +70,7 @@ export const PORTAL_PRODUCTS: PortalProductDefinition[] = [
     englishName: 'POINTS',
     category: '积分能力中台',
     description: '个人积分、接入应用、账本与风控审计',
-    href: 'https://points.shiguanglab.com',
+    href: POINTS_WEB_URL,
     tone: 'points',
     basicAccess: '拾光统一账号提供个人积分基础访问；以下角色只授予平台管理能力。',
     roles: [

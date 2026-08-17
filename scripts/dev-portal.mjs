@@ -32,4 +32,5 @@ process.on('SIGTERM', () => shutdown(0));
 start(['scripts/portal-fixture-server.mjs']);
 start(['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', '3010'], {
   AUTH_PROXY_TARGET: 'http://127.0.0.1:18110',
+  VITE_POINTS_WEB_URL: 'http://127.0.0.1:18080',
 });

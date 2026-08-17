@@ -92,4 +92,6 @@ Content-Type: application/json
 - 真实 ZITADEL 写入、Gateway 路由、staging smoke 与审计告警是发布门禁。
 
 本地开发可执行 `npm run dev:portal`，打开
-`http://127.0.0.1:3010/portal`。夹具只监听回环地址，不访问真实 IAM。
+`http://127.0.0.1:3010/portal`。本地 Portal 的积分入口会指向
+`http://127.0.0.1:18080`，由本地 Gateway 跳转统一登录；夹具只监听回环地址，
+不访问真实 IAM。其他环境可通过 `VITE_POINTS_WEB_URL` 覆盖入口地址。
