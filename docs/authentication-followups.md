@@ -12,7 +12,7 @@
 
   ```text
   https://shiguanglab.com/login?return_to=https%3A%2F%2Fopc.shiguanglab.com%2Fworkspaces
-  https://shiguanglab.com/login?return_to=https%3A%2F%2Fpoints.shiguanglab.com%2F
+  https://shiguanglab.com/login?return_to=https%3A%2F%2Fpoint.shiguanglab.com%2F
   ```
 
 - Auth Service 会对白名单中的 `return_to` 进行校验，并将其保存在一次性登录事务中；登录请求不能覆盖该地址。
