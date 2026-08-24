@@ -7,6 +7,20 @@ export interface AuthUser {
   email?: string;
   preferredUsername?: string;
   entitlements?: string[];
+  roles?: string[];
+  platformRoles?: string[];
+  iamCapabilities?: {
+    productRoleAssignments?: {
+      read?: boolean;
+      write?: boolean;
+      manageableRoles?: string[];
+    };
+    pointsRoleAssignments?: {
+      read?: boolean;
+      write?: boolean;
+      manageableRoles?: string[];
+    };
+  };
 }
 
 export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';

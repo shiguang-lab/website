@@ -1,6 +1,11 @@
-# 拾光主站
+# 拾光官网与 Portal
 
 React + Vite 门户项目。首页采用构建期 SSG，产品系统通过无界加载为微前端；新增业务页面可以使用 Tailwind CSS v4 与 Semi Design，首页保留独立视觉样式。
+
+公开首页负责品牌介绍和统一登录入口。登录后默认进入 `/portal`，集中展示绘光、
+映光、灵光和积分系统的入口与 IAM 授权状态。各子系统仍是独立站点，Portal 不嵌入
+它们的业务工作台。授权边界与 API 契约见
+[`docs/portal-subsystem-access.md`](docs/portal-subsystem-access.md)。
 
 ## 本地开发
 
@@ -9,6 +14,15 @@ npm install
 cp .env.example .env.local
 npm run dev
 ```
+
+无真实 IAM 的 Portal 本地验收：
+
+```bash
+npm run dev:portal
+# http://127.0.0.1:3010/portal
+```
+
+该命令只启动回环地址上的短期身份/授权夹具，不访问 ZITADEL 或线上服务。
 
 产品入口为 `/app/:appId/*`。在 `.env.local` 配置对应的 `VITE_APP_*_URL` 后，无界会在该路由加载子应用。
 绘光是独立产品站，官网产品菜单直接打开

@@ -5,6 +5,7 @@ import { SICHEN_LANDING_PATH } from './config/productUrls';
 import { HomePage } from './pages/HomePage';
 import { SichenPage } from './pages/SichenPage';
 import { AccountPage } from './pages/AccountPage';
+import { PortalPage } from './pages/PortalPage';
 
 const MicroAppPage = lazy(() => import('./pages/MicroAppPage').then((module) => ({ default: module.MicroAppPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then((module) => ({ default: module.NotFoundPage })));
@@ -28,6 +29,7 @@ export function App() {
         <Route path="/login" element={<DeferredPage><LoginPage /></DeferredPage>} />
         <Route path="/register" element={<DeferredPage><RegisterPage /></DeferredPage>} />
         <Route path="/account/*" element={<AccountPage />} />
+        <Route path="/portal/*" element={<PortalPage />} />
         <Route path="/auth/callback" element={<DeferredPage><AuthCallbackPage /></DeferredPage>} />
         <Route path="/terms" element={<DeferredPage><TermsPage /></DeferredPage>} />
         <Route path="/privacy" element={<DeferredPage><PrivacyPage /></DeferredPage>} />

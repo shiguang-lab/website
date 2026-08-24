@@ -5,7 +5,7 @@ interface LocationParts {
 }
 
 export function currentReturnTo(location: LocationParts) {
-  if (location.pathname === '/login' || location.pathname === '/register') return '/';
+  if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') return '/portal';
   const pathname = location.pathname.startsWith('/') ? location.pathname : '/';
   return `${pathname}${location.search || ''}${location.hash || ''}`;
 }

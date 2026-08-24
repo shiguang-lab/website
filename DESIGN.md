@@ -67,6 +67,22 @@ and the Shiguang mark rather than decorative illustration.
 - Empty, loading, and error states occupy stable space and provide a single
   direct recovery action where appropriate.
 
+### Portal Workspace
+
+- `/portal` is the authenticated first screen after a login initiated from the
+  public homepage. It is an operational workspace, not another marketing hero.
+- Use the account-tool 1440px canvas and 236px navigation. Product access is a
+  single divided list; do not wrap each product in another card.
+- Product identity accents are intentionally distinct and sparse: Huiguang
+  cyan, Yingguang coral, Lingguang green, and Points gold. Text, surfaces, and
+  navigation remain neutral graphite.
+- Authorization management uses a directory column and a role editor column.
+  Elevated roles carry a text label in addition to color. A confirmation dialog
+  must show the before and after role sets before submission.
+- Portal manages IAM product roles only. Never imply that it controls product
+  resources, organization membership, application credentials, or machine
+  tokens.
+
 ## Do And Don't
 
 - Do keep authenticated pages dense, calm, and easy to scan.
