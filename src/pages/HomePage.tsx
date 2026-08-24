@@ -1,7 +1,7 @@
 import { useHomeEffects } from '../hooks/useHomeEffects';
 import { SiteHeader } from '../components/SiteHeader';
 import { Link } from 'react-router-dom';
-import { HUIGUANG_WEB_URL, SICHEN_LANDING_PATH } from '../config/productUrls';
+import { HUIGUANG_WEB_URL, SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH } from '../config/productUrls';
 
 export function HomePage() {
   useHomeEffects();
@@ -80,6 +80,10 @@ export function HomePage() {
         <article className="feature-card reveal delay-240">
           <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-team.png" width={72} height={72} alt="" aria-hidden="true" /></div>
           <h3>团队协作</h3><p>权限管理、成员协作、项目空间，让团队效率倍增。</p><Link to="/app/team">立即体验 <span>→</span></Link>
+        </article>
+        <article className="feature-card feature-card-zhixu reveal delay-300">
+          <div className="icon-orb zhixu-home-mark" aria-hidden="true"><span /><span /><span /></div>
+          <h3>知序</h3><p>让文档、知识、调研与交付成果在同一个 AI 空间有序沉淀。</p><Link to={ZHIXU_LANDING_PATH}>了解知序 <span>→</span></Link>
         </article>
       </div>
     </section>
@@ -171,7 +175,7 @@ export function HomePage() {
         <p>拾光致力于打造领先的 AI 协作平台，<br />让每个人都能用 AI 创造价值。</p>
         <div className="socials"><a href="#" aria-label="GitHub">⌁</a><a href="#" aria-label="X">𝕏</a><a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="邮件">✉</a></div>
       </div>
-      <div className="footer-col"><h4>产品</h4><a href={HUIGUANG_WEB_URL} target="_blank" rel="noopener noreferrer">绘光 · AI 图片</a><a href="#products">跃影 · AI 视频</a><a href="#products">入戏 · AI 短剧</a><Link to={SICHEN_LANDING_PATH}>司辰 · 多智能体</Link></div>
+      <div className="footer-col"><h4>产品</h4><a href={HUIGUANG_WEB_URL} target="_blank" rel="noopener noreferrer">绘光 · AI 图片</a><a href="#products">跃影 · AI 视频</a><a href="#products">入戏 · AI 短剧</a><Link to={SICHEN_LANDING_PATH}>司辰 · 多智能体</Link><Link to={ZHIXU_LANDING_PATH}>知序 · AI 知识与创作</Link></div>
       <div className="footer-col"><h4>解决方案</h4><a href="#solutions">个人用户</a><a href="#solutions">中小团队</a><a href="#solutions">企业客户</a><a href="#solutions">教育行业</a><a href="#developers">开发者</a></div>
       <div className="footer-col" id="resources"><h4>资源</h4><a href="#">文档中心</a><a href="#">帮助中心</a><a href="#">更新日志</a><a href="#">API 文档</a><a href="#">博客</a></div>
       <div className="footer-col"><h4>公司</h4><a href="#">关于我们</a><a href="#">加入我们</a><a href="mailto:support@shiguanglab.com">联系我们</a><Link to="/privacy">隐私政策</Link><Link to="/terms">用户协议</Link></div>

@@ -5,6 +5,7 @@ import './styles/semi.less';
 import './styles/tailwind.less';
 import './styles/home.less';
 import './styles/sichen.less';
+import './styles/zhixu.less';
 import './styles/login.less';
 import './styles/legal.less';
 import './styles/account.less';

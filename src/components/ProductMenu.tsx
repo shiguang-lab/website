@@ -3,9 +3,10 @@ import IconArrowRight from '@douyinfe/semi-icons/lib/es/icons/IconArrowRight';
 import IconChevronDown from '@douyinfe/semi-icons/lib/es/icons/IconChevronDown';
 import IconPlayCircle from '@douyinfe/semi-icons/lib/es/icons/IconPlayCircle';
 import IconVideo from '@douyinfe/semi-icons/lib/es/icons/IconVideo';
+import IconBookOpenStroked from '@douyinfe/semi-icons/lib/es/icons/IconBookOpenStroked';
 import type { ComponentType } from 'react';
 import { Link } from 'react-router-dom';
-import { HUIGUANG_WEB_URL, SICHEN_LANDING_PATH } from '../config/productUrls';
+import { HUIGUANG_WEB_URL, SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH } from '../config/productUrls';
 import { SichenMark } from './SichenMark';
 
 interface Product {
@@ -51,6 +52,15 @@ const products: Product[] = [
     icon: SichenMark,
     tone: 'violet',
     href: SICHEN_LANDING_PATH,
+    available: true,
+  },
+  {
+    name: '知序',
+    category: 'AI 知识与创作',
+    description: '汇聚文档、知识与研究，让每次探索沉淀为可复用资产',
+    icon: IconBookOpenStroked,
+    tone: 'emerald',
+    href: ZHIXU_LANDING_PATH,
     available: true,
   },
 ];

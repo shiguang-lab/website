@@ -1,9 +1,10 @@
 import { Scrollbar } from '@shiguang2/components';
 import { lazy, Suspense, type ReactNode } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { SICHEN_LANDING_PATH } from './config/productUrls';
+import { SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH } from './config/productUrls';
 import { HomePage } from './pages/HomePage';
 import { SichenPage } from './pages/SichenPage';
+import { ZhixuPage } from './pages/ZhixuPage';
 import { AccountPage } from './pages/AccountPage';
 
 const MicroAppPage = lazy(() => import('./pages/MicroAppPage').then((module) => ({ default: module.MicroAppPage })));
@@ -25,6 +26,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path={SICHEN_LANDING_PATH} element={<SichenPage />} />
+        <Route path={ZHIXU_LANDING_PATH} element={<ZhixuPage />} />
         <Route path="/login" element={<DeferredPage><LoginPage /></DeferredPage>} />
         <Route path="/register" element={<DeferredPage><RegisterPage /></DeferredPage>} />
         <Route path="/account/*" element={<AccountPage />} />

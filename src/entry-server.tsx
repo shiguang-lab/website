@@ -4,12 +4,13 @@ import './styles/semi.less';
 import './styles/tailwind.less';
 import './styles/home.less';
 import './styles/sichen.less';
+import './styles/zhixu.less';
 import './styles/login.less';
 import './styles/legal.less';
 import './styles/account.less';
 import { App } from './App';
 import { AuthProvider } from './auth/AuthProvider';
-import { SICHEN_LANDING_PATH } from './config/productUrls';
+import { SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH } from './config/productUrls';
 
 const homeMeta = {
   title: '拾光 · 让 AI 成为你的生产力',
@@ -19,6 +20,11 @@ const homeMeta = {
 const sichenMeta = {
   title: '司辰 · 多智能体协作平台 | 拾光',
   description: '司辰帮助个人与团队组织多个 AI Agent 分工协作，用技能、工作流和工具连接推进复杂任务。',
+};
+
+const zhixuMeta = {
+  title: '知序 · AI 知识与创作空间 | 拾光',
+  description: '知序把文档、知识库、深度调研、任务与在线演示放进同一个 AI 工作空间，让每次探索都沉淀为可复用成果。',
 };
 
 interface PageMetadata {
@@ -51,6 +57,8 @@ export function render(url: string) {
   );
 
   const pathname = url.split('?')[0];
-  const meta = routeMeta[pathname] || (pathname.startsWith(SICHEN_LANDING_PATH) ? sichenMeta : homeMeta);
+  const meta = routeMeta[pathname]
+    || (pathname.startsWith(SICHEN_LANDING_PATH) ? sichenMeta : null)
+    || (pathname.startsWith(ZHIXU_LANDING_PATH) ? zhixuMeta : homeMeta);
   return { html, meta };
 }

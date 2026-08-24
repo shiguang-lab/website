@@ -4,7 +4,7 @@ import IconExternalOpen from '@douyinfe/semi-icons/lib/es/icons/IconExternalOpen
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { loginHref } from '../auth/loginRedirect';
-import { SICHEN_LANDING_PATH, SICHEN_WEB_URL } from '../config/productUrls';
+import { SICHEN_LANDING_PATH, SICHEN_WEB_URL, CONSOLE_WEB_URL } from '../config/productUrls';
 import { ProductMenu } from './ProductMenu';
 import type { AuthUser } from '../auth/auth-context';
 
@@ -55,6 +55,7 @@ function AccountMenu() {
         </div>
         <Link to="/account/profile">账号中心 <IconIdCard aria-hidden="true" /></Link>
         <a href={SICHEN_WEB_URL}>进入司辰工作台 <IconExternalOpen aria-hidden="true" /></a>
+        <a href={CONSOLE_WEB_URL}>进入控制台 <IconExternalOpen aria-hidden="true" /></a>
         <button type="button" onClick={handleLogout} disabled={loggingOut}>
           {loggingOut ? '正在退出…' : '退出登录'}
         </button>
@@ -64,7 +65,13 @@ function AccountMenu() {
   );
 }
 
-export function SiteHeader({ productPage = false }: { productPage?: boolean }) {
+export function SiteHeader({
+  productPage = false,
+  productUrl = SICHEN_WEB_URL,
+}: {
+  productPage?: boolean;
+  productUrl?: string;
+}) {
   const prefix = productPage ? '/' : '';
   const location = useLocation();
   const { status, user, logout } = useAuth();
@@ -92,7 +99,7 @@ export function SiteHeader({ productPage = false }: { productPage?: boolean }) {
           {status === 'authenticated' && user && <AccountMenu />}
           {status === 'anonymous' && <Link className="btn btn-ghost btn-sm" to={signInHref} data-umami-ignore>登录</Link>}
           {productPage ? (
-            <a className="btn btn-primary btn-sm" href={SICHEN_WEB_URL} target="_blank" rel="noopener noreferrer">免费体验</a>
+            <a className="btn btn-primary btn-sm" href={productUrl} target="_blank" rel="noopener noreferrer">免费体验</a>
           ) : (
             <Link className="btn btn-primary btn-sm" to={SICHEN_LANDING_PATH}>免费体验</Link>
           )}

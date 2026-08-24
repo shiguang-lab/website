@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
-import { SICHEN_LANDING_PATH } from '../src/config/productUrls.ts';
+import { SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH } from '../src/config/productUrls.ts';
 
 const root = process.cwd();
 const distDir = path.join(root, 'dist');
@@ -52,6 +52,9 @@ await writeFile(templatePath, buildPage('/', '拾光'));
 const sichenDir = path.join(distDir, SICHEN_LANDING_PATH.slice(1));
 await mkdir(sichenDir, { recursive: true });
 await writeFile(path.join(sichenDir, 'index.html'), buildPage(SICHEN_LANDING_PATH, '司辰'));
+const zhixuDir = path.join(distDir, ZHIXU_LANDING_PATH.slice(1));
+await mkdir(zhixuDir, { recursive: true });
+await writeFile(path.join(zhixuDir, 'index.html'), buildPage(ZHIXU_LANDING_PATH, '知序'));
 
 const appDocument = template
   .replace('<!--app-head-->', '<meta name="robots" content="noindex" />')
@@ -102,6 +105,7 @@ await writeFile(path.join(distDir, 'sitemap.xml'), `<?xml version="1.0" encoding
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>${siteUrl}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>${siteUrl}${SICHEN_LANDING_PATH}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>${siteUrl}${ZHIXU_LANDING_PATH}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>${siteUrl}/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>${siteUrl}/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>\n`);
@@ -112,4 +116,4 @@ for (const sub of ['profile', 'security', 'organizations']) {
   await mkdir(subDir, { recursive: true });
   await writeFile(path.join(subDir, 'index.html'), accountDocument);
 }
-console.log(`Pre-rendered ${siteUrl}/ and ${siteUrl}${SICHEN_LANDING_PATH}`);
+console.log(`Pre-rendered ${siteUrl}/, ${siteUrl}${SICHEN_LANDING_PATH}, and ${siteUrl}${ZHIXU_LANDING_PATH}`);
