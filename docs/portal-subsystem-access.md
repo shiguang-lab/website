@@ -84,8 +84,8 @@ Content-Type: application/json
 
 - 官网 Portal、授权编辑器、响应式页面和无密钥本地夹具已实现。
 - 官网生产代码只调用上述同源 API，接口不可用时失败关闭。
-- Auth Service `codex/portal-product-role-access` 分支已实现 Portal 聚合、通用产品角色
-  API、真实 ZITADEL 只读目录和保留旧积分接口的分范围命令；尚未合并部署。
+- Auth Service `main@92b5ede` 已包含 Portal 聚合、通用产品角色 API、真实
+  ZITADEL 只读目录和保留旧积分接口的分范围命令；尚未部署到官网环境。
 - Auth Service 生产写入仍失败关闭，必须在永久审计存储、ZITADEL 写执行器和对账
   运维能力完成后才能开启；本地 Redis 夹具已覆盖幂等与跨产品角色保留。
 - 灵光需要把 namespaced IAM 角色映射到现有内部角色后才能进入真实联调。
