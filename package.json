@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:portal": "node scripts/dev-portal.mjs",
     "build": "npm run build:client && npm run build:ssr && npm run prerender",
     "build:client": "vite build",
     "build:ssr": "vite build --ssr src/entry-server.tsx --outDir .ssr",

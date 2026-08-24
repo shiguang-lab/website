@@ -9,6 +9,7 @@ import './styles/zhixu.less';
 import './styles/login.less';
 import './styles/legal.less';
 import './styles/account.less';
+import './styles/portal.less';
 import { App } from './App';
 import { AuthProvider } from './auth/AuthProvider';
 

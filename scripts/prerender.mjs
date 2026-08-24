@@ -82,6 +82,13 @@ const accountDocument = template
 const accountDir = path.join(distDir, 'account');
 await mkdir(accountDir, { recursive: true });
 await writeFile(path.join(accountDir, 'index.html'), accountDocument);
+const portalDocument = template
+  .replace('<!--app-head-->', '<meta name="robots" content="noindex, nofollow" />')
+  .replace('<!--app-html-->', '')
+  .replace(/<title>.*?<\/title>/, '<title>统一工作台 · 拾光</title>');
+const portalDir = path.join(distDir, 'portal');
+await mkdir(portalDir, { recursive: true });
+await writeFile(path.join(portalDir, 'index.html'), portalDocument);
 for (const page of [
   { pathname: '/terms', productName: '拾光用户协议', robots: 'index, follow' },
   { pathname: '/privacy', productName: '拾光隐私政策', robots: 'index, follow' },
@@ -116,4 +123,7 @@ for (const sub of ['profile', 'security', 'organizations']) {
   await mkdir(subDir, { recursive: true });
   await writeFile(path.join(subDir, 'index.html'), accountDocument);
 }
+const portalAccessDir = path.join(distDir, 'portal', 'access');
+await mkdir(portalAccessDir, { recursive: true });
+await writeFile(path.join(portalAccessDir, 'index.html'), portalDocument);
 console.log(`Pre-rendered ${siteUrl}/, ${siteUrl}${SICHEN_LANDING_PATH}, and ${siteUrl}${ZHIXU_LANDING_PATH}`);

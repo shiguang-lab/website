@@ -1,12 +1,12 @@
 import IconAIImageLevel2 from '@douyinfe/semi-icons/lib/es/icons/IconAIImageLevel2';
 import IconArrowRight from '@douyinfe/semi-icons/lib/es/icons/IconArrowRight';
 import IconChevronDown from '@douyinfe/semi-icons/lib/es/icons/IconChevronDown';
-import IconPlayCircle from '@douyinfe/semi-icons/lib/es/icons/IconPlayCircle';
+import IconPulse from '@douyinfe/semi-icons/lib/es/icons/IconPulse';
 import IconVideo from '@douyinfe/semi-icons/lib/es/icons/IconVideo';
 import IconBookOpenStroked from '@douyinfe/semi-icons/lib/es/icons/IconBookOpenStroked';
 import type { ComponentType } from 'react';
 import { Link } from 'react-router-dom';
-import { HUIGUANG_WEB_URL, SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH } from '../config/productUrls';
+import { HUIGUANG_WEB_URL, LINGGUANG_WEB_URL, POINTS_WEB_URL, SICHEN_LANDING_PATH, YINGGUANG_WEB_URL, ZHIXU_LANDING_PATH } from '../config/productUrls';
 import { SichenMark } from './SichenMark';
 
 interface Product {
@@ -32,18 +32,34 @@ const products: Product[] = [
     available: true,
   },
   {
-    name: '跃影',
+    name: '映光',
     category: 'AI 视频生成',
-    description: '生成连贯、可控、富有表现力的动态影像',
+    description: '视频任务、成片资产与运营恢复',
     icon: IconVideo,
-    tone: 'blue',
+    tone: 'rose',
+    href: YINGGUANG_WEB_URL,
+    external: true,
+    available: true,
   },
   {
-    name: '入戏',
-    category: 'AI 短剧生成',
-    description: '从剧本、角色到成片的一站式短剧创作',
-    icon: IconPlayCircle,
-    tone: 'rose',
+    name: '灵光',
+    category: 'Skills 应用市场',
+    description: '发现、安装、发布与审核 Skills',
+    icon: IconPulse,
+    tone: 'green',
+    href: LINGGUANG_WEB_URL,
+    external: true,
+    available: true,
+  },
+  {
+    name: '积分系统',
+    category: '积分能力中台',
+    description: '接入应用、账本、报表与安全审计',
+    icon: IconPulse,
+    tone: 'gold',
+    href: POINTS_WEB_URL,
+    external: true,
+    available: true,
   },
   {
     name: '司辰',

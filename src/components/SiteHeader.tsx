@@ -53,6 +53,7 @@ function AccountMenu() {
           <span className="header-account-avatar large" aria-hidden="true">{initial}</span>
           <span><strong>{displayName}</strong><small>{secondary}</small></span>
         </div>
+        <Link to="/portal">统一工作台 <IconExternalOpen aria-hidden="true" /></Link>
         <Link to="/account/profile">账号中心 <IconIdCard aria-hidden="true" /></Link>
         <a href={SICHEN_WEB_URL}>进入司辰工作台 <IconExternalOpen aria-hidden="true" /></a>
         <a href={CONSOLE_WEB_URL}>进入控制台 <IconExternalOpen aria-hidden="true" /></a>
@@ -99,7 +100,7 @@ export function SiteHeader({
           {status === 'authenticated' && user && <AccountMenu />}
           {status === 'anonymous' && <Link className="btn btn-ghost btn-sm" to={signInHref} data-umami-ignore>登录</Link>}
           {productPage ? (
-            <a className="btn btn-primary btn-sm" href={productUrl} target="_blank" rel="noopener noreferrer">免费体验</a>
+            <Link className="btn btn-primary btn-sm" to="/portal">工作台</Link>
           ) : (
             <Link className="btn btn-primary btn-sm" to={SICHEN_LANDING_PATH}>免费体验</Link>
           )}
@@ -118,6 +119,7 @@ export function SiteHeader({
           <div className="mobile-account">
             <span><b>{displayName}</b><small>{secondary}</small></span>
             <div className="mobile-account-actions">
+              <Link to="/portal">统一工作台</Link>
               <Link to="/account/profile">账号中心</Link>
               <button type="button" onClick={() => logout().catch(() => undefined)}>退出登录</button>
             </div>
