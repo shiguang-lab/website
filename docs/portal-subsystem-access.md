@@ -84,6 +84,8 @@ Content-Type: application/json
 
 - 官网 Portal、授权编辑器、响应式页面和无密钥本地夹具已实现。
 - 官网生产代码只调用上述同源 API，接口不可用时失败关闭。
+- 本地 `npm run smoke:portal` 已覆盖 Portal fixture 的认证会话、产品入口白名单、
+  用户检索安全字段、幂等键要求、不可管理角色拒绝和授权 revision 变更语义。
 - Auth Service `main@92b5ede` 已包含 Portal 聚合、通用产品角色 API、真实
   ZITADEL 只读目录和保留旧积分接口的分范围命令；尚未部署到官网环境。
 - Auth Service 生产写入仍失败关闭，必须在永久审计存储、ZITADEL 写执行器和对账
@@ -95,3 +97,14 @@ Content-Type: application/json
 `http://127.0.0.1:3010/portal`。本地 Portal 的积分入口会指向
 `http://127.0.0.1:18080`，由本地 Gateway 跳转统一登录；夹具只监听回环地址，
 不访问真实 IAM。其他环境可通过 `VITE_POINTS_WEB_URL` 覆盖入口地址。
+
+本地验收可执行 `npm run smoke:portal`。该脚本启动回环 fixture 后直接请求同源
+API，确认：
+
+- `/api/auth/session` 返回 `local-portal-admin`、`opc:system-admin` 和产品角色
+  管理能力，且不暴露 Token、secret、机器凭据或第三方身份细节；
+- `/api/auth/portal/access` 只返回已知产品 ID、状态和角色，产品 URL 只能来自
+  官网本地 `PORTAL_PRODUCTS` 白名单；
+- 用户检索要求至少 3 个字符，响应只包含用户 ID、登录名、显示名、状态和产品角色；
+- 角色写入必须携带 `Idempotency-Key`，拒绝 `platform:admin`、
+  `opc:system-admin` 等非产品角色，只在角色实际变化时推进 revision。
