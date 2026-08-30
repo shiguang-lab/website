@@ -57,6 +57,12 @@ const productIcons = {
   points: IconKey,
 };
 
+const gateLabels = {
+  verified: '已验证',
+  pending: '待补齐',
+  blocked: '阻塞',
+};
+
 const apiMessages: Record<string, string> = {
   iam_admin_forbidden: '当前账号没有管理产品授权的权限。',
   iam_role_not_manageable: '提交内容包含未开放的产品角色。',
@@ -134,6 +140,53 @@ function ProductAccessRow({ product, access }: { product: PortalProductDefinitio
   );
 }
 
+function ProductReadinessPanel() {
+  const verifiedGates = PORTAL_PRODUCTS.reduce(
+    (count, product) => count + product.readiness.gates.filter((gate) => gate.status === 'verified').length,
+    0,
+  );
+  const totalGates = PORTAL_PRODUCTS.reduce((count, product) => count + product.readiness.gates.length, 0);
+  return (
+    <section className="portal-panel portal-readiness-panel" aria-labelledby="portal-readiness-title">
+      <div className="portal-panel-head">
+        <div>
+          <h2 id="portal-readiness-title">产品化状态</h2>
+          <p>面向推广前检查的阶段视图；真实上线仍以各系统验收和部署门禁为准。</p>
+        </div>
+        <span className="portal-admin-badge"><IconShield /> {verifiedGates}/{totalGates} 门禁有证据</span>
+      </div>
+      <div className="portal-readiness-list">
+        {PORTAL_PRODUCTS.map((product) => (
+          <article className="portal-readiness-row" key={product.id}>
+            <ProductMark product={product} />
+            <div className="portal-readiness-main">
+              <div className="portal-readiness-title">
+                <span><strong>{product.name}</strong><small>{product.englishName}</small></span>
+                <em className={product.tone}>{product.readiness.stage}</em>
+              </div>
+              <p>{product.readiness.signal}</p>
+              <div className="portal-readiness-gates" aria-label={`${product.name} 推广门禁`}>
+                {product.readiness.gates.map((gate) => (
+                  <div className={`portal-readiness-gate ${gate.status}`} key={gate.label}>
+                    <span>{gateLabels[gate.status]}</span>
+                    <strong>{gate.label}</strong>
+                    <small>{gate.detail}</small>
+                  </div>
+                ))}
+              </div>
+              <dl>
+                <div><dt>证据</dt><dd>{product.readiness.evidence.join(' / ')}</dd></div>
+                <div><dt>缺口</dt><dd>{product.readiness.gaps.join(' / ')}</dd></div>
+                <div><dt>下一里程碑</dt><dd>{product.readiness.nextMilestone}</dd></div>
+              </dl>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function PortalOverview({ access, status, error, reload }: {
   access: PortalAccessResponse | null;
   status: LoadStatus;
@@ -167,6 +220,8 @@ function PortalOverview({ access, status, error, reload }: {
           </div>
         )}
       </section>
+
+      <ProductReadinessPanel />
     </>
   );
 }

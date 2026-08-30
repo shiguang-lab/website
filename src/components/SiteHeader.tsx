@@ -68,7 +68,6 @@ function AccountMenu() {
 
 export function SiteHeader({
   productPage = false,
-  productUrl = SICHEN_WEB_URL,
 }: {
   productPage?: boolean;
   productUrl?: string;
