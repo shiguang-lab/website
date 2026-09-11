@@ -70,7 +70,6 @@ export function SiteHeader({
   productPage = false,
 }: {
   productPage?: boolean;
-  productUrl?: string;
 }) {
   const prefix = productPage ? '/' : '';
   const location = useLocation();

@@ -13,6 +13,7 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then((module) => 
 const LoginPage = lazy(() => import('./pages/LoginPage').then((module) => ({ default: module.LoginPage })));
 const RegisterPage = lazy(() => import('./pages/RegisterPage').then((module) => ({ default: module.RegisterPage })));
 const AuthCallbackPage = lazy(() => import('./pages/AuthCallbackPage').then((module) => ({ default: module.AuthCallbackPage })));
+const OAuthDevicePage = lazy(() => import('./pages/OAuthDevicePage').then((module) => ({ default: module.OAuthDevicePage })));
 const TermsPage = lazy(() => import('./pages/LegalPage').then((module) => ({ default: module.TermsPage })));
 const PrivacyPage = lazy(() => import('./pages/LegalPage').then((module) => ({ default: module.PrivacyPage })));
 const LoginHelpPage = lazy(() => import('./pages/LoginHelpPage').then((module) => ({ default: module.LoginHelpPage })));
@@ -33,6 +34,7 @@ export function App() {
         <Route path="/account/*" element={<AccountPage />} />
         <Route path="/portal/*" element={<PortalPage />} />
         <Route path="/auth/callback" element={<DeferredPage><AuthCallbackPage /></DeferredPage>} />
+        <Route path="/oauth/device" element={<DeferredPage><OAuthDevicePage /></DeferredPage>} />
         <Route path="/terms" element={<DeferredPage><TermsPage /></DeferredPage>} />
         <Route path="/privacy" element={<DeferredPage><PrivacyPage /></DeferredPage>} />
         <Route path="/login-help" element={<DeferredPage><LoginHelpPage /></DeferredPage>} />

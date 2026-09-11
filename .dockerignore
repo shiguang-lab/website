@@ -1,0 +1,15 @@
+.git
+.github
+.idea
+.claude
+.codex-staging
+.design
+.env
+.env.local
+.pnpm-store
+.ssr
+dist
+node_modules
+public/downloads
+*.log
+.DS_Store

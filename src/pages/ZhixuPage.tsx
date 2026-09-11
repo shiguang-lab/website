@@ -51,7 +51,7 @@ export function ZhixuPage() {
         title="知序 · AI 知识与创作空间 | 拾光"
         description="知序把文档、知识库、深度调研、任务与在线演示放进同一个 AI 工作空间，让每次探索都沉淀为可复用成果。"
       />
-      <SiteHeader productPage productUrl={ZHIXU_WEB_URL} />
+      <SiteHeader productPage />
       <main id="top">
         <section className="zhixu-hero">
           <div className="container zhixu-hero-inner">
@@ -155,4 +155,3 @@ export function ZhixuPage() {
     </div>
   );
 }
-

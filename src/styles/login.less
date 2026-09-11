@@ -55,6 +55,22 @@
 .auth-callback-panel .login-submit { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
 .auth-callback-loading { color: rgba(224, 226, 241, 0.44); font-size: 12px; }
 
+.oauth-device-panel { display: flex; align-items: center; justify-content: center; }
+.oauth-device-panel .login-account-inner { width: min(100% - 48px, 420px); }
+.oauth-device-panel h1 { margin: 0; color: #f8f8ff; font-size: clamp(27px, 3vw, 36px); line-height: 1.3; }
+.oauth-device-copy { margin: 14px 0 0; color: rgba(224, 226, 241, .58); font-size: 14px; line-height: 1.7; }
+.oauth-device-code { margin: 26px 0; color: #fff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 25px; font-weight: 700; letter-spacing: .12em; }
+.oauth-device-scopes { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.oauth-device-scopes li { display: flex; align-items: flex-start; gap: 12px; padding: 11px 13px; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; background: rgba(255,255,255,.035); }
+.oauth-device-scopes li > span { color: #76dcae; }
+.oauth-device-scopes strong,.oauth-device-scopes small { display: block; }
+.oauth-device-scopes strong { color: rgba(248,248,255,.9); font-size: 13px; font-weight: 500; }
+.oauth-device-scopes small { margin-top: 3px; color: rgba(224,226,241,.38); font-size: 10px; }
+.oauth-device-actions { display: grid; grid-template-columns: 1fr 1.35fr; gap: 12px; margin-top: 24px; }
+.oauth-device-actions button { min-height: 44px; border: 1px solid rgba(255,255,255,.13); border-radius: 10px; color: #ececff; background: rgba(255,255,255,.045); cursor: pointer; }
+.oauth-device-actions .login-submit { border: 0; }
+.oauth-device-actions button:disabled { cursor: wait; opacity: .58; }
+
 .login-story,
 .login-account {
   position: relative;

@@ -45,6 +45,25 @@ npm run preview
 
 静态托管需要把 `/app/*` 重写到 `/app.html`。仓库内的 `public/_redirects` 可直接用于 Netlify/Cloudflare Pages；Nginx 等环境请配置等价 rewrite。
 
+## 镜像发布与 NAS 部署
+
+版本 tag `v*` 会触发 GitHub Actions，执行类型检查和测试后构建
+`linux/amd64` 镜像，并发布到 `ghcr.io/shiguang-lab/website`。镜像同时生成
+版本号、原始 tag、Commit SHA 和 `latest` 标签。
+
+NAS 使用 [`deploy/docker-compose.nas.yml`](deploy/docker-compose.nas.yml) 拉取
+指定版本，不在 NAS 或开发机上构建：
+
+```bash
+cp deploy/website.env.example deploy/website.env
+# 将 WEBSITE_IMAGE_TAG 改为要发布的 tag，例如 v1.0.0
+docker compose --env-file deploy/website.env -f deploy/docker-compose.nas.yml pull
+docker compose --env-file deploy/website.env -f deploy/docker-compose.nas.yml up -d
+```
+
+司辰桌面安装包不进入网站镜像。NAS 将持久化的 `downloads` 目录只读挂载到
+`/usr/share/nginx/html/downloads`，升级网站镜像不会覆盖或删除安装包。
+
 ## Umami 埋点
 
 Umami tracker 在 `index.html` 中统一加载，自动追踪页面访问。`src/analytics/umami.ts` 会自动采集门户内所有按钮和超链接点击：
