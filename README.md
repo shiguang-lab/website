@@ -64,6 +64,23 @@ docker compose --env-file deploy/website.env -f deploy/docker-compose.nas.yml up
 司辰桌面安装包不进入网站镜像。NAS 将持久化的 `downloads` 目录只读挂载到
 `/usr/share/nginx/html/downloads`，升级网站镜像不会覆盖或删除安装包。
 
+## 织界产品页
+
+`/projects/zhijie` 是基于 Plasmic 的可视化应用搭建产品主页，进入官网产品菜单、
+首页产品区和 sitemap。在线使用默认打开 `https://studio.plasmic.shiguanglab.com`，
+沿用 Studio 的拾光统一登录，可通过 `VITE_PLASMIC_WEB_URL` 修改入口。
+
+产品内容覆盖 Studio 编辑器、数据连接与拖拽搭建、自由设计与 Figma 导入、团队协作、
+React 组件集成和自主部署。产品示例图片来自 Plasmic 官网，来源见
+[`docs/zhijie-media.md`](docs/zhijie-media.md)。
+
+下载区在客户端构建时读取 `VITE_PLASMIC_UPDATE_URL` 下按平台、架构划分的
+Electron 更新清单，选择 DMG、EXE 或 AppImage，并检查安装包的 HTTP 状态和大小。
+macOS 只读取 `darwin/universal/`，一个 DMG 同时支持 Apple Silicon 和 Intel。
+版本、大小和下载地址写入 `dist/plasmic-downloads.json`，SSR 复用同一份快照。
+未发布或读取失败的平台显示“暂未发布”；重新构建官网后更新下载版本。
+安装包仍使用 Plasmic 名称，由已有桌面端发布渠道提供。
+
 ## Umami 埋点
 
 Umami tracker 在 `index.html` 中统一加载，自动追踪页面访问。`src/analytics/umami.ts` 会自动采集门户内所有按钮和超链接点击：

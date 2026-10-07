@@ -6,8 +6,9 @@ import IconVideo from '@douyinfe/semi-icons/lib/es/icons/IconVideo';
 import IconBookOpenStroked from '@douyinfe/semi-icons/lib/es/icons/IconBookOpenStroked';
 import type { ComponentType } from 'react';
 import { Link } from 'react-router-dom';
-import { HUIGUANG_WEB_URL, LINGGUANG_WEB_URL, POINTS_WEB_URL, SICHEN_LANDING_PATH, YINGGUANG_WEB_URL, ZHIXU_LANDING_PATH } from '../config/productUrls';
+import { HUIGUANG_WEB_URL, LINGGUANG_WEB_URL, POINTS_WEB_URL, SICHEN_LANDING_PATH, YINGGUANG_WEB_URL, ZHIXU_LANDING_PATH, ZHIJIE_LANDING_PATH } from '../config/productUrls';
 import { SichenMark } from './SichenMark';
+import { ZhijieMark } from './ZhijieMark';
 
 interface Product {
   name: string;
@@ -21,6 +22,15 @@ interface Product {
 }
 
 const products: Product[] = [
+  {
+    name: '织界',
+    category: '可视化应用搭建',
+    description: '连接设计、组件与数据，把想法织成可用的应用',
+    icon: ZhijieMark,
+    tone: 'violet',
+    href: ZHIJIE_LANDING_PATH,
+    available: true,
+  },
   {
     name: '绘光',
     category: 'AI 图片生成',

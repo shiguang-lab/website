@@ -1,7 +1,8 @@
 import { useHomeEffects } from '../hooks/useHomeEffects';
 import { SiteHeader } from '../components/SiteHeader';
 import { Link } from 'react-router-dom';
-import { HUIGUANG_WEB_URL, SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH } from '../config/productUrls';
+import { HUIGUANG_WEB_URL, SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH, ZHIJIE_LANDING_PATH } from '../config/productUrls';
+import { ZhijieMark } from '../components/ZhijieMark';
 
 export function HomePage() {
   useHomeEffects();
@@ -61,6 +62,10 @@ export function HomePage() {
         <p>从开发到交付，从个人到团队，拾光为你提供全链路能力</p>
       </div>
       <div className="feature-grid">
+        <article className="feature-card reveal delay-0">
+          <div className="icon-orb" aria-hidden="true"><ZhijieMark /></div>
+          <h3>织界</h3><p>连接可视化设计、React 组件与业务数据，把想法搭建成应用。</p><Link to={ZHIJIE_LANDING_PATH}>了解织界 <span>→</span></Link>
+        </article>
         <article className="feature-card reveal delay-0">
           <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-chat.png" width={72} height={72} alt="" aria-hidden="true" /></div>
           <h3>智能助手</h3><p>多模型对话、知识检索、写作协作、编程辅助，轻松表达。</p><Link to="/app/chat">立即体验 <span>→</span></Link>
@@ -175,7 +180,7 @@ export function HomePage() {
         <p>拾光致力于打造领先的 AI 协作平台，<br />让每个人都能用 AI 创造价值。</p>
         <div className="socials"><a href="#" aria-label="GitHub">⌁</a><a href="#" aria-label="X">𝕏</a><a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="邮件">✉</a></div>
       </div>
-      <div className="footer-col"><h4>产品</h4><a href={HUIGUANG_WEB_URL} target="_blank" rel="noopener noreferrer">绘光 · AI 图片</a><a href="#products">跃影 · AI 视频</a><a href="#products">入戏 · AI 短剧</a><Link to={SICHEN_LANDING_PATH}>司辰 · 多智能体</Link><Link to={ZHIXU_LANDING_PATH}>知序 · AI 知识与创作</Link></div>
+      <div className="footer-col"><h4>产品</h4><a href={HUIGUANG_WEB_URL} target="_blank" rel="noopener noreferrer">绘光 · AI 图片</a><a href="#products">跃影 · AI 视频</a><a href="#products">入戏 · AI 短剧</a><Link to={SICHEN_LANDING_PATH}>司辰 · 多智能体</Link><Link to={ZHIXU_LANDING_PATH}>知序 · AI 知识与创作</Link><Link to={ZHIJIE_LANDING_PATH}>织界 · 可视化搭建</Link></div>
       <div className="footer-col"><h4>解决方案</h4><a href="#solutions">个人用户</a><a href="#solutions">中小团队</a><a href="#solutions">企业客户</a><a href="#solutions">教育行业</a><a href="#developers">开发者</a></div>
       <div className="footer-col" id="resources"><h4>资源</h4><a href="#">文档中心</a><a href="#">帮助中心</a><a href="#">更新日志</a><a href="#">API 文档</a><a href="#">博客</a></div>
       <div className="footer-col"><h4>公司</h4><a href="#">关于我们</a><a href="#">加入我们</a><a href="mailto:support@shiguanglab.com">联系我们</a><Link to="/privacy">隐私政策</Link><Link to="/terms">用户协议</Link></div>

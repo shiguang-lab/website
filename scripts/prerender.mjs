@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
-import { SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH } from '../src/config/productUrls.ts';
+import { SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH, ZHIJIE_LANDING_PATH } from '../src/config/productUrls.ts';
 
 const root = process.cwd();
 const distDir = path.join(root, 'dist');
@@ -9,6 +9,7 @@ const templatePath = path.join(distDir, 'index.html');
 const serverEntry = path.join(root, '.ssr', 'entry-server.js');
 const siteUrl = (process.env.SITE_URL || 'https://shiguanglab.com').replace(/\/$/, '');
 const template = await readFile(templatePath, 'utf8');
+const plasmicDownloads = JSON.parse(await readFile(path.join(distDir, 'plasmic-downloads.json'), 'utf8'));
 const { render } = await import(`${pathToFileURL(serverEntry).href}?t=${Date.now()}`);
 
 /** @param {string} value */
@@ -27,7 +28,8 @@ const buildPage = (pathname, productName) => {
     '@type': 'SoftwareApplication',
     name: productName,
     applicationCategory: 'BusinessApplication',
-    operatingSystem: pathname === SICHEN_LANDING_PATH ? 'Web, Windows, macOS, Linux' : 'Web',
+    operatingSystem: pathname === SICHEN_LANDING_PATH ? 'Web, Windows, macOS, Linux'
+      : pathname === ZHIJIE_LANDING_PATH ? ['Web', ...new Set(plasmicDownloads.filter(build => build.url).map(build => build.name))].join(', ') : 'Web',
     url: canonicalUrl,
     description: meta.description,
   });
@@ -45,6 +47,8 @@ const buildPage = (pathname, productName) => {
   return template
     .replace('<!--app-head-->', head)
     .replace('<!--app-html-->', html)
+    .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${escapeHtml(meta.description)}" />`)
+    .replace(/<link rel="preload" as="image"[^>]*\/>/, pathname === '/' ? '$&' : '')
     .replace(/<title>.*?<\/title>/, `<title>${escapeHtml(meta.title)}</title>`);
 };
 
@@ -55,6 +59,9 @@ await writeFile(path.join(sichenDir, 'index.html'), buildPage(SICHEN_LANDING_PAT
 const zhixuDir = path.join(distDir, ZHIXU_LANDING_PATH.slice(1));
 await mkdir(zhixuDir, { recursive: true });
 await writeFile(path.join(zhixuDir, 'index.html'), buildPage(ZHIXU_LANDING_PATH, '知序'));
+const zhijieDir = path.join(distDir, ZHIJIE_LANDING_PATH.slice(1));
+await mkdir(zhijieDir, { recursive: true });
+await writeFile(path.join(zhijieDir, 'index.html'), buildPage(ZHIJIE_LANDING_PATH, '织界'));
 
 const appDocument = template
   .replace('<!--app-head-->', '<meta name="robots" content="noindex" />')
@@ -113,6 +120,7 @@ await writeFile(path.join(distDir, 'sitemap.xml'), `<?xml version="1.0" encoding
   <url><loc>${siteUrl}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>${siteUrl}${SICHEN_LANDING_PATH}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>${siteUrl}${ZHIXU_LANDING_PATH}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>${siteUrl}${ZHIJIE_LANDING_PATH}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>${siteUrl}/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>${siteUrl}/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>\n`);
@@ -126,4 +134,4 @@ for (const sub of ['profile', 'security', 'organizations']) {
 const portalAccessDir = path.join(distDir, 'portal', 'access');
 await mkdir(portalAccessDir, { recursive: true });
 await writeFile(path.join(portalAccessDir, 'index.html'), portalDocument);
-console.log(`Pre-rendered ${siteUrl}/, ${siteUrl}${SICHEN_LANDING_PATH}, and ${siteUrl}${ZHIXU_LANDING_PATH}`);
+console.log(`Pre-rendered ${siteUrl}/, ${siteUrl}${SICHEN_LANDING_PATH}, ${siteUrl}${ZHIXU_LANDING_PATH}, and ${siteUrl}${ZHIJIE_LANDING_PATH}`);

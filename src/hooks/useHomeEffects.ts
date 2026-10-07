@@ -14,7 +14,7 @@ export function useHomeEffects() {
       menuButton?.setAttribute('aria-expanded', String(isOpen));
     };
     const onPanelClick = (event: Event) => {
-      if (event.target instanceof HTMLAnchorElement) {
+      if (event.target instanceof Element && event.target.closest('a')) {
         mobilePanel?.classList.remove('open');
         menuButton?.setAttribute('aria-expanded', 'false');
       }

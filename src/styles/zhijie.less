@@ -1,0 +1,193 @@
+.zhijie-mark { width: 32px; height: 32px; flex-shrink: 0; }
+.zhijie-page {
+  min-height: 100%;
+  color: var(--text);
+  background: var(--bg);
+
+  :is(section[id], main[id]) { scroll-margin-top: 100px; }
+  :is(a, button):focus-visible { outline: 2px solid var(--primary); outline-offset: 5px; }
+  .site-header { background: rgba(2, 7, 19, .5); }
+}
+.zhijie-hero { position: relative; isolation: isolate; padding: 135px 0 65px; overflow: hidden; }
+.zhijie-hero::before { content: ''; position: absolute; z-index: -2; left: 50%; top: 0; width: 1920px; height: 100%; transform: translateX(-50%); background: url('/assets/zhijie/hero-background.webp') center 124px / 1920px 1184px no-repeat; mask-image: linear-gradient(to bottom, #000 65%, transparent 95%); filter: grayscale(1) invert(1); mix-blend-mode: screen; opacity: .65; pointer-events: none; }
+.zhijie-hero::after { content: ''; position: absolute; z-index: -1; left: 50%; top: 0; width: 1600px; height: 100%; transform: translateX(-50%); mask-image: linear-gradient(to bottom, #000 65%, transparent 95%); background: radial-gradient(ellipse at 25% 38%, #438ded40, transparent 45%), radial-gradient(ellipse at 58% 38%, #9b6cff38, transparent 48%); pointer-events: none; }
+.zhijie-hero-copy { position: relative; z-index: 1; text-align: center; padding: 20px 0 42px; }
+.zhijie-eyebrow { display: inline-flex; align-items: center; gap: 9px; font-size: 12px; color: var(--muted); }
+.zhijie-eyebrow .zhijie-mark { width: 22px; height: 22px; color: #b48cff; }
+.zhijie-eyebrow strong { color: var(--text); font-size: 17px; font-weight: 650; }
+.zhijie-hero h1 { font-size: clamp(38px, 5.1vw, 68px); font-weight: 650; line-height: 1.22; letter-spacing: -.03em; margin: 28px 0; }
+.zhijie-hero h1 em { font-style: normal; background: linear-gradient(105deg, #e2cbff 5%, #a87bff 44%, #5ea1ff 100%); background-clip: text; -webkit-background-clip: text; color: transparent; }
+.zhijie-hero-copy > p { color: var(--muted); font-size: 16px; line-height: 1.9; max-width: 850px; margin-inline: auto; }
+.zhijie-actions { display: flex; justify-content: center; gap: 12px; margin: 29px 0 17px; }
+.zhijie-actions svg { width: 17px; height: 17px; }
+.zhijie-preview-wrap { position: relative; max-width: 976px; margin-inline: auto; }
+.zhijie-preview-frame { border: 8px solid #b8c5e540; border-radius: 16px; overflow: hidden; }
+.zhijie-studio-image { display: block; width: 100%; height: auto; }
+.zhijie-preview-fade { position: absolute; inset: auto 0 0; height: 120px; display: flex; align-items: flex-end; justify-content: center; background: linear-gradient(0deg, var(--bg) 54%, transparent); }
+.zhijie-page figure { margin: 0; min-width: 0; }
+.zhijie-page figure img { max-width: 100%; height: auto; }
+.zhijie-use-types { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 8px; width: 100%; opacity: .5; }
+.zhijie-use-types span { padding: 4px 12px; border: 1px solid #a78ae340; border-radius: 999px; background: transparent; color: var(--text); font-size: 13px; line-height: 20px; white-space: nowrap; }
+.zhijie-how, .zhijie-collaboration, .zhijie-integration, .zhijie-deployment, .zhijie-download { padding-block: 105px; }
+.zhijie-section-heading { text-align: center; }
+.zhijie-section-heading.is-left { text-align: left; }
+.zhijie-section-heading h2 { font-size: clamp(32px, 4.2vw, 54px); line-height: 1.3; font-weight: 600; margin: 20px 0; }
+.zhijie-section-heading p { color: var(--muted); font-size: 16px; line-height: 1.9; margin: 0 auto; max-width: 800px; }
+.zhijie-section-heading.is-left p { margin-left: 0; }
+.zhijie-page h2 em, .zhijie-page h3 em { font-style: normal; background: linear-gradient(105deg, #e2cbff 5%, #a87bff 44%, #5ea1ff 100%); background-clip: text; -webkit-background-clip: text; color: transparent; }
+.zhijie-page .section-kicker { display: inline-block; color: #a78ae3; border: 1px solid #a787e32e; border-radius: 6px; padding: 5px 12px; font-size: 10px; letter-spacing: .1em; }
+.zhijie-feature-tabs { display: flex; justify-content: center; gap: 12px; margin: 50px 0 22px; }
+.zhijie-feature-tabs button { min-height: 42px; padding: 0 23px; border-radius: 6px; border: 1px solid var(--line); background: #0d1524; color: var(--muted); cursor: pointer; font-size: 14px; }
+.zhijie-feature-tabs button[aria-selected=true] { border-color: #a787e366; color: #e1d4ff; }
+.zhijie-feature-tabs button:hover { background: #101729; }
+.zhijie-how-panel { border: 1px solid var(--line); display: grid; grid-template-columns: .85fr 1.15fr; gap: 45px; align-items: center; border-radius: 10px; background: linear-gradient(120deg, #0c1625, #121227); padding: 40px 55px; min-height: 470px; max-width: 950px; margin: auto; overflow: hidden; }
+.zhijie-feature-copy { min-width: 0; }
+.zhijie-feature-icon { display: block; width: 32px; height: 32px; font-size: 32px; color: #b48cff; }
+.zhijie-feature-icon svg { width: 100%; height: 100%; }
+.zhijie-feature-copy h3, .zhijie-collaboration-details h3 { font-size: clamp(28px, 3.2vw, 42px); line-height: 1.35; margin: 25px 0; font-weight: 600; }
+.zhijie-feature-copy p, .zhijie-collaboration-details p { color: var(--muted); font-size: 15px; line-height: 1.85; margin: 0; }
+.zhijie-feature-copy .btn { margin-top: 30px; font-size: 13px; }
+.zhijie-connect-visual img { width: 100%; filter: invert(1) hue-rotate(180deg); }
+.zhijie-editor-visual { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; padding: 5px; background: #121b2b; }
+.zhijie-editor-visual img, .zhijie-editor-visual video { display: block; width: 100%; height: auto; border-radius: 6px; }
+.zhijie-how-panel .zhijie-editor-visual { max-height: 440px; }
+.zhijie-how-panel .zhijie-editor-visual img { width: 100%; }
+.zhijie-ai { padding-block: 20px 105px; }
+.zhijie-ai-workbench { display: grid; grid-template-columns: 1fr 1.1fr; margin-top: 45px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: linear-gradient(115deg, #0a1322, #111329); }
+.zhijie-ai-terminal { min-width: 0; padding: 30px; background: #080f1d; border-right: 1px solid var(--line); }
+.zhijie-ai-terminal-heading { display: flex; align-items: center; gap: 10px; color: #b5bed0; font-size: 11px; letter-spacing: .06em; margin-bottom: 27px; }
+.zhijie-ai-terminal-heading > span:last-child { margin-left: auto; color: var(--soft); font-size: 10px; letter-spacing: 0; }
+.zhijie-ai-terminal-heading .semi-icon { color: #b48cff; font-size: 17px; }
+.zhijie-ai-command + .zhijie-ai-command { margin-top: 24px; }
+.zhijie-ai-command > span { color: var(--soft); font-size: 11px; }
+.zhijie-ai-command pre { margin: 9px 0 0; color: #dce5f8; font-size: 12px; line-height: 1.85; white-space: pre-wrap; overflow-wrap: anywhere; }
+.zhijie-ai-command code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
+.zhijie-ai-command b { font-weight: 500; color: #c9a9ff; }
+.zhijie-ai-terminal > p { color: var(--soft); font-size: 10px; line-height: 1.7; margin: 26px 0 0; }
+.zhijie-ai-flow { min-width: 0; padding: 30px; display: flex; flex-direction: column; }
+.zhijie-ai-prompt { padding-left: 16px; border-left: 2px solid #a787e366; }
+.zhijie-ai-prompt > span { font-size: 10px; color: var(--soft); }
+.zhijie-ai-prompt p { font-size: 19px; line-height: 1.65; margin: 8px 0 0; }
+.zhijie-ai-agent { position: relative; display: flex; align-items: center; gap: 12px; padding: 22px 0; margin-top: 23px; border-block: 1px solid var(--line); }
+.zhijie-ai-agent-icon { display: grid; place-items: center; width: 38px; height: 38px; flex-shrink: 0; background: #a787e314; border: 1px solid #a787e333; border-radius: 8px; color: #c1a0fc; font-size: 20px; }
+.zhijie-ai-agent strong { display: block; font-size: 14px; font-weight: 550; }
+.zhijie-ai-agent div > span { display: block; font-size: 11px; color: var(--muted); margin-top: 7px; line-height: 1.6; }
+.zhijie-ai-flow-label { margin-left: auto; font-size: 9px; color: var(--soft); white-space: nowrap; }
+.zhijie-ai-outputs { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; padding-top: 23px; }
+.zhijie-ai-outputs > div { min-width: 0; }
+.zhijie-ai-outputs .semi-icon { color: #b48cff; font-size: 22px; vertical-align: middle; margin-right: 9px; }
+.zhijie-ai-outputs > div > span:not(.semi-icon) { font-size: 9px; letter-spacing: .1em; color: var(--soft); }
+.zhijie-ai-outputs h3 { font-size: 14px; font-weight: 550; line-height: 1.6; margin: 12px 0 8px; }
+.zhijie-ai-outputs p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.8; }
+.zhijie-ai-capabilities { display: grid; grid-template-columns: repeat(3, 1fr); gap: 38px; margin-top: 36px; }
+.zhijie-ai-capabilities article { min-width: 0; }
+.zhijie-ai-capabilities .semi-icon { float: left; color: #b48cff; font-size: 20px; margin-top: 2px; }
+.zhijie-ai-capabilities h3 { margin: 0 0 13px 32px; font-size: 18px; font-weight: 550; }
+.zhijie-ai-capabilities p { margin: 0; font-size: 13px; line-height: 1.85; color: var(--muted); }
+.zhijie-ai-access { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px 20px; margin-top: 35px; }
+.zhijie-ai-access p { color: var(--soft); font-size: 12px; line-height: 1.8; margin: 0; }
+.zhijie-ai-access .zhijie-text-link { margin-top: 0; min-height: 40px; }
+.zhijie-design { position: relative; isolation: isolate; padding: 100px 0; background: #050b1a; border-block: 1px solid var(--line); }
+.zhijie-design::before { content: ''; position: absolute; z-index: -1; inset: 0; opacity: .28; background: url('/assets/zhijie/design-background.webp') center top / cover no-repeat; }
+.zhijie-design .zhijie-section-heading { min-height: 330px; padding-top: 30px; }
+.zhijie-feature-row { display: grid; grid-template-columns: .85fr 1.15fr; gap: 90px; align-items: center; margin-top: 85px; }
+.zhijie-feature-row.is-reversed { grid-template-columns: 1.15fr .85fr; }
+.zhijie-feature-row.is-reversed > .zhijie-feature-copy { order: 2; }
+.zhijie-feature-row.is-reversed > figure { order: 1; }
+.zhijie-illustration { isolation: isolate; background: var(--bg); }
+.zhijie-illustration img { display: block; width: 100%; filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
+.zhijie-text-link { display: inline-flex; align-items: center; gap: 10px; color: #c0a4ed; font-size: 12px; margin-top: 20px; }
+.zhijie-text-link .semi-icon { font-size: 14px; }
+.zhijie-collaboration .zhijie-section-heading, .zhijie-collaboration-details { max-width: 950px; margin-inline: auto; }
+.zhijie-collaboration-details { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 65px; }
+.zhijie-collaboration-visual { max-width: 1050px; margin: 55px auto 0 !important; }
+.zhijie-integration .zhijie-feature-row { max-width: 950px; margin-inline: auto; }
+.zhijie-integration .zhijie-feature-row figure { max-width: 510px; }
+.zhijie-deployment { padding-top: 30px; }
+.zhijie-deployment-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
+.zhijie-deployment-visual { margin-top: 25px !important; }
+.zhijie-scale { position: relative; isolation: isolate; padding: 105px 0; border-block: 1px solid var(--line); background: #050b1a; overflow: hidden; }
+.zhijie-scale::before { content: ''; position: absolute; z-index: -1; top: -780px; left: 50%; transform: translateX(-50%); width: 1200px; height: 1200px; border-radius: 50%; border: 1px solid #97a7d61a; box-shadow: 0 0 0 150px #97a7d605, 0 0 0 300px #97a7d604; background: radial-gradient(circle, #171d31, #050b1a); }
+.zhijie-scale .zhijie-section-heading .btn { margin-top: 26px; }
+.zhijie-scale-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 75px; }
+.zhijie-scale-grid article { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: linear-gradient(145deg, #131b2a, #080e1a); }
+.zhijie-scale-grid article > img { display: block; width: 100%; height: auto; }
+.zhijie-scale-grid article > div { padding: 0 25px 28px; }
+.zhijie-scale-grid h3 { font-size: 19px; font-weight: 600; margin: 0 0 14px; }
+.zhijie-scale-grid p { color: var(--muted); font-size: 13px; line-height: 1.8; margin: 0; }
+.zhijie-download > .zhijie-section-heading { text-align: center; margin-bottom: 43px; }.zhijie-access-grid { display: grid; grid-template-columns: 1fr 1.55fr; gap: 20px; }.zhijie-web-access, .zhijie-desktop-access { background: #0d1524; border: 1px solid var(--line); border-radius: 10px; padding: 33px; }.zhijie-web-access { display: flex; flex-direction: column; align-items: flex-start; background: linear-gradient(145deg, #1d1730, #0c1423); }.zhijie-web-access > .zhijie-web-icon { width: 29px; height: 29px; font-size: 29px; color: #b48cff; margin: 0 0 29px; }.zhijie-access-grid small { color: #8390a7; font-size: 9px; letter-spacing: .06em; }.zhijie-access-grid h3 { margin: 12px 0 14px; font-size: 23px; font-weight: 550; }.zhijie-web-access p { margin: 0 0 30px; color: var(--muted); font-size: 13px; line-height: 1.9; }.zhijie-web-access > a { margin-top: auto; }.zhijie-web-access > span { color: var(--soft); font-size: 10px; margin-top: 18px; }.zhijie-download-heading { display: flex; align-items: center; justify-content: space-between; }.zhijie-download-heading > span { color: var(--soft); font-size: 10px; }.zhijie-desktop-access ul { list-style: none; padding: 0; margin: 8px 0 0; }.zhijie-desktop-access li { display: flex; gap: 15px; align-items: center; padding: 18px 0; border-top: 1px solid var(--line); }.zhijie-desktop-access li > svg { width: 22px; height: 22px; color: #8593ab; flex-shrink: 0; }.zhijie-desktop-access li > div { margin-right: auto; min-width: 0; }.zhijie-desktop-access li strong { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }.zhijie-desktop-access li small { letter-spacing: 0; line-height: 1.6; display: block; }.zhijie-desktop-access li.is-current > svg { color: #b48cff; }.zhijie-desktop-access li .btn { font-size: 11px; padding: 0 13px; min-height: 40px; flex-shrink: 0; }.zhijie-build-size { font-size: 10px; color: var(--soft); white-space: nowrap; }.zhijie-download-unavailable { color: var(--soft); font-size: 11px; white-space: nowrap; }.zhijie-desktop-access > p { margin: 9px 0 0; color: var(--soft); font-size: 10px; line-height: 1.8; }
+@media (max-width: 1050px) {
+  .zhijie-how-panel { padding: 32px; gap: 30px; }
+  .zhijie-feature-row { gap: 50px; }
+  .zhijie-scale-grid { gap: 20px; }
+  .zhijie-access-grid { grid-template-columns: 1fr 1.5fr; }
+  .zhijie-web-access, .zhijie-desktop-access { padding: 25px; }
+  .zhijie-build-size { display: none; }
+}
+@media (max-width: 800px) {
+  .zhijie-ai { padding-bottom: 70px; }
+  .zhijie-ai-workbench { grid-template-columns: 1fr; max-width: 580px; margin-inline: auto; }
+  .zhijie-ai-terminal { border-right: 0; border-bottom: 1px solid var(--line); }
+  .zhijie-ai-capabilities { gap: 25px; }
+  .zhijie-hero { padding-top: 130px; }
+  .zhijie-how, .zhijie-collaboration, .zhijie-integration, .zhijie-deployment, .zhijie-download { padding-block: 70px; }
+  .zhijie-how-panel, .zhijie-feature-row, .zhijie-feature-row.is-reversed, .zhijie-deployment-intro { grid-template-columns: 1fr; }
+  .zhijie-how-panel { max-width: 580px; padding: 35px; }
+  .zhijie-how-panel figure { max-width: 420px; margin-inline: auto; }
+  .zhijie-how-panel .zhijie-editor-visual { max-height: none; }
+  .zhijie-feature-row { gap: 35px; margin-top: 60px; }
+  .zhijie-feature-row.is-reversed > .zhijie-feature-copy, .zhijie-feature-row.is-reversed > figure { order: initial; }
+  .zhijie-feature-row figure { max-width: 580px; margin-inline: auto; }
+  .zhijie-design { padding: 70px 0; }
+  .zhijie-design .zhijie-section-heading { min-height: 260px; }
+  .zhijie-collaboration-details { gap: 35px; }
+  .zhijie-scale { padding: 70px 0; }
+  .zhijie-scale-grid { grid-template-columns: repeat(2, 1fr); }
+  .zhijie-access-grid { grid-template-columns: 1fr; }
+  .zhijie-build-size { display: block; }
+}
+@media (max-width: 480px) {
+  .zhijie-ai-workbench { margin-top: 30px; }
+  .zhijie-ai-terminal, .zhijie-ai-flow { padding: 24px 20px; }
+  .zhijie-ai-prompt p { font-size: 17px; }
+  .zhijie-ai-agent { gap: 10px; }
+  .zhijie-ai-agent strong { font-size: 13px; }
+  .zhijie-ai-agent div > span { font-size: 10px; }
+  .zhijie-ai-flow-label { display: none; }
+  .zhijie-ai-outputs { gap: 18px; }
+  .zhijie-ai-outputs h3 { font-size: 13px; }
+  .zhijie-ai-capabilities { grid-template-columns: 1fr; gap: 24px; margin-top: 30px; }
+  .zhijie-ai-capabilities article + article { padding-top: 24px; border-top: 1px solid var(--line); }
+  .zhijie-ai-access { justify-content: flex-start; margin-top: 28px; }
+  .zhijie-page .container { width: calc(100% - 36px); }
+  .zhijie-hero { padding-top: 110px; }
+  .zhijie-preview-wrap { width: 100vw; left: 50%; transform: translateX(-50%); }
+  .zhijie-use-types { display: grid; grid-template-columns: repeat(3, max-content); }
+  .zhijie-use-types span { font-size: 12px; padding-inline: 10px; text-align: center; }
+  .zhijie-hero h1 { font-size: 34px; margin-block: 21px; }
+  .zhijie-hero-copy > p { font-size: 13px; }
+  .zhijie-hero-copy > p br { display: none; }
+  .zhijie-eyebrow { font-size: 11px; }
+  .zhijie-actions { gap: 9px; }
+  .zhijie-actions .btn-lg { font-size: 13px; min-height: 44px; padding: 0 18px; }
+  .zhijie-section-heading h2 { font-size: 32px; }
+  .zhijie-section-heading p, .zhijie-feature-copy p, .zhijie-collaboration-details p { font-size: 13px; }
+  .zhijie-feature-copy h3, .zhijie-collaboration-details h3 { font-size: 28px; }
+  .zhijie-feature-tabs { margin-top: 32px; }
+  .zhijie-how-panel { padding: 28px 22px; gap: 30px; }
+  .zhijie-design .zhijie-section-heading { padding-top: 0; min-height: 230px; }
+  .zhijie-feature-row { gap: 30px; margin-top: 45px; }
+  .zhijie-collaboration-details { grid-template-columns: 1fr; gap: 30px; margin-top: 40px; }
+  .zhijie-scale-grid { grid-template-columns: 1fr; margin-top: 45px; }
+  .zhijie-access-grid h3 { font-size: 20px; }
+  .zhijie-web-access, .zhijie-desktop-access { padding: 24px 20px; }
+  .zhijie-download-heading > span { font-size: 8px; }
+  .zhijie-desktop-access li { gap: 11px; }
+  .zhijie-desktop-access li small { font-size: 8px; }
+  .zhijie-build-size { display: none; }
+}
+@media (max-width: 360px) {
+  .zhijie-ai-outputs { grid-template-columns: 1fr; }
+  .zhijie-ai-outputs > div + div { padding-top: 18px; border-top: 1px solid var(--line); }
+}
+@media (prefers-reduced-motion: reduce) { .zhijie-page .reveal { opacity: 1; transform: none; transition: none; } }

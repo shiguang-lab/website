@@ -1,10 +1,11 @@
 import { Scrollbar } from '@shiguang2/components';
 import { lazy, Suspense, type ReactNode } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH } from './config/productUrls';
+import { SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH, ZHIJIE_LANDING_PATH } from './config/productUrls';
 import { HomePage } from './pages/HomePage';
 import { SichenPage } from './pages/SichenPage';
 import { ZhixuPage } from './pages/ZhixuPage';
+import { ZhijiePage } from './pages/ZhijiePage';
 import { AccountPage } from './pages/AccountPage';
 import { PortalPage } from './pages/PortalPage';
 
@@ -29,6 +30,7 @@ export function App() {
         <Route path="/" element={<HomePage />} />
         <Route path={SICHEN_LANDING_PATH} element={<SichenPage />} />
         <Route path={ZHIXU_LANDING_PATH} element={<ZhixuPage />} />
+        <Route path={ZHIJIE_LANDING_PATH} element={<ZhijiePage />} />
         <Route path="/login" element={<DeferredPage><LoginPage /></DeferredPage>} />
         <Route path="/register" element={<DeferredPage><RegisterPage /></DeferredPage>} />
         <Route path="/account/*" element={<AccountPage />} />

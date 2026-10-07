@@ -5,13 +5,14 @@ import './styles/tailwind.less';
 import './styles/home.less';
 import './styles/sichen.less';
 import './styles/zhixu.less';
+import './styles/zhijie.less';
 import './styles/login.less';
 import './styles/legal.less';
 import './styles/account.less';
 import './styles/portal.less';
 import { App } from './App';
 import { AuthProvider } from './auth/AuthProvider';
-import { SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH } from './config/productUrls';
+import { SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH, ZHIJIE_LANDING_PATH } from './config/productUrls';
 
 const homeMeta = {
   title: '拾光 · 让 AI 成为你的生产力',
@@ -34,6 +35,10 @@ interface PageMetadata {
 }
 
 const routeMeta: Record<string, PageMetadata> = {
+  [ZHIJIE_LANDING_PATH]: {
+    title: '织界 · 可视化应用搭建平台 | 拾光',
+    description: '织界基于开源 Plasmic，为你的技术栈提供可视化搭建能力。连接数据、复用 React 组件、设计网站与应用，接入现有代码和部署环境。',
+  },
   '/terms': {
     title: '拾光用户协议',
     description: '拾光统一账号及 AI 助手、知识库、工作流、应用、插件与团队服务的使用规则。',

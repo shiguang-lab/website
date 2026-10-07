@@ -1,7 +1,7 @@
 {
   "name": "shiguang-website",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -42,6 +42,7 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.1",
-    "vite": "^8.1.5"
+    "vite": "^8.1.5",
+    "yaml": "^2.9.1"
   }
 }

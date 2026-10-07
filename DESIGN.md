@@ -8,6 +8,27 @@ operations surfaces are compact workspaces optimized for scanning and repeated
 use. Product identity comes from typography, restrained violet/blue accents,
 and the Shiguang mark rather than decorative illustration.
 
+### Zhijie Product Homepage
+
+- `/projects/zhijie` uses the main Shiguang marketing theme: dark navy surfaces,
+  light text, restrained violet/blue accents, and the shared header and buttons.
+- Use the main site's typography. The hero preview preserves the reference
+  framing, bottom fade, and overlaid pill labels; other surfaces use compact
+  corner radii. Product screenshots
+  retain their original interface colors inside dark frames. Light-background
+  feature illustrations use an inverted palette to fit the dark surface.
+- Content follows the product workflow: Studio, data and composition, AI, design,
+  collaboration, React integration, deployment, scale-up, then Web/Desktop access.
+  Preserve the Plasmic homepage's individual feature blocks and visual order.
+  Omit company logos, contributor/customer lists, and the original bottom CTA
+  and footer. Use attributed Plasmic product images and demonstrations.
+- The AI section shows the real Plasmickit CLI commands and Skill workflows:
+  `skill install` detects supported local Agent CLIs and apps and installs to
+  their discovered skill locations without requiring a user-supplied directory;
+  editable Studio prototypes through Desktop MCP, followed by native React /
+  TypeScript implementation in the target project. Label workflow examples as
+  illustrations; CLI loads resources and Agent implements the design and code.
+
 ## Colors
 
 - Page background: `#020713` for marketing and `#070b14` for account tools.
