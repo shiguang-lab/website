@@ -129,12 +129,42 @@
 .zhijie-scale-grid article > div { padding: 0 25px 28px; }
 .zhijie-scale-grid h3 { font-size: 19px; font-weight: 600; margin: 0 0 14px; }
 .zhijie-scale-grid p { color: var(--muted); font-size: 13px; line-height: 1.8; margin: 0; }
-.zhijie-download > .zhijie-section-heading { text-align: center; margin-bottom: 43px; }.zhijie-access-grid { display: grid; grid-template-columns: 1fr 1.55fr; gap: 20px; }.zhijie-web-access, .zhijie-desktop-access { background: #0d1524; border: 1px solid var(--line); border-radius: 10px; padding: 33px; }.zhijie-web-access { display: flex; flex-direction: column; align-items: flex-start; background: linear-gradient(145deg, #1d1730, #0c1423); }.zhijie-web-access > .zhijie-web-icon { width: 29px; height: 29px; font-size: 29px; color: #b48cff; margin: 0 0 29px; }.zhijie-access-grid small { color: #8390a7; font-size: 9px; letter-spacing: .06em; }.zhijie-access-grid h3 { margin: 12px 0 14px; font-size: 23px; font-weight: 550; }.zhijie-web-access p { margin: 0 0 30px; color: var(--muted); font-size: 13px; line-height: 1.9; }.zhijie-web-access > a { margin-top: auto; }.zhijie-web-access > span { color: var(--soft); font-size: 10px; margin-top: 18px; }.zhijie-download-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0 12px; }.zhijie-download-heading > span { color: var(--soft); font-size: 10px; }.zhijie-desktop-access ul { list-style: none; padding: 0; margin: 8px 0 0; }.zhijie-desktop-access li { display: flex; gap: 15px; align-items: center; padding: 18px 0; border-top: 1px solid var(--line); }.zhijie-desktop-access li > svg { width: 22px; height: 22px; color: #8593ab; flex-shrink: 0; }.zhijie-desktop-access li > div { margin-right: auto; min-width: 0; }.zhijie-desktop-access li strong { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }.zhijie-desktop-access li small { letter-spacing: 0; line-height: 1.6; display: block; }.zhijie-desktop-access li.is-current > svg { color: #b48cff; }.zhijie-desktop-access li .btn { font-size: 11px; padding: 0 13px; min-height: 40px; flex-shrink: 0; }.zhijie-build-size { font-size: 10px; color: var(--soft); white-space: nowrap; }.zhijie-download-unavailable { color: var(--soft); font-size: 11px; white-space: nowrap; }.zhijie-desktop-access > p { margin: 9px 0 0; color: var(--soft); font-size: 10px; line-height: 1.8; }
+.zhijie-download > .zhijie-section-heading { text-align: center; margin-bottom: 43px; }
+.zhijie-access-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; max-width: 1020px; margin-inline: auto; }
+.zhijie-web-access, .zhijie-desktop-access { border: 1px solid var(--line); border-radius: 12px; background: #0c1420; }
+.zhijie-web-access { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 30px 28px; border-color: rgba(180, 140, 255, .3); background: linear-gradient(150deg, rgba(93, 54, 145, .24), #0c1420 62%); }
+.zhijie-web-icon { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 10px; border: 1px solid rgba(180, 140, 255, .24); border-radius: 10px; color: #b48cff; background: rgba(126, 72, 199, .14); }
+.zhijie-web-icon svg { width: 21px; height: 21px; }
+.zhijie-access-grid small { color: #8390a7; font-size: 10px; letter-spacing: .12em; }
+.zhijie-web-access > small { color: #b48cff; }
+.zhijie-web-access h3 { margin: 2px 0 4px; font-size: 21px; font-weight: 600; }
+.zhijie-web-access p { margin: 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.zhijie-web-access > a { margin-top: auto; }
+.zhijie-web-access > span:last-child { margin-top: 6px; color: var(--soft); font-size: 11px; }
+.zhijie-desktop-access { padding: 22px 24px 16px; }
+.zhijie-download-heading { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 10px 12px; margin-bottom: 14px; }
+.zhijie-download-heading h3 { margin: 3px 0 0; font-size: 18px; font-weight: 600; }
+.zhijie-download-heading > span { color: var(--soft); font-size: 10px; }
+.zhijie-download-heading .zhijie-system-detected { padding: 4px 10px; border: 1px solid rgba(180, 140, 255, .28); border-radius: 999px; color: #c5a5ff; background: rgba(126, 72, 199, .12); }
+.zhijie-desktop-access ul { display: flex; flex-direction: column; gap: 4px; list-style: none; padding: 0; margin: 0; }
+.zhijie-desktop-access li { display: flex; align-items: center; gap: 14px; padding: 14px 12px; border: 1px solid transparent; border-radius: 10px; transition: border-color .2s ease, background .2s ease; }
+.zhijie-desktop-access li:hover { border-color: rgba(138, 157, 192, .14); background: rgba(138, 157, 192, .06); }
+.zhijie-desktop-access li.is-current { border-color: rgba(180, 140, 255, .28); background: rgba(126, 72, 199, .1); }
+.zhijie-build-glyph { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border: 1px solid rgba(138, 157, 192, .2); border-radius: 9px; color: #aebbd2; background: #101a29; }
+.zhijie-build-glyph svg { width: 18px; height: 18px; }
+.zhijie-desktop-access li.is-current .zhijie-build-glyph { color: #c5a5ff; border-color: rgba(180, 140, 255, .28); }
+.zhijie-build-meta { flex: 1 1 auto; min-width: 0; }
+.zhijie-build-meta strong { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 14px; font-weight: 600; }
+.zhijie-build-meta em { padding: 2px 8px; border: 1px solid rgba(180, 140, 255, .3); border-radius: 999px; color: #c5a5ff; font-size: 9px; font-style: normal; font-weight: 400; }
+.zhijie-build-meta small { display: block; margin-top: 3px; letter-spacing: 0; font-size: 11px; line-height: 1.6; }
+.zhijie-desktop-access li .btn { flex: none; gap: 6px; min-height: 36px; padding: 0 14px; font-size: 12px; }
+.zhijie-build-size { flex: none; font-size: 11px; color: var(--soft); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.zhijie-download-unavailable { flex: none; color: var(--soft); font-size: 11px; white-space: nowrap; }
+.zhijie-desktop-access > p { margin: 12px 12px 0; color: var(--soft); font-size: 11px; line-height: 1.8; }
 @media (max-width: 1050px) {
   .zhijie-how-panel { padding: 32px; gap: 30px; }
   .zhijie-feature-row { gap: 50px; }
   .zhijie-scale-grid { gap: 20px; }
-  .zhijie-access-grid { grid-template-columns: 1fr 1.5fr; }
   .zhijie-web-access, .zhijie-desktop-access { padding: 25px; }
   .zhijie-build-size { display: none; }
 }
@@ -195,9 +225,8 @@
   .zhijie-scale-grid { grid-template-columns: 1fr; margin-top: 45px; }
   .zhijie-access-grid h3 { font-size: 20px; }
   .zhijie-web-access, .zhijie-desktop-access { padding: 24px 20px; }
-  .zhijie-download-heading > span { font-size: 8px; }
-  .zhijie-desktop-access li { gap: 11px; }
-  .zhijie-desktop-access li small { font-size: 8px; }
+  .zhijie-desktop-access li { padding: 12px 8px; gap: 10px; }
+  .zhijie-desktop-access li .btn { padding-inline: 10px; font-size: 11px; }
   .zhijie-build-size { display: none; }
 }
 @media (max-width: 360px) {

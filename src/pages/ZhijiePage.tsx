@@ -82,7 +82,8 @@ export function ZhijiePage() {
   const [platform, setPlatform] = useState<string | null>(null);
   useEffect(() => {
     const ua = navigator.userAgent;
-    const detected = /Windows/i.test(ua) ? 'windows' : /Macintosh|Mac OS X/i.test(ua) ? 'mac' : /Linux/i.test(ua) && !/Android/i.test(ua) ? 'linux' : null;
+    const mobile = /Android|iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+    const detected = mobile ? null : /Windows/i.test(ua) ? 'windows' : /Macintosh|Mac OS X/i.test(ua) ? 'mac' : /Linux/i.test(ua) && !/Android/i.test(ua) ? 'linux' : null;
     Promise.resolve().then(() => setPlatform(detected));
   }, []);
 
@@ -149,17 +150,20 @@ export function ZhijiePage() {
         <section id="download" className="zhijie-download container">
           <div className="zhijie-section-heading reveal"><span className="section-kicker">YOUR SPACE TO CREATE</span><h2>Build wherever you work</h2><p>Open your workspace in the browser, or download the desktop app to stay focused on creating.</p></div>
           <div className="zhijie-access-grid">
-            <article className="zhijie-web-access reveal"><IconGlobe className="zhijie-web-icon" aria-hidden="true" /><small>WEB APP</small><h3>Open your browser. Start building.</h3><p>Sign in with your Shiguang account to access your projects and the visual editor.</p><a className="btn btn-primary" href={PLASMIC_WEB_URL} target="_blank" rel="noopener noreferrer">Get started <IconArrowRight /></a><span>No installation needed · Shiguang account</span></article>
+            <article className="zhijie-web-access reveal"><span className="zhijie-web-icon"><IconGlobe aria-hidden="true" /></span><small>NO INSTALLATION REQUIRED</small><h3>Web app</h3><p>Sign in with your Shiguang account to access your projects and the visual editor.</p><a className="btn btn-primary" href={PLASMIC_WEB_URL} target="_blank" rel="noopener noreferrer">Get started <IconArrowRight /></a><span>No installation needed · Shiguang account</span></article>
             <article className="zhijie-desktop-access reveal">
-              <div className="zhijie-download-heading"><div><small>DESKTOP APP</small><h3>Your desktop creative space</h3></div><span>Official releases</span></div>
+              <div className="zhijie-download-heading"><div><small>DESKTOP APP</small><h3>Desktop app</h3></div>{platform ? <span className="zhijie-system-detected">System detected</span> : <span>Official releases</span>}</div>
               <ul>
-                {downloads.map(build => (
-                  <li key={build.id} className={platform === build.platform ? 'is-current' : ''}>
-                    <PlatformGlyph name={build.platform} />
-                    <div><strong>{build.name}</strong><small>{build.packaging}{build.version ? ` · v${build.version}` : ''}</small></div>
-                    {build.url ? <><span className="zhijie-build-size">{build.sizeMb} MB</span><a className="btn btn-ghost btn-sm" href={build.url} aria-label={`Download ${build.name} ${build.packaging}`}><IconDownload aria-hidden="true" />Download</a></> : <span className="zhijie-download-unavailable">Coming soon</span>}
-                  </li>
-                ))}
+                {downloads.map(build => {
+                  const current = platform === build.platform;
+                  return (
+                    <li key={build.id} className={current ? 'is-current' : ''}>
+                      <span className="zhijie-build-glyph"><PlatformGlyph name={build.platform} /></span>
+                      <div className="zhijie-build-meta"><strong>{build.name}{current && <em>Your system</em>}</strong><small>{build.packaging}{build.version ? ` · v${build.version}` : ''}</small></div>
+                      {build.url ? <><span className="zhijie-build-size">{build.sizeMb} MB</span><a className={`btn btn-sm ${current ? 'btn-primary' : 'btn-ghost'}`} href={build.url} aria-label={`Download ${build.name} ${build.packaging}`}><IconDownload aria-hidden="true" />Download</a></> : <span className="zhijie-download-unavailable">Coming soon</span>}
+                    </li>
+                  );
+                })}
               </ul>
               <p>The desktop and web apps share the same workspace. Installers use the Plasmic name.</p>
             </article>
