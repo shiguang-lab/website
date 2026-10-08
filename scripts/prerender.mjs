@@ -22,6 +22,7 @@ const escapeHtml = (value) => value
 /** @param {string} pathname @param {string} productName */
 const buildPage = (pathname, productName) => {
   const { html, meta } = render(pathname);
+  const english = pathname === ZHIJIE_LANDING_PATH;
   const canonicalUrl = `${siteUrl}${pathname === '/' ? '/' : pathname}`;
   const structuredData = JSON.stringify({
     '@context': 'https://schema.org',
@@ -39,12 +40,13 @@ const buildPage = (pathname, productName) => {
     `<meta property="og:title" content="${escapeHtml(meta.title)}" />`,
     `<meta property="og:description" content="${escapeHtml(meta.description)}" />`,
     `<meta property="og:url" content="${canonicalUrl}" />`,
-    '<meta property="og:locale" content="zh_CN" />',
+    `<meta property="og:locale" content="${english ? 'en_US' : 'zh_CN'}" />`,
     '<meta name="twitter:card" content="summary_large_image" />',
     `<script type="application/ld+json">${structuredData}</script>`,
   ].join('\n    ');
 
   return template
+    .replace('<html lang="zh-CN">', `<html lang="${english ? 'en' : 'zh-CN'}">`)
     .replace('<!--app-head-->', head)
     .replace('<!--app-html-->', html)
     .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${escapeHtml(meta.description)}" />`)
@@ -61,7 +63,7 @@ await mkdir(zhixuDir, { recursive: true });
 await writeFile(path.join(zhixuDir, 'index.html'), buildPage(ZHIXU_LANDING_PATH, '知序'));
 const zhijieDir = path.join(distDir, ZHIJIE_LANDING_PATH.slice(1));
 await mkdir(zhijieDir, { recursive: true });
-await writeFile(path.join(zhijieDir, 'index.html'), buildPage(ZHIJIE_LANDING_PATH, '织界'));
+await writeFile(path.join(zhijieDir, 'index.html'), buildPage(ZHIJIE_LANDING_PATH, 'Zhijie'));
 
 const appDocument = template
   .replace('<!--app-head-->', '<meta name="robots" content="noindex" />')

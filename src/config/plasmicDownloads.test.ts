@@ -40,7 +40,7 @@ test('desktop downloads only expose published, verified installers', async (t) =
     assert.equal(downloads[2].url, undefined);
     assert.ok(!requests.some(url => url.endsWith('.zip')));
     assert.ok(!requests.some(url => /darwin\/(arm64|x64)\//.test(url)));
-    assert.match(downloads[0].packaging, /Apple Silicon 与 Intel/);
+    assert.match(downloads[0].packaging, /Apple Silicon & Intel/);
   });
   await t.test('leaves a missing release unavailable', async () => {
     published = false;

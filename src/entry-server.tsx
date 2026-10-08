@@ -36,8 +36,8 @@ interface PageMetadata {
 
 const routeMeta: Record<string, PageMetadata> = {
   [ZHIJIE_LANDING_PATH]: {
-    title: '织界 · 可视化应用搭建平台 | 拾光',
-    description: '织界基于开源 Plasmic，为你的技术栈提供可视化搭建能力。连接数据、复用 React 组件、设计网站与应用，接入现有代码和部署环境。',
+    title: 'Zhijie · Visual App Builder | Shiguang',
+    description: 'Zhijie brings open-source Plasmic to your tech stack. Build websites and apps visually, connect data, reuse React components, and integrate with your existing code and infrastructure.',
   },
   '/terms': {
     title: '拾光用户协议',

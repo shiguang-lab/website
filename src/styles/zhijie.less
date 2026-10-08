@@ -1,6 +1,14 @@
+@font-face {
+  font-family: 'Zhijie Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/assets/zhijie/fonts/inter-latin-variable.woff2') format('woff2');
+}
 .zhijie-mark { width: 32px; height: 32px; flex-shrink: 0; }
 .zhijie-page {
   min-height: 100%;
+  font-family: 'Zhijie Inter', Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--text);
   background: var(--bg);
 
@@ -8,16 +16,20 @@
   :is(a, button):focus-visible { outline: 2px solid var(--primary); outline-offset: 5px; }
   .site-header { background: rgba(2, 7, 19, .5); }
 }
-.zhijie-hero { position: relative; isolation: isolate; padding: 135px 0 65px; overflow: hidden; }
-.zhijie-hero::before { content: ''; position: absolute; z-index: -2; left: 50%; top: 0; width: 1920px; height: 100%; transform: translateX(-50%); background: url('/assets/zhijie/hero-background.webp') center 124px / 1920px 1184px no-repeat; mask-image: linear-gradient(to bottom, #000 65%, transparent 95%); filter: grayscale(1) invert(1); mix-blend-mode: screen; opacity: .65; pointer-events: none; }
-.zhijie-hero::after { content: ''; position: absolute; z-index: -1; left: 50%; top: 0; width: 1600px; height: 100%; transform: translateX(-50%); mask-image: linear-gradient(to bottom, #000 65%, transparent 95%); background: radial-gradient(ellipse at 25% 38%, #438ded40, transparent 45%), radial-gradient(ellipse at 58% 38%, #9b6cff38, transparent 48%); pointer-events: none; }
+.zhijie-hero { position: relative; isolation: isolate; padding: 135px 0 65px; overflow: hidden; background: var(--bg); }
+.zhijie-hero::before { content: ''; position: absolute; z-index: -2; left: 50%; top: 0; width: 1920px; height: 100%; transform: translateX(-50%); background: url('/assets/zhijie/hero-background.webp') center 124px / 1920px 1184px no-repeat; filter: grayscale(1) invert(1); mix-blend-mode: screen; opacity: .65; pointer-events: none; }
+.zhijie-hero::after { content: ''; position: absolute; z-index: -1; left: 50%; top: 0; width: 1600px; height: 100%; transform: translateX(-50%); background: radial-gradient(ellipse at 25% 38%, #438ded40, transparent 45%), radial-gradient(ellipse at 58% 38%, #9b6cff38, transparent 48%); pointer-events: none; }
+.zhijie-hero::before, .zhijie-hero::after {
+  mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent), linear-gradient(to bottom, transparent, #000 24%, #000 65%, transparent 95%);
+  mask-composite: intersect;
+}
 .zhijie-hero-copy { position: relative; z-index: 1; text-align: center; padding: 20px 0 42px; }
 .zhijie-eyebrow { display: inline-flex; align-items: center; gap: 9px; font-size: 12px; color: var(--muted); }
 .zhijie-eyebrow .zhijie-mark { width: 22px; height: 22px; color: #b48cff; }
 .zhijie-eyebrow strong { color: var(--text); font-size: 17px; font-weight: 650; }
-.zhijie-hero h1 { font-size: clamp(38px, 5.1vw, 68px); font-weight: 650; line-height: 1.22; letter-spacing: -.03em; margin: 28px 0; }
+.zhijie-hero h1 { font-size: clamp(40px, 6.25vw, 80px); font-weight: 600; line-height: 1.1; letter-spacing: -.0375em; max-width: 752px; margin: 28px auto; }
 .zhijie-hero h1 em { font-style: normal; background: linear-gradient(105deg, #e2cbff 5%, #a87bff 44%, #5ea1ff 100%); background-clip: text; -webkit-background-clip: text; color: transparent; }
-.zhijie-hero-copy > p { color: var(--muted); font-size: 16px; line-height: 1.9; max-width: 850px; margin-inline: auto; }
+.zhijie-hero-copy > p { color: var(--muted); font-size: 20px; line-height: 1.8; max-width: 752px; margin-inline: auto; }
 .zhijie-actions { display: flex; justify-content: center; gap: 12px; margin: 29px 0 17px; }
 .zhijie-actions svg { width: 17px; height: 17px; }
 .zhijie-preview-wrap { position: relative; max-width: 976px; margin-inline: auto; }
@@ -31,9 +43,9 @@
 .zhijie-how, .zhijie-collaboration, .zhijie-integration, .zhijie-deployment, .zhijie-download { padding-block: 105px; }
 .zhijie-section-heading { text-align: center; }
 .zhijie-section-heading.is-left { text-align: left; }
-.zhijie-section-heading h2 { font-size: clamp(32px, 4.2vw, 54px); line-height: 1.3; font-weight: 600; margin: 20px 0; }
-.zhijie-section-heading p { color: var(--muted); font-size: 16px; line-height: 1.9; margin: 0 auto; max-width: 800px; }
-.zhijie-section-heading.is-left p { margin-left: 0; }
+.zhijie-section-heading h2 { font-size: clamp(40px, 5.625vw, 72px); line-height: 1.1112; letter-spacing: -.02em; font-weight: 600; max-width: 768px; margin: 20px auto; }
+.zhijie-section-heading p { color: var(--muted); font-size: 18px; line-height: 1.8; margin: 0 auto; max-width: 800px; }
+.zhijie-section-heading.is-left :is(h2, p) { margin-left: 0; }
 .zhijie-page h2 em, .zhijie-page h3 em { font-style: normal; background: linear-gradient(105deg, #e2cbff 5%, #a87bff 44%, #5ea1ff 100%); background-clip: text; -webkit-background-clip: text; color: transparent; }
 .zhijie-page .section-kicker { display: inline-block; color: #a78ae3; border: 1px solid #a787e32e; border-radius: 6px; padding: 5px 12px; font-size: 10px; letter-spacing: .1em; }
 .zhijie-feature-tabs { display: flex; justify-content: center; gap: 12px; margin: 50px 0 22px; }
@@ -44,8 +56,8 @@
 .zhijie-feature-copy { min-width: 0; }
 .zhijie-feature-icon { display: block; width: 32px; height: 32px; font-size: 32px; color: #b48cff; }
 .zhijie-feature-icon svg { width: 100%; height: 100%; }
-.zhijie-feature-copy h3, .zhijie-collaboration-details h3 { font-size: clamp(28px, 3.2vw, 42px); line-height: 1.35; margin: 25px 0; font-weight: 600; }
-.zhijie-feature-copy p, .zhijie-collaboration-details p { color: var(--muted); font-size: 15px; line-height: 1.85; margin: 0; }
+.zhijie-feature-copy h3, .zhijie-collaboration-details h3 { font-size: clamp(32px, 3.75vw, 48px); line-height: 1.1667; letter-spacing: -.02em; margin: 25px 0; font-weight: 500; }
+.zhijie-feature-copy p, .zhijie-collaboration-details p { color: var(--muted); font-size: 18px; line-height: 1.7; margin: 0; }
 .zhijie-feature-copy .btn { margin-top: 30px; font-size: 13px; }
 .zhijie-connect-visual img { width: 100%; filter: invert(1) hue-rotate(180deg); }
 .zhijie-editor-visual { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; padding: 5px; background: #121b2b; }
@@ -71,6 +83,7 @@
 .zhijie-ai-agent { position: relative; display: flex; align-items: center; gap: 12px; padding: 22px 0; margin-top: 23px; border-block: 1px solid var(--line); }
 .zhijie-ai-agent-icon { display: grid; place-items: center; width: 38px; height: 38px; flex-shrink: 0; background: #a787e314; border: 1px solid #a787e333; border-radius: 8px; color: #c1a0fc; font-size: 20px; }
 .zhijie-ai-agent strong { display: block; font-size: 14px; font-weight: 550; }
+.zhijie-ai-agent > div { min-width: 0; }
 .zhijie-ai-agent div > span { display: block; font-size: 11px; color: var(--muted); margin-top: 7px; line-height: 1.6; }
 .zhijie-ai-flow-label { margin-left: auto; font-size: 9px; color: var(--soft); white-space: nowrap; }
 .zhijie-ai-outputs { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; padding-top: 23px; }
@@ -89,6 +102,7 @@
 .zhijie-ai-access .zhijie-text-link { margin-top: 0; min-height: 40px; }
 .zhijie-design { position: relative; isolation: isolate; padding: 100px 0; background: #050b1a; border-block: 1px solid var(--line); }
 .zhijie-design::before { content: ''; position: absolute; z-index: -1; inset: 0; opacity: .28; background: url('/assets/zhijie/design-background.webp') center top / cover no-repeat; }
+.zhijie-design .zhijie-section-heading h2 { max-width: 870px; font-size: clamp(32px, 3.75vw, 48px); font-weight: 500; line-height: 1.1667; }
 .zhijie-design .zhijie-section-heading { min-height: 330px; padding-top: 30px; }
 .zhijie-feature-row { display: grid; grid-template-columns: .85fr 1.15fr; gap: 90px; align-items: center; margin-top: 85px; }
 .zhijie-feature-row.is-reversed { grid-template-columns: 1.15fr .85fr; }
@@ -115,7 +129,7 @@
 .zhijie-scale-grid article > div { padding: 0 25px 28px; }
 .zhijie-scale-grid h3 { font-size: 19px; font-weight: 600; margin: 0 0 14px; }
 .zhijie-scale-grid p { color: var(--muted); font-size: 13px; line-height: 1.8; margin: 0; }
-.zhijie-download > .zhijie-section-heading { text-align: center; margin-bottom: 43px; }.zhijie-access-grid { display: grid; grid-template-columns: 1fr 1.55fr; gap: 20px; }.zhijie-web-access, .zhijie-desktop-access { background: #0d1524; border: 1px solid var(--line); border-radius: 10px; padding: 33px; }.zhijie-web-access { display: flex; flex-direction: column; align-items: flex-start; background: linear-gradient(145deg, #1d1730, #0c1423); }.zhijie-web-access > .zhijie-web-icon { width: 29px; height: 29px; font-size: 29px; color: #b48cff; margin: 0 0 29px; }.zhijie-access-grid small { color: #8390a7; font-size: 9px; letter-spacing: .06em; }.zhijie-access-grid h3 { margin: 12px 0 14px; font-size: 23px; font-weight: 550; }.zhijie-web-access p { margin: 0 0 30px; color: var(--muted); font-size: 13px; line-height: 1.9; }.zhijie-web-access > a { margin-top: auto; }.zhijie-web-access > span { color: var(--soft); font-size: 10px; margin-top: 18px; }.zhijie-download-heading { display: flex; align-items: center; justify-content: space-between; }.zhijie-download-heading > span { color: var(--soft); font-size: 10px; }.zhijie-desktop-access ul { list-style: none; padding: 0; margin: 8px 0 0; }.zhijie-desktop-access li { display: flex; gap: 15px; align-items: center; padding: 18px 0; border-top: 1px solid var(--line); }.zhijie-desktop-access li > svg { width: 22px; height: 22px; color: #8593ab; flex-shrink: 0; }.zhijie-desktop-access li > div { margin-right: auto; min-width: 0; }.zhijie-desktop-access li strong { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }.zhijie-desktop-access li small { letter-spacing: 0; line-height: 1.6; display: block; }.zhijie-desktop-access li.is-current > svg { color: #b48cff; }.zhijie-desktop-access li .btn { font-size: 11px; padding: 0 13px; min-height: 40px; flex-shrink: 0; }.zhijie-build-size { font-size: 10px; color: var(--soft); white-space: nowrap; }.zhijie-download-unavailable { color: var(--soft); font-size: 11px; white-space: nowrap; }.zhijie-desktop-access > p { margin: 9px 0 0; color: var(--soft); font-size: 10px; line-height: 1.8; }
+.zhijie-download > .zhijie-section-heading { text-align: center; margin-bottom: 43px; }.zhijie-access-grid { display: grid; grid-template-columns: 1fr 1.55fr; gap: 20px; }.zhijie-web-access, .zhijie-desktop-access { background: #0d1524; border: 1px solid var(--line); border-radius: 10px; padding: 33px; }.zhijie-web-access { display: flex; flex-direction: column; align-items: flex-start; background: linear-gradient(145deg, #1d1730, #0c1423); }.zhijie-web-access > .zhijie-web-icon { width: 29px; height: 29px; font-size: 29px; color: #b48cff; margin: 0 0 29px; }.zhijie-access-grid small { color: #8390a7; font-size: 9px; letter-spacing: .06em; }.zhijie-access-grid h3 { margin: 12px 0 14px; font-size: 23px; font-weight: 550; }.zhijie-web-access p { margin: 0 0 30px; color: var(--muted); font-size: 13px; line-height: 1.9; }.zhijie-web-access > a { margin-top: auto; }.zhijie-web-access > span { color: var(--soft); font-size: 10px; margin-top: 18px; }.zhijie-download-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0 12px; }.zhijie-download-heading > span { color: var(--soft); font-size: 10px; }.zhijie-desktop-access ul { list-style: none; padding: 0; margin: 8px 0 0; }.zhijie-desktop-access li { display: flex; gap: 15px; align-items: center; padding: 18px 0; border-top: 1px solid var(--line); }.zhijie-desktop-access li > svg { width: 22px; height: 22px; color: #8593ab; flex-shrink: 0; }.zhijie-desktop-access li > div { margin-right: auto; min-width: 0; }.zhijie-desktop-access li strong { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }.zhijie-desktop-access li small { letter-spacing: 0; line-height: 1.6; display: block; }.zhijie-desktop-access li.is-current > svg { color: #b48cff; }.zhijie-desktop-access li .btn { font-size: 11px; padding: 0 13px; min-height: 40px; flex-shrink: 0; }.zhijie-build-size { font-size: 10px; color: var(--soft); white-space: nowrap; }.zhijie-download-unavailable { color: var(--soft); font-size: 11px; white-space: nowrap; }.zhijie-desktop-access > p { margin: 9px 0 0; color: var(--soft); font-size: 10px; line-height: 1.8; }
 @media (max-width: 1050px) {
   .zhijie-how-panel { padding: 32px; gap: 30px; }
   .zhijie-feature-row { gap: 50px; }
@@ -162,17 +176,17 @@
   .zhijie-page .container { width: calc(100% - 36px); }
   .zhijie-hero { padding-top: 110px; }
   .zhijie-preview-wrap { width: 100vw; left: 50%; transform: translateX(-50%); }
-  .zhijie-use-types { display: grid; grid-template-columns: repeat(3, max-content); }
-  .zhijie-use-types span { font-size: 12px; padding-inline: 10px; text-align: center; }
-  .zhijie-hero h1 { font-size: 34px; margin-block: 21px; }
-  .zhijie-hero-copy > p { font-size: 13px; }
+  .zhijie-use-types { display: flex; gap: 6px; }
+  .zhijie-use-types span { font-size: 10px; padding-inline: 10px; text-align: center; }
+  .zhijie-hero h1 { font-size: clamp(38px, 10vw, 48px); margin-block: 21px; }
+  .zhijie-hero-copy > p { font-size: 16px; line-height: 1.7; }
   .zhijie-hero-copy > p br { display: none; }
   .zhijie-eyebrow { font-size: 11px; }
   .zhijie-actions { gap: 9px; }
   .zhijie-actions .btn-lg { font-size: 13px; min-height: 44px; padding: 0 18px; }
   .zhijie-section-heading h2 { font-size: 32px; }
-  .zhijie-section-heading p, .zhijie-feature-copy p, .zhijie-collaboration-details p { font-size: 13px; }
-  .zhijie-feature-copy h3, .zhijie-collaboration-details h3 { font-size: 28px; }
+  .zhijie-section-heading p, .zhijie-feature-copy p, .zhijie-collaboration-details p { font-size: 16px; }
+  .zhijie-feature-copy h3, .zhijie-collaboration-details h3 { font-size: 32px; }
   .zhijie-feature-tabs { margin-top: 32px; }
   .zhijie-how-panel { padding: 28px 22px; gap: 30px; }
   .zhijie-design .zhijie-section-heading { padding-top: 0; min-height: 230px; }

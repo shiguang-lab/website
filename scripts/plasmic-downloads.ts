@@ -2,7 +2,7 @@ import { parse } from 'yaml';
 import type { PlasmicDownload } from '../src/config/plasmicDownloads.ts';
 
 const builds = [
-  { id: 'mac', platform: 'mac', name: 'macOS', packaging: 'Universal · Apple Silicon 与 Intel · DMG', directory: 'darwin/universal/', manifest: 'latest-mac.yml', extension: '.dmg' },
+  { id: 'mac', platform: 'mac', name: 'macOS', packaging: 'Universal · Apple Silicon & Intel · DMG', directory: 'darwin/universal/', manifest: 'latest-mac.yml', extension: '.dmg' },
   { id: 'windows', platform: 'windows', name: 'Windows', packaging: 'x64 · EXE', directory: 'win32/x64/', manifest: 'latest.yml', extension: '.exe' },
   { id: 'linux', platform: 'linux', name: 'Linux', packaging: 'x64 · AppImage', directory: 'linux/x64/', manifest: 'latest-linux.yml', extension: '.AppImage' },
 ] as const;
