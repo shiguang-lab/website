@@ -81,7 +81,7 @@ export function OAuthDevicePage() {
             <h1>{context.client_name} 请求连接</h1>
             <p className="oauth-device-copy">请确认发起连接的应用中显示相同验证码。</p>
             <div className="oauth-device-code">{context.user_code}</div>
-            <ul className="oauth-device-scopes">{context.scopes.map((item) => <li key={item.scope}><span>✓</span><div><strong>{item.description}</strong><small>{item.scope}</small></div></li>)}</ul>
+            <ul className="oauth-device-scopes">{context.scopes.map((item) => <li key={item.scope}><span>✓</span><div><strong>{item.description}</strong></div></li>)}</ul>
             <div className="oauth-device-actions"><button type="button" disabled={pageState === 'submitting'} onClick={() => void decide('deny')}>拒绝</button><button className="login-submit" type="button" disabled={pageState === 'submitting'} onClick={() => void decide('allow')}>{pageState === 'submitting' ? '正在处理…' : '确认连接'}</button></div>
           </>}
         </div>
