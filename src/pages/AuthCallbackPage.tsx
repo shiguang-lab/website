@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 
 export function AuthCallbackPage() {
-  const navigate = useNavigate();
   const { refresh } = useAuth();
   const query = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search);
   const status = query.get('status') === 'success' ? 'success' : 'error';
@@ -12,19 +11,20 @@ export function AuthCallbackPage() {
 
   useEffect(() => {
     let active = true;
+    let timer: number | undefined;
     refresh().catch(() => undefined).finally(() => {
       if (!active) return;
       setSettled(true);
       if (status === 'success' && target && target.startsWith('/') && !target.startsWith('//')) {
-        const timer = window.setTimeout(() => navigate(target, { replace: true }), 700);
-        return () => window.clearTimeout(timer);
+        timer = window.setTimeout(() => window.location.replace(target), 700);
       }
       return undefined;
     });
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [navigate, refresh, status, target]);
+  }, [refresh, status, target]);
 
   return (
     <main className="login-page auth-callback-page">

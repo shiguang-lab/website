@@ -4,6 +4,11 @@ interface LocationParts {
   hash: string;
 }
 
+/** Authentication redirects may target server endpoints, so always reload the document. */
+export function completeLoginRedirect(target: string | undefined) {
+  window.location.assign(target || '/');
+}
+
 export function currentReturnTo(location: LocationParts) {
   if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') return '/portal';
   const pathname = location.pathname.startsWith('/') ? location.pathname : '/';

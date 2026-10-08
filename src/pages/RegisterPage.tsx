@@ -1,8 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link, useNavigate, type NavigateFunction } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AuthProviderIcon } from '../components/AuthProviderIcons';
 import { authProviders } from '../config/authProviders';
-import { useAuth } from '../auth/useAuth';
+import { completeLoginRedirect } from '../auth/loginRedirect';
 
 const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -100,27 +100,7 @@ function RegisterIcon({ name }: { name: 'user' | 'mail' | 'lock' | 'eye' | 'eyeO
 }
 
 
-/**
- * 登录/注册成功后的回跳:本站路径走路由切换(先刷新会话上下文),
- * 跨源地址(其它产品域)才整页跳转。
- */
-async function settleRedirect(
-  target: string | undefined,
-  navigate: NavigateFunction,
-  refresh: (signal?: AbortSignal) => Promise<unknown>,
-) {
-  const value = typeof target === 'string' && target ? target : '/';
-  if (value.startsWith('/') && !value.startsWith('//')) {
-    await refresh().catch(() => undefined);
-    navigate(value);
-    return;
-  }
-  window.location.assign(value);
-}
-
 export function RegisterPage() {
-  const navigate = useNavigate();
-  const { refresh } = useAuth();
   const query = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search);
   const returnTo = query.get('return_to') || query.get('redirect') || '/';
   const federatedMode = query.get('mode') === 'federated';
@@ -205,7 +185,7 @@ export function RegisterPage() {
       });
       const value = await readJSON<{ redirect?: string }>(response);
       if (value.redirect) {
-        await settleRedirect(value.redirect, navigate, refresh);
+        completeLoginRedirect(value.redirect);
         return;
       }
       setStatus('success');

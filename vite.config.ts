@@ -58,6 +58,11 @@ export default defineConfig(async ({ isSsrBuild, mode }) => {
     },
     server: {
       proxy: {
+        '/oauth/authorize': {
+          target: authProxyTarget,
+          changeOrigin: true,
+          cookieDomainRewrite: '',
+        },
         '/plasmic-updates/': releaseProxy,
         '/api/auth': {
           target: authProxyTarget,
