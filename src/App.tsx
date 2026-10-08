@@ -15,6 +15,8 @@ const LoginPage = lazy(() => import('./pages/LoginPage').then((module) => ({ def
 const RegisterPage = lazy(() => import('./pages/RegisterPage').then((module) => ({ default: module.RegisterPage })));
 const AuthCallbackPage = lazy(() => import('./pages/AuthCallbackPage').then((module) => ({ default: module.AuthCallbackPage })));
 const OAuthDevicePage = lazy(() => import('./pages/OAuthDevicePage').then((module) => ({ default: module.OAuthDevicePage })));
+const AppAuthorizationPage = lazy(() => import('./pages/AppAuthorizationPage').then(module => ({ default: module.AppAuthorizationPage })));
+const AppCallbackPage = lazy(() => import('./pages/AppCallbackPage').then(module => ({ default: module.AppCallbackPage })));
 const TermsPage = lazy(() => import('./pages/LegalPage').then((module) => ({ default: module.TermsPage })));
 const PrivacyPage = lazy(() => import('./pages/LegalPage').then((module) => ({ default: module.PrivacyPage })));
 const LoginHelpPage = lazy(() => import('./pages/LoginHelpPage').then((module) => ({ default: module.LoginHelpPage })));
@@ -35,6 +37,8 @@ export function App() {
         <Route path="/register" element={<DeferredPage><RegisterPage /></DeferredPage>} />
         <Route path="/account/*" element={<AccountPage />} />
         <Route path="/portal/*" element={<PortalPage />} />
+        <Route path="/auth/apps/:clientId/authorize" element={<DeferredPage><AppAuthorizationPage /></DeferredPage>} />
+        <Route path="/auth/apps/:clientId/callback" element={<DeferredPage><AppCallbackPage /></DeferredPage>} />
         <Route path="/auth/callback" element={<DeferredPage><AuthCallbackPage /></DeferredPage>} />
         <Route path="/oauth/device" element={<DeferredPage><OAuthDevicePage /></DeferredPage>} />
         <Route path="/terms" element={<DeferredPage><TermsPage /></DeferredPage>} />

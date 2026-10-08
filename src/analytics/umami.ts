@@ -106,7 +106,7 @@ function handleClick(event: MouseEvent) {
 }
 
 export function startUmamiAutoTracking() {
-  if (window.location.pathname === '/login' || window.location.pathname.startsWith('/login/')) return;
+  if (window.location.pathname === '/login' || window.location.pathname.startsWith('/login/') || window.location.pathname.startsWith('/auth/apps/')) return;
   if (window.__SHIGUANG_UMAMI_AUTO_TRACKING__) return;
   window.__SHIGUANG_UMAMI_AUTO_TRACKING__ = true;
 

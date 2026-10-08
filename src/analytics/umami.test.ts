@@ -90,3 +90,14 @@ test('keeps a fresh anonymous tracker anonymous without an identify request', as
 
   assert.deepEqual(identifyCalls, []);
 });
+
+for (const pathname of ['/auth/apps/plasmicapp/authorize', '/auth/apps/plasmicapp/callback']) {
+  test(`does not load analytics on sensitive app auth page ${pathname}`, async () => {
+    const { trackerListeners } = createBrowser();
+    window.location.pathname = pathname;
+    const analytics = await loadAnalytics();
+    analytics.startUmamiAutoTracking();
+    assert.equal(trackerListeners.size, 0);
+    assert.equal(window.__SHIGUANG_UMAMI_AUTO_TRACKING__, undefined);
+  });
+}

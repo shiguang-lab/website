@@ -58,6 +58,9 @@ export default defineConfig(async ({ isSsrBuild, mode }) => {
     },
     server: {
       proxy: {
+        '/oauth/app': {
+          target: authProxyTarget, changeOrigin: true, cookieDomainRewrite: '',
+        },
         '/oauth/authorize': {
           target: authProxyTarget,
           changeOrigin: true,
