@@ -12,12 +12,11 @@ export function AppCallbackPage() {
   // Remove the single-use code before page analytics run or links are followed.
   useLayoutEffect(() => { window.history.replaceState(null, '', window.location.pathname); }, []);
   useEffect(() => {
-    if (!callback) return;
     const controller = new AbortController();
     void fetch(`/oauth/app?${new URLSearchParams({ client_id: clientId || '' })}`, { signal: controller.signal })
       .then(readAppResponse<RegisteredApp>)
       .then(value => {
-        if (value.client_id !== clientId || !appCallbackLink(value, callback)) throw new Error('Unknown app callback');
+        if (value.client_id !== clientId || (callback && !appCallbackLink(value, callback))) throw new Error('Unknown app callback');
         setApp(value);
       })
       .catch(() => { if (!controller.signal.aborted) setFailed(true); });
