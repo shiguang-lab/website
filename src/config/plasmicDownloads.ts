@@ -10,4 +10,9 @@ export interface PlasmicDownload {
   sizeMb?: number;
 }
 
-export const PLASMIC_DOWNLOADS: PlasmicDownload[] = typeof __PLASMIC_DOWNLOADS__ === 'undefined' ? [] : __PLASMIC_DOWNLOADS__;
+// Product labels only. Versions and installers come from the live release JSON.
+export const PLASMIC_DOWNLOADS: PlasmicDownload[] = [
+  { id: 'mac', platform: 'mac', name: 'macOS', packaging: 'Universal · Apple Silicon & Intel · DMG' },
+  { id: 'windows', platform: 'windows', name: 'Windows', packaging: 'x64 · EXE' },
+  { id: 'linux', platform: 'linux', name: 'Linux', packaging: 'x64 · AppImage' },
+];

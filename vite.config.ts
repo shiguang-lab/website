@@ -1,8 +1,6 @@
 import { statSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
-import { defineConfig, loadEnv, type Plugin, type ProxyOptions, type UserConfig } from 'vite';
+import { defineConfig, loadEnv, type UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { loadPlasmicDownloads } from './src/config/plasmicReleases.ts';
 
 /** 构建时读取安装包真实大小(MB),产物缺失时为 null,页面据此隐藏大小徽标。 */
 function downloadSizes() {
@@ -22,39 +20,20 @@ function downloadSizes() {
   return sizes;
 }
 
-export default defineConfig(async ({ isSsrBuild, mode }) => {
+export default defineConfig(({ isSsrBuild, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const authProxyTarget = env.AUTH_PROXY_TARGET || 'https://shiguanglab.com';
   const authProxyOrigin = new URL(authProxyTarget).origin;
   const plasmicUpdateUrl = (env.VITE_PLASMIC_UPDATE_URL || 'https://studio.plasmic.shiguanglab.com/desktop-updates').replace(/\/?$/, '/');
-  const plasmicUpdateOrigin = new URL(plasmicUpdateUrl);
-  const releaseProxy: ProxyOptions = {
-    target: plasmicUpdateOrigin.origin,
-    changeOrigin: true,
-    rewrite: (path: string) => path.replace(/^\/plasmic-updates\//, plasmicUpdateOrigin.pathname),
-    configure(proxy) {
-      proxy.on('proxyReq', (request) => {
-        request.removeHeader('cookie');
-        request.removeHeader('authorization');
-      });
-    },
-  };
-  // Both renderers must use the same release snapshot for hydration.
-  const plasmicDownloads = isSsrBuild
-    ? JSON.parse(await readFile('dist/plasmic-downloads.json', 'utf8'))
-    : await loadPlasmicDownloads(plasmicUpdateUrl);
-
+  const downloadDomain = new URL(plasmicUpdateUrl);
+  if (downloadDomain.protocol !== 'https:' || /^[\d.]+$/.test(downloadDomain.hostname) || downloadDomain.username || downloadDomain.password) {
+    throw new Error('Plasmic downloads require a public HTTPS domain');
+  }
   return {
-    plugins: [react(), ...(!isSsrBuild ? [{
-      name: 'plasmic-download-snapshot',
-      generateBundle() {
-        this.emitFile({ type: 'asset', fileName: 'plasmic-downloads.json', source: JSON.stringify(plasmicDownloads) });
-      },
-    } satisfies Plugin] : [])],
+    plugins: [react()],
     define: {
       __SICHEN_DOWNLOAD_SIZES__: JSON.stringify(downloadSizes()),
       __PLASMIC_UPDATE_URL__: JSON.stringify(plasmicUpdateUrl),
-      __PLASMIC_DOWNLOADS__: JSON.stringify(plasmicDownloads),
     },
     server: {
       proxy: {
@@ -66,7 +45,6 @@ export default defineConfig(async ({ isSsrBuild, mode }) => {
           changeOrigin: true,
           cookieDomainRewrite: '',
         },
-        '/plasmic-updates/': releaseProxy,
         '/api/auth': {
           target: authProxyTarget,
           changeOrigin: true,
@@ -86,7 +64,6 @@ export default defineConfig(async ({ isSsrBuild, mode }) => {
         },
       },
     },
-    preview: { proxy: { '/plasmic-updates/': releaseProxy } },
     build: {
       manifest: !isSsrBuild,
       sourcemap: true,

@@ -4,7 +4,7 @@ import { once } from 'node:events';
 import test from 'node:test';
 import { loadPlasmicDownloads } from './plasmicReleases.ts';
 
-test('desktop downloads only expose published, verified installers', async (t) => {
+test('live JSON exposes verified installers without rebuilding the website', async (t) => {
   let installerName = 'Plasmic-1.2.3-mac-universal.dmg';
   let artifactSize = 1048576;
   let version = '1.2.3';
@@ -12,10 +12,14 @@ test('desktop downloads only expose published, verified installers', async (t) =
   const requests: string[] = [];
   const server = createServer((request, response) => {
     requests.push(`${request.method} ${request.url}`);
-    if (published && request.url === '/updates/darwin/universal/latest-mac.yml') {
-      response.end(`version: ${version}\nfiles:\n  - url: Plasmic-${version}-mac-universal.zip\n    size: 2048\n  - url: ${installerName}\n    size: 1048576\n`);
-    } else if (published && request.url === '/updates/win32/x64/latest.yml') {
-      response.end(`version: ${version}\nfiles:\n  - url: Plasmic-${version}-win-x64.exe\n    size: 1048576\n`);
+    if (published && request.url === '/updates/latest.json') {
+      const host = `http://${request.headers.host}/updates`;
+      const installer = (id: string, platform: string, arch: string, name: string) => ({ id, platform, arch, version, size: 1048576, sha512: 'a'.repeat(86) + '==', url: `${host}/${platform}/${arch}/${name}` });
+      response.setHeader('Content-Type', 'application/json');
+      response.end(JSON.stringify({ schemaVersion: 1, version, installers: [
+        installer('mac', 'darwin', 'universal', installerName),
+        installer('windows', 'win32', 'x64', `Plasmic-${version}-win-x64.exe`),
+      ] }));
     } else if (request.method === 'HEAD') {
       response.writeHead(200, { 'Content-Length': artifactSize });
       response.end();
@@ -48,11 +52,18 @@ test('desktop downloads only expose published, verified installers', async (t) =
     version = '1.2.4';
     installerName = `Plasmic-${version}-mac-universal.dmg`;
     const officialBase = 'https://studio.example.com/desktop-updates/';
-    const refreshed = await loadPlasmicDownloads(officialBase, (url, init) => {
+    const refreshed = await loadPlasmicDownloads(officialBase, async (url, init) => {
       assert.equal(init?.cache, 'no-store');
       assert.equal(init?.credentials, 'omit');
+      assert.equal(new URL(url).origin, 'https://studio.example.com');
       const path = new URL(url).pathname.slice('/desktop-updates/'.length);
-      return fetch(`${base}/${path}`, init);
+      const response = await fetch(`${base}/${path}`, init);
+      if (path === 'latest.json') {
+        const json = await response.json();
+        for (const installer of json.installers) installer.url = installer.url.replace(base + '/', officialBase);
+        return Response.json(json);
+      }
+      return response;
     });
     assert.equal(snapshot[0].version, '1.2.3');
     assert.equal(refreshed[0].version, '1.2.4');

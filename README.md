@@ -74,15 +74,15 @@ docker compose --env-file deploy/website.env -f deploy/docker-compose.nas.yml up
 React 组件集成和自主部署。产品示例图片来自 Plasmic 官网，来源见
 [`docs/zhijie-media.md`](docs/zhijie-media.md)。
 
-下载区在客户端构建时读取 `VITE_PLASMIC_UPDATE_URL` 下按平台、架构划分的
-Electron 更新清单，选择 DMG、EXE 或 AppImage，并检查安装包的 HTTP 状态和大小。
-macOS 只读取 `darwin/universal/`，一个 DMG 同时支持 Apple Silicon 和 Intel。
-版本、大小和下载地址写入 `dist/plasmic-downloads.json`，SSR 复用同一份快照。
-页面打开后通过同源 `/plasmic-updates/` 代理重新读取清单并核对安装包大小，
-更新版本、大小和下载链接，无需重新构建官网。浏览器读取不缓存，
-代理不转发账号 Cookie 或 Authorization；实际下载仍使用 Studio 的官方安装包地址。
-未发布或读取失败的平台显示 “Not available yet”。
-安装包仍使用 Plasmic 名称，由已有桌面端发布渠道提供。
+下载区在页面打开时读取公网域名配置 `VITE_PLASMIC_UPDATE_URL` 下的
+`latest.json`（默认 `https://studio.plasmic.shiguanglab.com/desktop-updates/latest.json`）。
+版本、大小和下载地址来自这份 JSON，不写入网站构建或 SSR 快照。
+Actions 构建三个平台的安装包并核对 SHA-512，再将安装包、Electron 更新 YAML
+和 JSON 一起打进 Plasmic 的静态下载镜像。更新 App 时只部署下载镜像，无需发布网站。
+macOS 使用一个 Universal DMG，同时支持 Apple Silicon 和 Intel。
+浏览器直接读取 HTTPS 域名，使用 `no-store`、不发送 Cookie 或 Authorization，
+并通过 HEAD 核对安装包大小。下载服务配置 CORS，不依赖网站代理或 IP 地址。
+未发布或读取失败的平台显示 “Not available yet”。安装包仍使用 Plasmic 名称。
 
 ## Umami 埋点
 

@@ -1,39 +1,47 @@
-import { parse } from 'yaml';
-import type { PlasmicDownload } from './plasmicDownloads.ts';
+import { PLASMIC_DOWNLOADS, type PlasmicDownload } from './plasmicDownloads.ts';
 
-const builds = [
-  { id: 'mac', platform: 'mac', name: 'macOS', packaging: 'Universal · Apple Silicon & Intel · DMG', directory: 'darwin/universal/', manifest: 'latest-mac.yml', extension: '.dmg' },
-  { id: 'windows', platform: 'windows', name: 'Windows', packaging: 'x64 · EXE', directory: 'win32/x64/', manifest: 'latest.yml', extension: '.exe' },
-  { id: 'linux', platform: 'linux', name: 'Linux', packaging: 'x64 · AppImage', directory: 'linux/x64/', manifest: 'latest-linux.yml', extension: '.AppImage' },
-] as const;
+const targets = [
+  { platform: 'darwin', arch: 'universal', extension: '.dmg' },
+  { platform: 'win32', arch: 'x64', extension: '.exe' },
+  { platform: 'linux', arch: 'x64', extension: '.AppImage' },
+];
+interface ReleaseInstaller {
+  id: string;
+  platform: string;
+  arch: string;
+  version: string;
+  size: number;
+  sha512: string;
+  url: string;
+}
 
-/** Resolve published installers; missing or unverified releases stay unavailable. */
+/** Fetch the release JSON at page load, independently of website builds. */
 export async function loadPlasmicDownloads(updateUrl: string, request: (url: URL | string, init?: RequestInit) => Promise<Response> = fetch): Promise<PlasmicDownload[]> {
-  const base = updateUrl.replace(/\/?$/, '/');
-  return Promise.all(builds.map(async ({ id, platform, name, packaging, directory, manifest, extension }) => {
-    const build: PlasmicDownload = { id, platform, name, packaging };
-    try {
-      const manifestUrl = new URL(directory + manifest, base);
-      const response = await request(manifestUrl, { cache: 'no-store', credentials: 'omit', signal: AbortSignal.timeout(8000) });
-      if (response.status === 404) return build;
-      if (!response.ok) throw new Error(`Manifest HTTP ${response.status}`);
-      const release = parse(await response.text());
-      if (typeof release?.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(release.version) || !Array.isArray(release.files)) {
-        throw new Error('Invalid stable release manifest');
-      }
-      const file = release.files.find((entry: { url?: unknown }) => typeof entry?.url === 'string' && entry.url.endsWith(extension));
-      if (!file || !/^[a-zA-Z0-9._-]+$/.test(file.url) || !file.url.includes(`-${release.version}-`) || !Number.isSafeInteger(file.size) || file.size <= 0) {
-        throw new Error('Missing or invalid installer');
-      }
-      const url = new URL(file.url, manifestUrl).href;
-      const artifact = await request(url, { method: 'HEAD', cache: 'no-store', credentials: 'omit', signal: AbortSignal.timeout(8000) });
-      if (!artifact.ok || Number(artifact.headers.get('content-length')) !== file.size) {
-        throw new Error('Installer unavailable or size mismatch');
-      }
-      return { ...build, url, version: release.version, sizeMb: Math.round(file.size / 1024 / 1024) };
-    } catch (error) {
-      console.warn(`Plasmic download ${id} unavailable: ${error instanceof Error ? error.message : String(error)}`);
-      return build;
+  const base = new URL(updateUrl.replace(/\/?$/, '/'));
+  try {
+    const response = await request(new URL('latest.json', base), { cache: 'no-store', credentials: 'omit', signal: AbortSignal.timeout(8000) });
+    if (response.status === 404) return PLASMIC_DOWNLOADS;
+    if (!response.ok) throw new Error(`Release JSON HTTP ${response.status}`);
+    const release = await response.json();
+    if (release.schemaVersion !== 1 || typeof release.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(release.version) || !Array.isArray(release.installers)) {
+      throw new Error('Invalid release JSON');
     }
-  }));
+    return await Promise.all(PLASMIC_DOWNLOADS.map(async (build, index) => {
+      const target = targets[index];
+      const file: ReleaseInstaller | undefined = release.installers.find((entry: ReleaseInstaller) => entry.id === build.id);
+      if (!file) return build;
+      const partition = `${target.platform}/${target.arch}/`;
+      const filename = typeof file.url === 'string' ? file.url.slice(file.url.lastIndexOf('/') + 1) : '';
+      if (file.platform !== target.platform || file.arch !== target.arch || file.version !== release.version ||
+        !/^[a-zA-Z0-9._-]+$/.test(filename) || !filename.includes(`-${release.version}-`) || !filename.endsWith(target.extension) ||
+        file.url !== new URL(partition + filename, base).href || !Number.isSafeInteger(file.size) || file.size <= 0 ||
+        typeof file.sha512 !== 'string' || !/^[A-Za-z0-9+/]{86}==$/.test(file.sha512)) return build;
+      const artifact = await request(file.url, { method: 'HEAD', cache: 'no-store', credentials: 'omit', signal: AbortSignal.timeout(8000) });
+      if (!artifact.ok || Number(artifact.headers.get('content-length')) !== file.size) return build;
+      return { ...build, url: file.url, version: release.version, sizeMb: Math.round(file.size / 1024 / 1024) };
+    }));
+  } catch (error) {
+    console.warn(`Plasmic downloads unavailable: ${error instanceof Error ? error.message : String(error)}`);
+    return PLASMIC_DOWNLOADS;
+  }
 }

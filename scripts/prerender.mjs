@@ -9,7 +9,6 @@ const templatePath = path.join(distDir, 'index.html');
 const serverEntry = path.join(root, '.ssr', 'entry-server.js');
 const siteUrl = (process.env.SITE_URL || 'https://shiguanglab.com').replace(/\/$/, '');
 const template = await readFile(templatePath, 'utf8');
-const plasmicDownloads = JSON.parse(await readFile(path.join(distDir, 'plasmic-downloads.json'), 'utf8'));
 const { render } = await import(`${pathToFileURL(serverEntry).href}?t=${Date.now()}`);
 
 /** @param {string} value */
@@ -29,8 +28,7 @@ const buildPage = (pathname, productName) => {
     '@type': 'SoftwareApplication',
     name: productName,
     applicationCategory: 'BusinessApplication',
-    operatingSystem: pathname === SICHEN_LANDING_PATH ? 'Web, Windows, macOS, Linux'
-      : pathname === ZHIJIE_LANDING_PATH ? ['Web', ...new Set(plasmicDownloads.filter(build => build.url).map(build => build.name))].join(', ') : 'Web',
+    operatingSystem: [SICHEN_LANDING_PATH, ZHIJIE_LANDING_PATH].includes(pathname) ? 'Web, Windows, macOS, Linux' : 'Web',
     url: canonicalUrl,
     description: meta.description,
   });
