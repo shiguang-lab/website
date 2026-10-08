@@ -78,7 +78,10 @@ React 组件集成和自主部署。产品示例图片来自 Plasmic 官网，�
 Electron 更新清单，选择 DMG、EXE 或 AppImage，并检查安装包的 HTTP 状态和大小。
 macOS 只读取 `darwin/universal/`，一个 DMG 同时支持 Apple Silicon 和 Intel。
 版本、大小和下载地址写入 `dist/plasmic-downloads.json`，SSR 复用同一份快照。
-未发布或读取失败的平台显示“暂未发布”；重新构建官网后更新下载版本。
+页面打开后通过同源 `/plasmic-updates/` 代理重新读取清单并核对安装包大小，
+更新版本、大小和下载链接，无需重新构建官网。浏览器读取不缓存，
+代理不转发账号 Cookie 或 Authorization；实际下载仍使用 Studio 的官方安装包地址。
+未发布或读取失败的平台显示 “Not available yet”。
 安装包仍使用 Plasmic 名称，由已有桌面端发布渠道提供。
 
 ## Umami 埋点

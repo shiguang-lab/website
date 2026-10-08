@@ -11,7 +11,7 @@ import { PageMeta } from '../components/PageMeta';
 import { PlatformGlyph } from '../components/PlatformGlyph';
 import { SiteHeader } from '../components/SiteHeader';
 import { ZhijieMark } from '../components/ZhijieMark';
-import { PLASMIC_DOWNLOADS } from '../config/plasmicDownloads';
+import { usePlasmicDownloads } from '../hooks/usePlasmicDownloads';
 import { PLASMIC_WEB_URL } from '../config/productUrls';
 import { useHomeEffects } from '../hooks/useHomeEffects';
 
@@ -78,6 +78,7 @@ const scaleCapabilities = [
 
 export function ZhijiePage() {
   useHomeEffects();
+  const downloads = usePlasmicDownloads();
   const [platform, setPlatform] = useState<string | null>(null);
   useEffect(() => {
     const ua = navigator.userAgent;
@@ -152,7 +153,7 @@ export function ZhijiePage() {
             <article className="zhijie-desktop-access reveal">
               <div className="zhijie-download-heading"><div><small>DESKTOP APP</small><h3>Your desktop creative space</h3></div><span>Official releases</span></div>
               <ul>
-                {PLASMIC_DOWNLOADS.map(build => (
+                {downloads.map(build => (
                   <li key={build.id} className={platform === build.platform ? 'is-current' : ''}>
                     <PlatformGlyph name={build.platform} />
                     <div><strong>{build.name}</strong><small>{build.packaging}{build.version ? ` · v${build.version}` : ''}</small></div>

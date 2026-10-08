@@ -1,5 +1,5 @@
 import { parse } from 'yaml';
-import type { PlasmicDownload } from '../src/config/plasmicDownloads.ts';
+import type { PlasmicDownload } from './plasmicDownloads.ts';
 
 const builds = [
   { id: 'mac', platform: 'mac', name: 'macOS', packaging: 'Universal · Apple Silicon & Intel · DMG', directory: 'darwin/universal/', manifest: 'latest-mac.yml', extension: '.dmg' },
@@ -7,14 +7,14 @@ const builds = [
   { id: 'linux', platform: 'linux', name: 'Linux', packaging: 'x64 · AppImage', directory: 'linux/x64/', manifest: 'latest-linux.yml', extension: '.AppImage' },
 ] as const;
 
-/** Resolve published installers at build time; missing releases stay unavailable. */
-export async function loadPlasmicDownloads(updateUrl: string): Promise<PlasmicDownload[]> {
+/** Resolve published installers; missing or unverified releases stay unavailable. */
+export async function loadPlasmicDownloads(updateUrl: string, request: (url: URL | string, init?: RequestInit) => Promise<Response> = fetch): Promise<PlasmicDownload[]> {
   const base = updateUrl.replace(/\/?$/, '/');
   return Promise.all(builds.map(async ({ id, platform, name, packaging, directory, manifest, extension }) => {
     const build: PlasmicDownload = { id, platform, name, packaging };
     try {
       const manifestUrl = new URL(directory + manifest, base);
-      const response = await fetch(manifestUrl, { signal: AbortSignal.timeout(8000) });
+      const response = await request(manifestUrl, { cache: 'no-store', credentials: 'omit', signal: AbortSignal.timeout(8000) });
       if (response.status === 404) return build;
       if (!response.ok) throw new Error(`Manifest HTTP ${response.status}`);
       const release = parse(await response.text());
@@ -26,7 +26,7 @@ export async function loadPlasmicDownloads(updateUrl: string): Promise<PlasmicDo
         throw new Error('Missing or invalid installer');
       }
       const url = new URL(file.url, manifestUrl).href;
-      const artifact = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(8000) });
+      const artifact = await request(url, { method: 'HEAD', cache: 'no-store', credentials: 'omit', signal: AbortSignal.timeout(8000) });
       if (!artifact.ok || Number(artifact.headers.get('content-length')) !== file.size) {
         throw new Error('Installer unavailable or size mismatch');
       }

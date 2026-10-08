@@ -1,8 +1,8 @@
 import { statSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { defineConfig, loadEnv, type Plugin, type UserConfig } from 'vite';
+import { defineConfig, loadEnv, type Plugin, type ProxyOptions, type UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { loadPlasmicDownloads } from './scripts/plasmic-downloads.ts';
+import { loadPlasmicDownloads } from './src/config/plasmicReleases.ts';
 
 /** 构建时读取安装包真实大小(MB),产物缺失时为 null,页面据此隐藏大小徽标。 */
 function downloadSizes() {
@@ -26,10 +26,23 @@ export default defineConfig(async ({ isSsrBuild, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const authProxyTarget = env.AUTH_PROXY_TARGET || 'https://shiguanglab.com';
   const authProxyOrigin = new URL(authProxyTarget).origin;
+  const plasmicUpdateUrl = (env.VITE_PLASMIC_UPDATE_URL || 'https://studio.plasmic.shiguanglab.com/desktop-updates').replace(/\/?$/, '/');
+  const plasmicUpdateOrigin = new URL(plasmicUpdateUrl);
+  const releaseProxy: ProxyOptions = {
+    target: plasmicUpdateOrigin.origin,
+    changeOrigin: true,
+    rewrite: (path: string) => path.replace(/^\/plasmic-updates\//, plasmicUpdateOrigin.pathname),
+    configure(proxy) {
+      proxy.on('proxyReq', (request) => {
+        request.removeHeader('cookie');
+        request.removeHeader('authorization');
+      });
+    },
+  };
   // Both renderers must use the same release snapshot for hydration.
   const plasmicDownloads = isSsrBuild
     ? JSON.parse(await readFile('dist/plasmic-downloads.json', 'utf8'))
-    : await loadPlasmicDownloads(env.VITE_PLASMIC_UPDATE_URL || 'https://studio.plasmic.shiguanglab.com/desktop-updates');
+    : await loadPlasmicDownloads(plasmicUpdateUrl);
 
   return {
     plugins: [react(), ...(!isSsrBuild ? [{
@@ -40,10 +53,12 @@ export default defineConfig(async ({ isSsrBuild, mode }) => {
     } satisfies Plugin] : [])],
     define: {
       __SICHEN_DOWNLOAD_SIZES__: JSON.stringify(downloadSizes()),
+      __PLASMIC_UPDATE_URL__: JSON.stringify(plasmicUpdateUrl),
       __PLASMIC_DOWNLOADS__: JSON.stringify(plasmicDownloads),
     },
     server: {
       proxy: {
+        '/plasmic-updates/': releaseProxy,
         '/api/auth': {
           target: authProxyTarget,
           changeOrigin: true,
@@ -63,6 +78,7 @@ export default defineConfig(async ({ isSsrBuild, mode }) => {
         },
       },
     },
+    preview: { proxy: { '/plasmic-updates/': releaseProxy } },
     build: {
       manifest: !isSsrBuild,
       sourcemap: true,

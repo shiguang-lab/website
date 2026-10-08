@@ -17,6 +17,7 @@ interface ImportMeta {
 }
 
 declare const __SICHEN_DOWNLOAD_SIZES__: Partial<Record<'windows' | 'mac' | 'linux', number | null>>;
+declare const __PLASMIC_UPDATE_URL__: string;
 declare const __PLASMIC_DOWNLOADS__: import('./config/plasmicDownloads').PlasmicDownload[];
 
 interface Window {
