@@ -90,7 +90,7 @@ export function ZhijiePage() {
   return (
     <div className="page-shell zhijie-page">
       <PageMeta language="en" title="Zhijie · Visual App Builder | Shiguang" description="Zhijie brings open-source Plasmic to your tech stack. Build websites and apps visually, connect data, reuse React components, and integrate with your existing code and infrastructure." />
-      <SiteHeader productPage english />
+      <SiteHeader productPage />
       <main id="top">
         <section className="zhijie-hero">
           <div className="container">
