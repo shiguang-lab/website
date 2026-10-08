@@ -12,6 +12,7 @@ import { PlatformGlyph } from '../components/PlatformGlyph';
 import { SiteHeader } from '../components/SiteHeader';
 import { ZhijieMark } from '../components/ZhijieMark';
 import { usePlasmicDownloads } from '../hooks/usePlasmicDownloads';
+import { detectPlasmicSystem, type PlasmicSystem } from '../config/plasmicDownloads';
 import { PLASMIC_WEB_URL } from '../config/productUrls';
 import { useHomeEffects } from '../hooks/useHomeEffects';
 
@@ -79,12 +80,11 @@ const scaleCapabilities = [
 export function ZhijiePage() {
   useHomeEffects();
   const downloads = usePlasmicDownloads();
-  const [platform, setPlatform] = useState<string | null>(null);
+  const [system, setSystem] = useState<PlasmicSystem>({ platform: null, arch: null });
   useEffect(() => {
-    const ua = navigator.userAgent;
-    const mobile = /Android|iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
-    const detected = mobile ? null : /Windows/i.test(ua) ? 'windows' : /Macintosh|Mac OS X/i.test(ua) ? 'mac' : /Linux/i.test(ua) && !/Android/i.test(ua) ? 'linux' : null;
-    Promise.resolve().then(() => setPlatform(detected));
+    let active = true;
+    void detectPlasmicSystem(navigator).then(detected => { if (active) setSystem(detected); });
+    return () => { active = false; };
   }, []);
 
   return (
@@ -152,10 +152,10 @@ export function ZhijiePage() {
           <div className="zhijie-access-grid">
             <article className="zhijie-web-access reveal"><span className="zhijie-web-icon"><IconGlobe aria-hidden="true" /></span><small>NO INSTALLATION REQUIRED</small><h3>Web app</h3><p>Sign in with your Shiguang account to access your projects and the visual editor.</p><a className="btn btn-primary" href={PLASMIC_WEB_URL} target="_blank" rel="noopener noreferrer">Get started <IconArrowRight /></a><span>No installation needed · Shiguang account</span></article>
             <article className="zhijie-desktop-access reveal">
-              <div className="zhijie-download-heading"><div><small>DESKTOP APP</small><h3>Desktop app</h3></div>{platform ? <span className="zhijie-system-detected">System detected</span> : <span>Official releases</span>}</div>
+              <div className="zhijie-download-heading"><div><small>DESKTOP APP</small><h3>Desktop app</h3></div>{system.platform === 'mac' && !system.arch ? <span>Choose your Mac chip</span> : system.platform ? <span className="zhijie-system-detected">System detected</span> : <span>Official releases</span>}</div>
               <ul>
                 {downloads.map(build => {
-                  const current = platform === build.platform;
+                  const current = system.platform === build.platform && (build.platform !== 'mac' || system.arch === build.arch);
                   return (
                     <li key={build.id} className={current ? 'is-current' : ''}>
                       <span className="zhijie-build-glyph"><PlatformGlyph name={build.platform} /></span>
@@ -165,6 +165,7 @@ export function ZhijiePage() {
                   );
                 })}
               </ul>
+              <p>Not sure which Mac? Open Apple menu → About This Mac. “Chip” means Apple Silicon; “Processor” means Intel.</p>
               <p>The desktop and web apps share the same workspace. Installers use the Plasmic name.</p>
             </article>
           </div>

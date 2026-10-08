@@ -5,7 +5,7 @@ import test from 'node:test';
 import { loadPlasmicDownloads } from './plasmicReleases.ts';
 
 test('live JSON exposes verified installers without rebuilding the website', async (t) => {
-  let installerName = 'Plasmic-1.2.3-mac-universal.dmg';
+  let installerName = 'Plasmic-1.2.3-mac-arm64.dmg';
   let artifactSize = 1048576;
   let version = '1.2.3';
   let published = true;
@@ -17,7 +17,8 @@ test('live JSON exposes verified installers without rebuilding the website', asy
       const installer = (id: string, platform: string, arch: string, name: string) => ({ id, platform, arch, version, size: 1048576, sha512: 'a'.repeat(86) + '==', url: `${host}/${platform}/${arch}/${name}` });
       response.setHeader('Content-Type', 'application/json');
       response.end(JSON.stringify({ schemaVersion: 1, version, installers: [
-        installer('mac', 'darwin', 'universal', installerName),
+        installer('mac-arm64', 'darwin', 'arm64', installerName),
+        installer('mac-x64', 'darwin', 'x64', `Plasmic-${version}-mac-x64.dmg`),
         installer('windows', 'win32', 'x64', `Plasmic-${version}-win-x64.exe`),
       ] }));
     } else if (request.method === 'HEAD') {
@@ -37,20 +38,22 @@ test('live JSON exposes verified installers without rebuilding the website', asy
 
   await t.test('selects DMG and EXE, preserving version, architecture and size', async () => {
     const downloads = await loadPlasmicDownloads(base);
-    assert.equal(downloads.length, 3);
-    assert.equal(downloads[0].url, `${base}/darwin/universal/Plasmic-1.2.3-mac-universal.dmg`);
+    assert.equal(downloads.length, 4);
+    assert.equal(downloads[0].url, `${base}/darwin/arm64/Plasmic-1.2.3-mac-arm64.dmg`);
     assert.equal(downloads[0].version, '1.2.3');
     assert.equal(downloads[0].sizeMb, 1);
-    assert.equal(downloads[1].url, `${base}/win32/x64/Plasmic-1.2.3-win-x64.exe`);
-    assert.equal(downloads[2].url, undefined);
+    assert.equal(downloads[2].url, `${base}/win32/x64/Plasmic-1.2.3-win-x64.exe`);
+    assert.equal(downloads[3].url, undefined);
     assert.ok(!requests.some(url => url.endsWith('.zip')));
-    assert.ok(!requests.some(url => /darwin\/(arm64|x64)\//.test(url)));
-    assert.match(downloads[0].packaging, /Apple Silicon & Intel/);
+    assert.equal(downloads[1].url, `${base}/darwin/x64/Plasmic-1.2.3-mac-x64.dmg`);
+    assert.match(downloads[0].name, /Apple Silicon/);
+    assert.match(downloads[1].name, /Intel/);
+    assert.ok(!requests.some(url => /darwin\/universal\//.test(url)));
   });
   await t.test('refreshes an older snapshot through a transport while retaining official download links', async () => {
     const snapshot = await loadPlasmicDownloads(base);
     version = '1.2.4';
-    installerName = `Plasmic-${version}-mac-universal.dmg`;
+    installerName = `Plasmic-${version}-mac-arm64.dmg`;
     const officialBase = 'https://studio.example.com/desktop-updates/';
     const refreshed = await loadPlasmicDownloads(officialBase, async (url, init) => {
       assert.equal(init?.cache, 'no-store');
@@ -67,11 +70,11 @@ test('live JSON exposes verified installers without rebuilding the website', asy
     });
     assert.equal(snapshot[0].version, '1.2.3');
     assert.equal(refreshed[0].version, '1.2.4');
-    assert.equal(refreshed[0].url, `${officialBase}darwin/universal/Plasmic-1.2.4-mac-universal.dmg`);
+    assert.equal(refreshed[0].url, `${officialBase}darwin/arm64/Plasmic-1.2.4-mac-arm64.dmg`);
     assert.equal(refreshed[1].version, '1.2.4');
     assert.equal(refreshed[0].sizeMb, 1);
     version = '1.2.3';
-    installerName = 'Plasmic-1.2.3-mac-universal.dmg';
+    installerName = 'Plasmic-1.2.3-mac-arm64.dmg';
   });
   await t.test('leaves a missing release unavailable', async () => {
     published = false;
@@ -87,9 +90,9 @@ test('live JSON exposes verified installers without rebuilding the website', asy
   });
   await t.test('rejects paths outside the immutable release directory', async () => {
     requests.length = 0;
-    installerName = '../Plasmic-1.2.3-mac-universal.dmg';
+    installerName = '../Plasmic-1.2.3-mac-arm64.dmg';
     const downloads = await loadPlasmicDownloads(base);
     assert.equal(downloads[0].url, undefined);
-    assert.ok(!requests.some(url => url.startsWith('HEAD') && url.endsWith('.dmg')));
+    assert.ok(!requests.some(url => url.startsWith('HEAD') && url.includes('/darwin/arm64/')));
   });
 });

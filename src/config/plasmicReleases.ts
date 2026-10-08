@@ -1,10 +1,10 @@
 import { PLASMIC_DOWNLOADS, type PlasmicDownload } from './plasmicDownloads.ts';
 
-const targets = [
-  { platform: 'darwin', arch: 'universal', extension: '.dmg' },
-  { platform: 'win32', arch: 'x64', extension: '.exe' },
-  { platform: 'linux', arch: 'x64', extension: '.AppImage' },
-];
+const targets = {
+  mac: { platform: 'darwin', extension: '.dmg' },
+  windows: { platform: 'win32', extension: '.exe' },
+  linux: { platform: 'linux', extension: '.AppImage' },
+};
 interface ReleaseInstaller {
   id: string;
   platform: string;
@@ -26,13 +26,14 @@ export async function loadPlasmicDownloads(updateUrl: string, request: (url: URL
     if (release.schemaVersion !== 1 || typeof release.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(release.version) || !Array.isArray(release.installers)) {
       throw new Error('Invalid release JSON');
     }
-    return await Promise.all(PLASMIC_DOWNLOADS.map(async (build, index) => {
-      const target = targets[index];
+    return await Promise.all(PLASMIC_DOWNLOADS.map(async build => {
+      const target = targets[build.platform];
       const file: ReleaseInstaller | undefined = release.installers.find((entry: ReleaseInstaller) => entry.id === build.id);
       if (!file) return build;
-      const partition = `${target.platform}/${target.arch}/`;
+      const partition = `${target.platform}/${build.arch}/`;
       const filename = typeof file.url === 'string' ? file.url.slice(file.url.lastIndexOf('/') + 1) : '';
-      if (file.platform !== target.platform || file.arch !== target.arch || file.version !== release.version ||
+      if (file.platform !== target.platform || file.arch !== build.arch || file.version !== release.version ||
+        (build.platform === 'mac' && filename !== `Plasmic-${release.version}-mac-${build.arch}.dmg`) ||
         !/^[a-zA-Z0-9._-]+$/.test(filename) || !filename.includes(`-${release.version}-`) || !filename.endsWith(target.extension) ||
         file.url !== new URL(partition + filename, base).href || !Number.isSafeInteger(file.size) || file.size <= 0 ||
         typeof file.sha512 !== 'string' || !/^[A-Za-z0-9+/]{86}==$/.test(file.sha512)) return build;

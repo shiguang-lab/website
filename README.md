@@ -79,7 +79,9 @@ React 组件集成和自主部署。产品示例图片来自 Plasmic 官网，�
 版本、大小和下载地址来自这份 JSON，不写入网站构建或 SSR 快照。
 Actions 构建三个平台的安装包并核对 SHA-512，再将安装包、Electron 更新 YAML
 和 JSON 一起打进 Plasmic 的静态下载镜像。更新 App 时只部署下载镜像，无需发布网站。
-macOS 使用一个 Universal DMG，同时支持 Apple Silicon 和 Intel。
+macOS 分别提供 Apple Silicon 和 Intel DMG；浏览器能识别芯片时标出推荐版本，
+无法识别时保留两个选择和芯片查看说明。已安装旧版 App 的 Universal 更新通道
+由 Plasmic 下载镜像保留，升级后自动使用本机对应的独立更新包。
 浏览器直接读取 HTTPS 域名，使用 `no-store`、不发送 Cookie 或 Authorization，
 并通过 HEAD 核对安装包大小。下载服务配置 CORS，不依赖网站代理或 IP 地址。
 未发布或读取失败的平台显示 “Not available yet”。安装包仍使用 Plasmic 名称。
