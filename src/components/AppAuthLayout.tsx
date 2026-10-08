@@ -17,9 +17,12 @@ export function AppAuthLayout({ app, children }: { app: RegisteredApp | null; ch
       <section className="login-account app-auth-panel">
         <div className="login-account-inner">
           <div className="app-auth-identity">
-            {app?.logo_url && <img src={app.logo_url} alt={`${app.name} Logo`} />}
-            <span className="login-kicker">SHIGUANG ACCOUNT</span>
-            {app && <p>{app.name}</p>}
+            {app?.logo_url && <div className="app-auth-connection">
+              <span className="app-auth-logo shiguang"><img src="/assets/微信图片_20260722101545_795_4.svg" alt="拾光" /></span>
+              <span className="app-auth-connection-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-5-5 5 5-5 5" /></svg></span>
+              <span className="app-auth-logo"><img src={app.logo_url} alt={`${app.name} Logo`} /></span>
+            </div>}
+            <span className="login-kicker">SHIGUANG CONNECT</span>
           </div>
           {children}
         </div>
