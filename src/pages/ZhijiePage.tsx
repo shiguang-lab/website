@@ -38,6 +38,10 @@ function HowItWorks() {
 }
 
 function AiWorkflow() {
+  const [promptMode, setPromptMode] = useState<'design' | 'develop'>('design');
+  const prompt = promptMode === 'design'
+    ? 'Use the Plasmic skill to create and design a Plasmic project for [REQ number] from [requirements document]. Optionally use [design.pen] as a visual reference.'
+    : 'Use the Plasmic skill to generate React / TypeScript code for the Plasmic project [project name or ID].';
   return (
     <section id="ai" className="zhijie-ai container" aria-labelledby="zhijie-ai-title">
       <div className="zhijie-section-heading reveal"><span className="section-kicker">BUILD WITH AI</span><h2 id="zhijie-ai-title">From design to code<br /><em>with AI</em></h2><p>Equip your agent with the CLI and Skill. Turn a prompt into an editable prototype, then generate React code that follows your project standards.</p></div>
@@ -50,7 +54,10 @@ function AiWorkflow() {
           <p>Automatically detect supported AI CLIs and apps on your machine and install the Skill for every detected client.</p>
         </div>
         <div className="zhijie-ai-flow" aria-label="AI workflow: turn a prompt into a Studio prototype and project code">
-          <div className="zhijie-ai-prompt"><span>EXAMPLE PROMPT</span><p>“Design a customer management page and integrate it into my existing React app.”</p></div>
+          <div className="zhijie-ai-prompt">
+            <div className="zhijie-ai-prompt-heading"><span>IN YOUR AI CHAT</span><div className="zhijie-ai-prompt-modes" role="group" aria-label="Example prompt type"><button type="button" aria-pressed={promptMode === 'design'} onClick={() => setPromptMode('design')}>Design</button><button type="button" aria-pressed={promptMode === 'develop'} onClick={() => setPromptMode('develop')}>Develop</button></div></div>
+            <p aria-live="polite">“{prompt}”</p>
+          </div>
           <div className="zhijie-ai-agent"><span className="zhijie-ai-agent-icon"><IconBolt aria-hidden="true" /></span><div><strong>AI Agent + Plasmic Skill</strong><span>Read requirements · Inspect component contracts · Run workflows</span></div><span className="zhijie-ai-flow-label">WORKFLOW</span></div>
           <div className="zhijie-ai-outputs">
             <div><IconLayers aria-hidden="true" /><span>DESIGN</span><h3>Editable Studio prototype</h3><p>Refine pages, components, state, and interactions on the canvas.</p></div>
@@ -63,7 +70,7 @@ function AiWorkflow() {
         <article><IconBolt aria-hidden="true" /><h3>Design with Skills</h3><p>Build and revise real pages through desktop MCP. Reuse components, configure state and interactions, and keep every design editable.</p></article>
         <article><IconCode aria-hidden="true" /><h3>Generate project code</h3><p>Let your agent read page models and component contracts to implement native React / TypeScript, then verify the build, behavior, and visuals.</p></article>
       </div>
-      <div className="zhijie-ai-access"><p>Connect to Studio through desktop MCP to design with AI and read your pages.</p><a className="zhijie-text-link" href="#download">Download desktop app <IconArrowRight aria-hidden="true" /></a></div>
+      <div className="zhijie-ai-access"><p>Before chatting, sign in to Plasmic Desktop and connect its MCP server to your AI client.</p><a className="zhijie-text-link" href="#download">Download desktop app <IconArrowRight aria-hidden="true" /></a></div>
     </section>
   );
 }
