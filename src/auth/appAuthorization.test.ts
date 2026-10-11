@@ -3,7 +3,7 @@ import test from 'node:test';
 import { appCallbackLink, readAppCallback, type RegisteredApp } from './appAuthorization.ts';
 const code = 'c'.repeat(43);
 const callback = { state: 'random-request-state', code };
-const app: RegisteredApp = { client_id: 'plasmicapp', name: 'Plasmic Desktop', logo_url: '/assets/plasmic-app.png', app_callback_url: 'plasmic-desktop://oauth/callback' };
+const app: RegisteredApp = { client_id: 'plasmicapp', name: 'Plasmic Desktop', logo_url: '/assets/plasmic-app-mark.png', app_callback_url: 'plasmic-desktop://oauth/callback' };
 test('a public callback passes only its single-use code and state to a registered app', () => {
   const parsed = readAppCallback(new URLSearchParams({ ...callback, return_to: 'https://evil.example', access_token: 'must-not-forward' }).toString());
   assert.deepEqual(parsed, callback);
