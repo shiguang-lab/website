@@ -27,7 +27,7 @@ const application = (
 
 if (!root) throw new Error('Missing #root element');
 
-if (root.childElementCount > 0) {
+if (root.childElementCount > 0 && !root.hasAttribute('data-auth-loading')) {
   hydrateRoot(root, application);
 } else {
   createRoot(root).render(application);

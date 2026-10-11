@@ -8,6 +8,7 @@ import { ZhixuPage } from './pages/ZhixuPage';
 import { ZhijiePage } from './pages/ZhijiePage';
 import { AccountPage } from './pages/AccountPage';
 import { PortalPage } from './pages/PortalPage';
+import { AuthPageLoading } from './components/AuthPageLoading';
 
 const MicroAppPage = lazy(() => import('./pages/MicroAppPage').then((module) => ({ default: module.MicroAppPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then((module) => ({ default: module.NotFoundPage })));
@@ -21,8 +22,8 @@ const TermsPage = lazy(() => import('./pages/LegalPage').then((module) => ({ def
 const PrivacyPage = lazy(() => import('./pages/LegalPage').then((module) => ({ default: module.PrivacyPage })));
 const LoginHelpPage = lazy(() => import('./pages/LoginHelpPage').then((module) => ({ default: module.LoginHelpPage })));
 
-function DeferredPage({ children }: { children: ReactNode }) {
-  return <Suspense fallback={<div className="tw:min-h-screen tw:bg-[#f7f8fa]" />}>{children}</Suspense>;
+function DeferredPage({ children, fallback = <div className="tw:min-h-screen tw:bg-[#f7f8fa]" /> }: { children: ReactNode; fallback?: ReactNode }) {
+  return <Suspense fallback={fallback}>{children}</Suspense>;
 }
 
 export function App() {
@@ -33,14 +34,14 @@ export function App() {
         <Route path={SICHEN_LANDING_PATH} element={<SichenPage />} />
         <Route path={ZHIXU_LANDING_PATH} element={<ZhixuPage />} />
         <Route path={ZHIJIE_LANDING_PATH} element={<ZhijiePage />} />
-        <Route path="/login" element={<DeferredPage><LoginPage /></DeferredPage>} />
-        <Route path="/register" element={<DeferredPage><RegisterPage /></DeferredPage>} />
+        <Route path="/login" element={<DeferredPage fallback={<AuthPageLoading />}><LoginPage /></DeferredPage>} />
+        <Route path="/register" element={<DeferredPage fallback={<AuthPageLoading />}><RegisterPage /></DeferredPage>} />
         <Route path="/account/*" element={<AccountPage />} />
         <Route path="/portal/*" element={<PortalPage />} />
-        <Route path="/auth/apps/:clientId/authorize" element={<DeferredPage><AppAuthorizationPage /></DeferredPage>} />
-        <Route path="/auth/apps/:clientId/callback" element={<DeferredPage><AppCallbackPage /></DeferredPage>} />
-        <Route path="/auth/callback" element={<DeferredPage><AuthCallbackPage /></DeferredPage>} />
-        <Route path="/oauth/device" element={<DeferredPage><OAuthDevicePage /></DeferredPage>} />
+        <Route path="/auth/apps/:clientId/authorize" element={<DeferredPage fallback={<AuthPageLoading />}><AppAuthorizationPage /></DeferredPage>} />
+        <Route path="/auth/apps/:clientId/callback" element={<DeferredPage fallback={<AuthPageLoading />}><AppCallbackPage /></DeferredPage>} />
+        <Route path="/auth/callback" element={<DeferredPage fallback={<AuthPageLoading />}><AuthCallbackPage /></DeferredPage>} />
+        <Route path="/oauth/device" element={<DeferredPage fallback={<AuthPageLoading />}><OAuthDevicePage /></DeferredPage>} />
         <Route path="/terms" element={<DeferredPage><TermsPage /></DeferredPage>} />
         <Route path="/privacy" element={<DeferredPage><PrivacyPage /></DeferredPage>} />
         <Route path="/login-help" element={<DeferredPage><LoginHelpPage /></DeferredPage>} />

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AppAuthLayout } from '../components/AppAuthLayout';
 import { readAppResponse, type RegisteredApp } from '../auth/appAuthorization';
+import { completeLoginRedirect, readAuthorizationRedirect } from '../auth/loginRedirect';
 
 interface AuthorizationContext {
   app: RegisteredApp;
@@ -10,11 +11,14 @@ interface AuthorizationContext {
 }
 
 export function AppAuthorizationPage() {
+  const navigate = useNavigate();
   const { clientId } = useParams();
   const [query] = useSearchParams();
   const request = query.get('request') || '';
   const [context, setContext] = useState<AuthorizationContext | null>(null);
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState('');
   useEffect(() => {
     if (!request) return;
     const controller = new AbortController();
@@ -27,11 +31,31 @@ export function AppAuthorizationPage() {
       .catch((cause: unknown) => {
         if (controller.signal.aborted) return;
         const loginUrl = (cause as { loginUrl?: string })?.loginUrl;
-        if (loginUrl) { window.location.replace(loginUrl); return; }
+        if (loginUrl) {
+          void completeLoginRedirect(loginUrl, navigate).catch(() => setError('无法打开登录页，请返回应用重新登录。'));
+          return;
+        }
         setError('授权请求已失效或登录账号已变更，请返回应用重新登录。');
       });
     return () => controller.abort();
-  }, [clientId, request]);
+  }, [clientId, request, navigate]);
+
+  const decide = async (decision: 'allow' | 'deny') => {
+    if (submitting) return;
+    setSubmitting(true);
+    setSubmissionError('');
+    try {
+      const response = await fetch('/oauth/authorize', {
+        method: 'POST', credentials: 'include', redirect: 'error',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ consent_id: request, decision }),
+      });
+      await completeLoginRedirect(await readAuthorizationRedirect(response), navigate);
+    } catch (cause) {
+      setSubmissionError(cause instanceof Error && !(cause instanceof TypeError) ? cause.message : '网络连接失败，请稍后重试。');
+      setSubmitting(false);
+    }
+  };
 
   const message = error || (!request ? '缺少授权请求，请从应用重新发起登录。' : '');
   return <AppAuthLayout app={context?.app || null}>
@@ -44,10 +68,14 @@ export function AppAuthorizationPage() {
           <p className="app-auth-permissions-title">允许此应用</p>
           <ul className="app-auth-scopes" aria-label="应用请求的权限">{context.scopes.map(scope => <li key={scope.scope}><span aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="m4 10 4 4 8-8" /></svg></span><strong>{scope.description}</strong></li>)}</ul>
         </div>
-        <form method="post" action="/oauth/authorize">
-          <input type="hidden" name="consent_id" value={request} />
-          <div className="app-auth-actions"><button type="submit" name="decision" value="deny">取消</button><button className="login-submit" type="submit" name="decision" value="allow">允许并继续</button></div>
+        <form onSubmit={event => {
+          event.preventDefault();
+          const submitter = (event.nativeEvent as SubmitEvent).submitter;
+          void decide(submitter?.getAttribute('value') === 'allow' ? 'allow' : 'deny');
+        }}>
+          <div className="app-auth-actions"><button type="submit" value="deny" disabled={submitting}>取消</button><button className="login-submit" type="submit" value="allow" disabled={submitting}>{submitting ? '正在处理…' : '允许并继续'}</button></div>
         </form>
+        {submissionError && <p className="app-auth-copy" role="alert">{submissionError}</p>}
         <p className="app-auth-hint">仅授权你信任的应用。<br />确认后将返回应用，完成登录。</p>
       </> : <><h2>正在验证授权请求</h2><p className="app-auth-copy">请稍候…</p></>}
   </AppAuthLayout>;

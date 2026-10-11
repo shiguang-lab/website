@@ -9,7 +9,7 @@ const templatePath = path.join(distDir, 'index.html');
 const serverEntry = path.join(root, '.ssr', 'entry-server.js');
 const siteUrl = (process.env.SITE_URL || 'https://shiguanglab.com').replace(/\/$/, '');
 const template = await readFile(templatePath, 'utf8');
-const { render } = await import(`${pathToFileURL(serverEntry).href}?t=${Date.now()}`);
+const { render, renderAuthLoading } = await import(`${pathToFileURL(serverEntry).href}?t=${Date.now()}`);
 
 /** @param {string} value */
 const escapeHtml = (value) => value
@@ -68,20 +68,25 @@ const appDocument = template
   .replace('<!--app-html-->', '')
   .replace(/<title>.*?<\/title>/, '<title>拾光产品工作台</title>');
 await writeFile(path.join(distDir, 'app.html'), appDocument);
-const loginDocument = template
+const authDocument = template
   .replace('<!--app-head-->', '<meta name="robots" content="noindex, nofollow" />')
-  .replace('<!--app-html-->', '')
-  .replace(/<title>.*?<\/title>/, '<title>登录拾光</title>');
+  .replace('<!--app-html-->', renderAuthLoading())
+  .replace('<div id="root">', '<div id="root" data-auth-loading>')
+  .replace(/<title>.*?<\/title>/, '<title>拾光账号</title>');
+await writeFile(path.join(distDir, 'auth.html'), authDocument);
+const loginDocument = authDocument.replace('<title>拾光账号</title>', '<title>登录拾光</title>');
 const loginDir = path.join(distDir, 'login');
 await mkdir(loginDir, { recursive: true });
 await writeFile(path.join(loginDir, 'index.html'), loginDocument);
-const registerDocument = template
-  .replace('<!--app-head-->', '<meta name="robots" content="noindex, nofollow" />')
-  .replace('<!--app-html-->', '')
-  .replace(/<title>.*?<\/title>/, '<title>注册拾光</title>');
+const registerDocument = authDocument.replace('<title>拾光账号</title>', '<title>注册拾光</title>');
 const registerDir = path.join(distDir, 'register');
 await mkdir(registerDir, { recursive: true });
 await writeFile(path.join(registerDir, 'index.html'), registerDocument);
+for (const pathname of ['auth/callback', 'oauth/device']) {
+  const directory = path.join(distDir, pathname);
+  await mkdir(directory, { recursive: true });
+  await writeFile(path.join(directory, 'index.html'), authDocument);
+}
 const accountDocument = template
   .replace('<!--app-head-->', '<meta name="robots" content="noindex, nofollow" />')
   .replace('<!--app-html-->', '')

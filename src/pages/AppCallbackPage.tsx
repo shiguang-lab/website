@@ -1,16 +1,17 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AppAuthLayout } from '../components/AppAuthLayout';
 import { appCallbackLink, readAppCallback, readAppResponse, type RegisteredApp } from '../auth/appAuthorization';
 
 export function AppCallbackPage() {
+  const navigate = useNavigate();
   const { clientId } = useParams();
   const [callback] = useState(() => readAppCallback(typeof window === 'undefined' ? '' : window.location.search));
   const [app, setApp] = useState<RegisteredApp | null>(null);
   const [failed, setFailed] = useState(false);
   const opened = useRef(false);
   // Remove the single-use code before page analytics run or links are followed.
-  useLayoutEffect(() => { window.history.replaceState(null, '', window.location.pathname); }, []);
+  useLayoutEffect(() => { void navigate(window.location.pathname, { replace: true }); }, [navigate]);
   useEffect(() => {
     const controller = new AbortController();
     void fetch(`/oauth/app?${new URLSearchParams({ client_id: clientId || '' })}`, { signal: controller.signal })

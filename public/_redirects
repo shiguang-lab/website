@@ -1,3 +1,6 @@
 /app/*  /app.html  200
+/auth/apps/* /auth.html 200
+/auth/callback /auth/callback/index.html 200
+/oauth/device /oauth/device/index.html 200
 /projects/zhijie /projects/zhijie/index.html 200
 /*       /index.html 200

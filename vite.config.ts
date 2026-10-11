@@ -44,6 +44,11 @@ export default defineConfig(({ isSsrBuild, mode }) => {
           target: authProxyTarget,
           changeOrigin: true,
           cookieDomainRewrite: '',
+          configure(proxy) {
+            proxy.on('proxyReq', (proxyRequest) => {
+              proxyRequest.setHeader('Origin', authProxyOrigin);
+            });
+          },
         },
         '/api/auth': {
           target: authProxyTarget,

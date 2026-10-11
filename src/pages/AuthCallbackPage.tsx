@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
+import { completeLoginRedirect } from '../auth/loginRedirect';
 
 export function AuthCallbackPage() {
+  const navigate = useNavigate();
   const { refresh } = useAuth();
   const query = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search);
   const status = query.get('status') === 'success' ? 'success' : 'error';
   const target = query.get('return_to');
   const [settled, setSettled] = useState(false);
+  const [redirectFailed, setRedirectFailed] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -16,7 +19,9 @@ export function AuthCallbackPage() {
       if (!active) return;
       setSettled(true);
       if (status === 'success' && target && target.startsWith('/') && !target.startsWith('//')) {
-        timer = window.setTimeout(() => window.location.replace(target), 700);
+        timer = window.setTimeout(() => {
+          void completeLoginRedirect(target, navigate).catch(() => setRedirectFailed(true));
+        }, 700);
       }
       return undefined;
     });
@@ -24,7 +29,7 @@ export function AuthCallbackPage() {
       active = false;
       window.clearTimeout(timer);
     };
-  }, [refresh, status, target]);
+  }, [refresh, status, target, navigate]);
 
   return (
     <main className="login-page auth-callback-page">
@@ -46,7 +51,7 @@ export function AuthCallbackPage() {
           <p className="login-account-eyebrow">SHIGUANG</p>
           <h1>{status === 'success' ? '登录成功' : '登录未完成'}</h1>
           <p className="auth-callback-message">
-            {status === 'success' ? '正在为你打开拾光。' : '第三方登录没有完成，请返回登录页重试。'}
+            {redirectFailed ? '登录已完成，但无法继续跳转。请返回应用重新发起登录。' : status === 'success' ? '正在为你打开拾光。' : '第三方登录没有完成，请返回登录页重试。'}
           </p>
           {status === 'error' && <Link className="login-submit" to="/login">返回登录</Link>}
           {status === 'success' && !settled && <span className="auth-callback-loading">正在同步账号信息…</span>}

@@ -12,12 +12,17 @@ import './styles/account.less';
 import './styles/portal.less';
 import { App } from './App';
 import { AuthProvider } from './auth/AuthProvider';
+import { AuthPageLoading } from './components/AuthPageLoading';
 import { SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH, ZHIJIE_LANDING_PATH } from './config/productUrls';
 
 const homeMeta = {
   title: '拾光 · 让 AI 成为你的生产力',
   description: '拾光——为 AI 而生的全能平台，让灵感、知识与协作在同一处发生。',
 };
+
+export function renderAuthLoading() {
+  return renderToString(<AuthPageLoading />);
+}
 
 const sichenMeta = {
   title: '司辰 · 多智能体协作平台 | 拾光',

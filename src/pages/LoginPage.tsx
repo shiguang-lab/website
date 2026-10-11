@@ -1,8 +1,9 @@
 import { useEffect, useState, type FormEvent, type HTMLInputTypeAttribute } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthProviderIcon } from '../components/AuthProviderIcons';
 import { authProviders } from '../config/authProviders';
 import { completeLoginRedirect } from '../auth/loginRedirect';
+import { useAuth } from '../auth/useAuth';
 
 const genericError = '登录失败，请检查账号和密码后重试。';
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -147,6 +148,8 @@ function LoginIcon({ name }: { name: 'user' | 'mail' | 'lock' | 'eye' | 'eyeOff'
 
 
 export function LoginPage() {
+  const navigate = useNavigate();
+  const { refresh } = useAuth();
   const query = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search);
   const returnTo = query.get('return_to') || query.get('redirect') || '/';
   const initialMode = query.get('mode') === 'email' ? 'email' : 'account';
@@ -311,7 +314,14 @@ export function LoginPage() {
         }),
       });
       const value = await readJSON<{ redirect?: string }>(response);
-      completeLoginRedirect(value.redirect);
+      await refresh();
+      try {
+        await completeLoginRedirect(value.redirect, navigate);
+      } catch (error) {
+        setMessage(error instanceof Error && !(error instanceof TypeError) ? error.message : '网络连接失败，请稍后重试。');
+        setPendingAction('');
+        setStatus('ready');
+      }
     } catch (error) {
       setPendingAction('');
       if (mode === 'email') setEmailCode('');

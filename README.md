@@ -45,6 +45,8 @@ npm run preview
 
 静态托管需要把 `/app/*` 重写到 `/app.html`。仓库内的 `public/_redirects` 可直接用于 Netlify/Cloudflare Pages；Nginx 等环境请配置等价 rewrite。
 
+登录、注册、授权和回调页的静态 HTML 包含品牌加载界面，React 接管后继续显示页面或加载状态。`/auth/apps/*` 重写到 `/auth.html`。同源页面通过前端路由切换；`/oauth/authorize` 的 GET 和 POST 使用 `Accept: application/json` 获取后端校验后的 `{ redirect }`，再跳转。登录完成后先同步全局会话，跨站地址和原生 App 回调仍使用浏览器导航。此接口契约需与 Auth Service 一起发布。
+
 ## 镜像发布与 NAS 部署
 
 版本 tag `v*` 会触发 GitHub Actions，执行类型检查和测试后构建

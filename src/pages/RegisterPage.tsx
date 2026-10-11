@@ -1,8 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthProviderIcon } from '../components/AuthProviderIcons';
 import { authProviders } from '../config/authProviders';
 import { completeLoginRedirect } from '../auth/loginRedirect';
+import { useAuth } from '../auth/useAuth';
 
 const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -101,6 +102,8 @@ function RegisterIcon({ name }: { name: 'user' | 'mail' | 'lock' | 'eye' | 'eyeO
 
 
 export function RegisterPage() {
+  const navigate = useNavigate();
+  const { refresh } = useAuth();
   const query = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search);
   const returnTo = query.get('return_to') || query.get('redirect') || '/';
   const federatedMode = query.get('mode') === 'federated';
@@ -185,7 +188,8 @@ export function RegisterPage() {
       });
       const value = await readJSON<{ redirect?: string }>(response);
       if (value.redirect) {
-        completeLoginRedirect(value.redirect);
+        await refresh();
+        await completeLoginRedirect(value.redirect, navigate);
         return;
       }
       setStatus('success');

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
+import { completeLoginRedirect } from '../auth/loginRedirect';
 
 interface DeviceScope { scope: string; description: string }
 interface DeviceContext { user_code: string; client_name: string; scopes: DeviceScope[] }
@@ -13,6 +14,7 @@ async function readResponse<T>(response: Response): Promise<T> {
 }
 
 export function OAuthDevicePage() {
+  const navigate = useNavigate();
   const { status } = useAuth();
   const [query] = useSearchParams();
   const userCode = query.get('user_code') || '';
@@ -25,7 +27,7 @@ export function OAuthDevicePage() {
     if (status === 'loading') return;
     const returnTo = `/oauth/device?${new URLSearchParams({ user_code: userCode }).toString()}`;
     if (status === 'anonymous') {
-      window.location.replace(`/login?${new URLSearchParams({ return_to: returnTo }).toString()}`);
+      void navigate(`/login?${new URLSearchParams({ return_to: returnTo }).toString()}`, { replace: true });
       return;
     }
     const controller = new AbortController();
@@ -39,12 +41,18 @@ export function OAuthDevicePage() {
       .catch((error: unknown) => {
         if (error instanceof Error && error.name === 'AbortError') return;
         const loginUrl = (error as { loginUrl?: unknown })?.loginUrl;
-        if (typeof loginUrl === 'string' && loginUrl) { window.location.replace(loginUrl); return; }
+        if (typeof loginUrl === 'string' && loginUrl) {
+          void completeLoginRedirect(loginUrl, navigate).catch(() => {
+            setMessage('无法打开登录页，请返回应用重新登录。');
+            setPageState('error');
+          });
+          return;
+        }
         setMessage('设备验证码无效或已过期，请返回发起连接的应用重新尝试。');
         setPageState('error');
       });
     return () => controller.abort();
-  }, [status, userCode]);
+  }, [status, userCode, navigate]);
 
   const decide = async (decision: 'allow' | 'deny') => {
     setPageState('submitting');
