@@ -31,7 +31,7 @@ function HowItWorks() {
       </div>
       <div className="zhijie-how-panel" role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-tab-${active}`} tabIndex={0}>
         <div className="zhijie-feature-copy"><span className="zhijie-feature-icon">{active === 0 ? <IconLink /> : <IconLayers />}</span><h3>{active === 0 ? <>Connect to<br /><em>any data source</em></> : <>Drag & drop<br /><em>components</em></>}</h3><p>{active === 0 ? 'Connect Supabase, Contentful, and Shopify with built-in integrations, or bring data from any HTTP or GraphQL API.' : 'Add components to the canvas, then configure dynamic content, state, and events to build your experience.'}</p>{active === 0 && <a className="btn btn-ghost" href="https://www.plasmic.app/integrations" target="_blank" rel="noopener noreferrer">See all integrations <IconArrowRight /></a>}</div>
-        <figure className={active === 0 ? 'zhijie-connect-visual' : 'zhijie-editor-visual'}><img src={active === 0 ? '/assets/zhijie/connect.svg' : '/assets/zhijie/drag-drop.webp'} width={active === 0 ? 498 : 1397} height={active === 0 ? 512 : 1422} alt={active === 0 ? 'Plasmic data integrations: Google Sheets, Zapier, Supabase, Vercel, Contentful, and Shopify' : 'Building a dashboard by dragging and dropping components in Plasmic Studio'} /></figure>
+        <figure className={active === 0 ? 'zhijie-connect-visual' : 'zhijie-editor-visual'}><img src={active === 0 ? '/assets/zhijie/connect.svg' : '/assets/zhijie/drag-drop.webp'} width={active === 0 ? 498 : 800} height={active === 0 ? 512 : 860} alt={active === 0 ? 'Plasmic data integrations: Google Sheets, Zapier, Supabase, Vercel, Contentful, and Shopify' : 'The current dark Studio insert panel with component, template, and asset tabs'} /></figure>
       </div>
     </section>
   );
@@ -108,7 +108,7 @@ export function ZhijiePage() {
               <div className="zhijie-actions"><a className="btn btn-primary btn-lg" href={PLASMIC_WEB_URL} target="_blank" rel="noopener noreferrer">Get started <IconArrowRight aria-hidden="true" /></a><a className="btn btn-ghost btn-lg" href="#download"><IconDownload aria-hidden="true" />Download desktop app</a></div>
             </div>
             <div className="zhijie-preview-wrap">
-              <div className="zhijie-preview-frame"><img className="zhijie-studio-image" src="/assets/zhijie/studio.webp" width="1600" height="900" fetchPriority="high" alt="Editing desktop and mobile storefronts side by side in Plasmic Studio, with controls for text, layout, and styles" /></div>
+              <div className="zhijie-preview-frame"><img className="zhijie-studio-image" src="/assets/zhijie/studio.webp" width="1636" height="961" fetchPriority="high" alt="Desktop and mobile storefronts in the dark Studio editor, with floating project and action capsules, a tool rail, and a style inspector" /></div>
               <div className="zhijie-preview-fade"><div className="zhijie-use-types" aria-label="What you can build">{['Internal tools', 'Customer portals', 'SaaS apps', 'Storefronts', 'Websites', 'Content management'].map(type => <span key={type}>{type}</span>)}</div></div>
             </div>
           </div>
@@ -131,7 +131,7 @@ export function ZhijiePage() {
         <section id="collaboration" className="zhijie-collaboration container">
           <div className="zhijie-section-heading is-left reveal"><span className="section-kicker">COLLABORATION</span><h2><em>Bridge the gap</em><br />between teams</h2><p>Bring development, design, content, and business teams together to build better product experiences.</p></div>
           <div className="zhijie-collaboration-details reveal"><article><h3>Empower<br /><em>non-developers</em></h3><p>Developers register components as building blocks. Marketing, content, design, and product teams can build and publish pages on the canvas.</p></article><article><h3>Collaborate<br /><em>effortlessly</em></h3><p>Keep teams moving together with multiplayer editing and branching. Work in parallel and focus on what each team does best.</p></article></div>
-          <figure className="zhijie-collaboration-visual zhijie-illustration reveal"><img src="/assets/zhijie/collaboration.webp" width="1600" height="1140" loading="lazy" alt="Team members collaborating on a shared Plasmic canvas" /></figure>
+          <figure className="zhijie-collaboration-visual zhijie-editor-visual reveal"><img src="/assets/zhijie/collaboration.webp" width="1637" height="961" loading="lazy" alt="Design, development, and business collaborators on a light business canvas inside the current dark Studio editor" /></figure>
         </section>
         <section id="integration" className="zhijie-integration container">
           <div className="zhijie-section-heading reveal"><span className="section-kicker">POWER</span><h2>Integrate with any<br /><em>codebase</em></h2><p>Bring visual building into your existing codebase and keep working with your own tech stack.</p></div>

@@ -62,7 +62,8 @@
 .zhijie-connect-visual img { width: 100%; filter: invert(1) hue-rotate(180deg); }
 .zhijie-editor-visual { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; padding: 5px; background: #121b2b; }
 .zhijie-editor-visual img, .zhijie-editor-visual video { display: block; width: 100%; height: auto; border-radius: 6px; }
-.zhijie-how-panel .zhijie-editor-visual { max-height: 440px; }
+.zhijie-how-panel .zhijie-editor-visual, .zhijie-collaboration-visual { border-color: #373842; background: #15161b; }
+.zhijie-how-panel .zhijie-editor-visual { align-self: center; }
 .zhijie-how-panel .zhijie-editor-visual img { width: 100%; }
 .zhijie-ai { padding-block: 20px 105px; }
 .zhijie-ai-workbench { display: grid; grid-template-columns: 1fr 1.1fr; margin-top: 45px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: linear-gradient(115deg, #0a1322, #111329); }
@@ -183,7 +184,6 @@
   .zhijie-how-panel, .zhijie-feature-row, .zhijie-feature-row.is-reversed, .zhijie-deployment-intro { grid-template-columns: 1fr; }
   .zhijie-how-panel { max-width: 580px; padding: 35px; }
   .zhijie-how-panel figure { max-width: 420px; margin-inline: auto; }
-  .zhijie-how-panel .zhijie-editor-visual { max-height: none; }
   .zhijie-feature-row { gap: 35px; margin-top: 60px; }
   .zhijie-feature-row.is-reversed > .zhijie-feature-copy, .zhijie-feature-row.is-reversed > figure { order: initial; }
   .zhijie-feature-row figure { max-width: 580px; margin-inline: auto; }

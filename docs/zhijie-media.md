@@ -1,16 +1,18 @@
 # 织界产品页素材
 
-`public/assets/zhijie/` 中的图片来自 [Plasmic 官网](https://www.plasmic.app/)，
-素材用于对应的产品能力展示，来源记录如下。图片使用 WebP / SVG，演示使用 MP4；页面无需运行时访问上游素材服务。
+`public/assets/zhijie/` 中的界面素材以当前 Plasmic Desktop 的黑色主题截图为基准。
+首屏和协作图使用内置 imagegen 制作展示变体；插入面板直接截取实际界面。
+业务画布和其他能力示意沿用 [Plasmic 官网](https://www.plasmic.app/) 的展示内容。
+图片使用 WebP / SVG，Figma 演示使用 MP4；页面无需运行时访问上游素材服务。
 
 | 本地文件 | 上游图片 |
 | --- | --- |
-| `studio.webp` | [Studio 编辑器](https://img.plasmic.app/img-optimizer/v1/img/991b16d211e5b8c84082978c283597c6.png) |
+| `studio.webp` | 当前 Desktop 黑色主题界面参考 + [商城业务画布](https://img.plasmic.app/img-optimizer/v1/img/991b16d211e5b8c84082978c283597c6.png) |
 | `design.webp` | [应用设计](https://img.plasmic.app/img-optimizer/v1/img/3713fc4f62554a22aeef888c0939c630.png) |
-| `collaboration.webp` | [团队协作](https://img.plasmic.app/img-optimizer/v1/img/c2cf6cb25635ea627e626bc1e7a37241.png) |
+| `collaboration.webp` | 当前 Desktop 黑色主题界面参考 + [协作业务画布](https://img.plasmic.app/img-optimizer/v1/img/c2cf6cb25635ea627e626bc1e7a37241.png) |
 | `components.webp` | [React 组件集成](https://img.plasmic.app/img-optimizer/v1/img/ea68c8c10edb0b4a4a48bf2bc4a0019a.jpg) |
 | `connect.svg` | [Plasmic 官方素材](https://site-assets.plasmic.app/7bfabb2cc067bbd2ae1b27b89ad77138.svg) |
-| `drag-drop.webp` | [Plasmic 官方素材](https://img.plasmic.app/img-optimizer/v1/img?src=https%3A%2F%2Fimg.plasmic.app%2Fimg-optimizer%2Fv1%2Fimg%2F9df60b7d33fefeb89735ae4a923f8671.png&w=1080&q=80&f=webp) |
+| `drag-drop.webp` | 实际 Desktop 插入资源面板截图；组件、模板、资源标签与分类下拉 |
 | `figma-poster.jpg` | 从下方 Figma 演示视频的首帧提取 |
 | `figma.mp4` | [Plasmic 官方素材](https://site-assets.plasmic.app/64f55665dba8fc2cd5a4a9dd7737ce91.mp4) |
 | `existing-app.webp` | [Plasmic 官方素材](https://img.plasmic.app/img-optimizer/v1/img?src=https%3A%2F%2Fimg.plasmic.app%2Fimg-optimizer%2Fv1%2Fimg%2F00d6dd3f35d1abfabe8c5313d1dab888.jpg&w=1080&q=80&f=webp) |
@@ -27,6 +29,15 @@
 
 官网的 HOW IT WORKS、DESIGN、COLLABORATION、POWER、DEPLOYMENT 和 SCALE UP 保留各自的展示结构；企业、贡献者、客户及官网底部区域不引入。SOC 2 卡片指向 Plasmic 官方合规信息，不表示拾光部署获得该认证。
 
-首屏编辑器展示使用官网的 976px 宽框、8px 半透明边框、16px 圆角和 120px 底部渐隐层，产品类型标签叠放在渐隐层底部。首屏网格背景保留官网素材纹理，配色适配拾光的紫蓝色。
+首屏编辑器展示使用 976px 宽框、8px 半透明边框、16px 圆角和 120px 底部渐隐层，产品类型标签叠放在渐隐层底部。首屏网格背景保留官网素材纹理，配色适配拾光的紫蓝色。
+
+产品界面采用 `#15161b` 背景、`#202128` 面板、`#272831` 浮层、`#373842` 边框和 `#9474ff` 强调色。
+编辑器保留实际界面的品牌与项目胶囊、分支与保存状态、右侧操作胶囊及头像、分组工具栏、底部 AI 输入和缩放控件。
+新界面图直接展示原色，不使用反色滤镜。业务画布保留自己的配色；示例中的多人光标是协作能力示意。
+
+imagegen 提示词规范：
+
+- 首屏：以实际黑色 Studio 截图为界面基准，保留胶囊、工具栏、背景和底部控件的结构；中央使用原商城桌面与移动端画布，右侧展示与选中标题一致的样式控件。
+- 协作：沿用同一实际编辑器结构，中央保留 CRM 营销页面与财务应用预览、角色光标和选择框；右侧样式字段对应所选 H1。
 
 Figma 演示在开始播放前显示首帧封面，并预留 1432:1080 的视频比例。视频容器直接可见，不依赖滚动入场动画。
