@@ -7,12 +7,12 @@
 
 | 本地文件 | 上游图片 |
 | --- | --- |
-| `studio.webp` | 当前 Desktop 黑色主题界面参考 + [商城业务画布](https://img.plasmic.app/img-optimizer/v1/img/991b16d211e5b8c84082978c283597c6.png) |
+| `studio-d6031cae1a68.webp` | 当前 Desktop 黑色主题界面参考 + [商城业务画布](https://img.plasmic.app/img-optimizer/v1/img/991b16d211e5b8c84082978c283597c6.png) |
 | `design.webp` | [应用设计](https://img.plasmic.app/img-optimizer/v1/img/3713fc4f62554a22aeef888c0939c630.png) |
-| `collaboration.webp` | 当前 Desktop 黑色主题界面参考 + [协作业务画布](https://img.plasmic.app/img-optimizer/v1/img/c2cf6cb25635ea627e626bc1e7a37241.png) |
+| `collaboration-950bec88f1a3.webp` | 当前 Desktop 黑色主题界面参考 + [协作业务画布](https://img.plasmic.app/img-optimizer/v1/img/c2cf6cb25635ea627e626bc1e7a37241.png) |
 | `components.webp` | [React 组件集成](https://img.plasmic.app/img-optimizer/v1/img/ea68c8c10edb0b4a4a48bf2bc4a0019a.jpg) |
 | `connect.svg` | [Plasmic 官方素材](https://site-assets.plasmic.app/7bfabb2cc067bbd2ae1b27b89ad77138.svg) |
-| `drag-drop.webp` | 实际 Desktop 插入资源面板截图；组件、模板、资源标签与分类下拉 |
+| `drag-drop-5e0a264a6ed5.webp` | 实际 Desktop 插入资源面板截图；组件、模板、资源标签与分类下拉 |
 | `figma-poster.jpg` | 从下方 Figma 演示视频的首帧提取 |
 | `figma.mp4` | [Plasmic 官方素材](https://site-assets.plasmic.app/64f55665dba8fc2cd5a4a9dd7737ce91.mp4) |
 | `existing-app.webp` | [Plasmic 官方素材](https://img.plasmic.app/img-optimizer/v1/img?src=https%3A%2F%2Fimg.plasmic.app%2Fimg-optimizer%2Fv1%2Fimg%2F00d6dd3f35d1abfabe8c5313d1dab888.jpg&w=1080&q=80&f=webp) |
