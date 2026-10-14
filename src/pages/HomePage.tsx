@@ -1,8 +1,20 @@
 import { useHomeEffects } from '../hooks/useHomeEffects';
 import { SiteHeader } from '../components/SiteHeader';
 import { Link } from 'react-router-dom';
+import { LanguageMenu } from '../components/LanguageMenu';
 import { HUIGUANG_WEB_URL, SICHEN_LANDING_PATH, ZHIXU_LANDING_PATH, ZHIJIE_LANDING_PATH } from '../config/productUrls';
-import { ZhijieMark } from '../components/ZhijieMark';
+import { products } from '../config/products';
+
+const homeProducts = products.filter((product) => product.name !== '积分系统');
+
+const planCapabilities = [
+  '可视化设计、组件编排、应用开发与数据连接',
+  '多智能体分工与任务协作',
+  '文档、知识管理与 AI 创作',
+  'AI 图片生成与视觉创作',
+  'AI 视频生成与成片管理',
+  'Skills 发现、安装与发布',
+];
 
 export function HomePage() {
   useHomeEffects();
@@ -29,67 +41,30 @@ export function HomePage() {
           </div>
         </div>
       </div>
-      <section className="trust-section reveal" aria-label="客户与合作伙伴">
-        <div className="container logo-cloud">
-        <div className="partner-logo partner-byte" role="img" aria-label="字节跳动">
-          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 8h5v16H6zM13.5 5h5v19h-5zM21 10h5v14h-5z" /><path d="M8.5 8v16M16 5v19M23.5 10v14" /></svg><span>字节跳动</span>
-        </div>
-        <div className="partner-logo partner-mi" role="img" aria-label="小米">
-          <svg viewBox="0 0 32 32" aria-hidden="true"><rect x={2} y={2} width={28} height={28} rx={8} /><path d="M8 22V11h5.5c3.7 0 5.5 1.9 5.5 5.5V22h-4v-5.4c0-1.2-.5-1.7-1.7-1.7H12v7.1zm13 0V11h4v11z" /></svg><span>小米</span>
-        </div>
-        <div className="partner-logo partner-ant" role="img" aria-label="蚂蚁集团">
-          <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx={16} cy={18} r={8} /><circle cx={11} cy={12} r={4} /><circle cx={21} cy={12} r={4} /><path d="M12 7 9 4M20 7l3-3M6 17H2M26 17h4M10 24l-3 4M22 24l3 4" /></svg><span>蚂蚁集团</span>
-        </div>
-        <div className="partner-logo partner-tencent" role="img" aria-label="腾讯云">
-          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 23h18a5 5 0 0 0 .6-10A9 9 0 0 0 8 11a6 6 0 0 0-1 12Z" /><path d="M11 17h10" /></svg><span>腾讯云</span>
-        </div>
-        <div className="partner-logo partner-li" role="img" aria-label="理想">
-          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 7h11l15 18H18z" /><path d="M8 7h6l6 8h-6z" /></svg><span>理想</span>
-        </div>
-        <div className="partner-logo partner-didi" role="img" aria-label="滴滴">
-          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c7 0 12 4 12 11 0 8-5 14-12 15C9 28 4 22 4 14 4 7 9 3 16 3Z" /><path d="M11 21V11h4.5c4 0 6 1.8 6 5s-2 5-6 5zm4-3c1.5 0 2.5-.6 2.5-2s-1-2-2.5-2H15v4z" /></svg><span>滴滴</span>
-        </div>
-        <div className="partner-logo partner-cas" role="img" aria-label="中科院软件所">
-          <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx={16} cy={16} r={12} /><circle cx={16} cy={16} r={6} /><path d="M16 4v4M16 24v4M4 16h4M24 16h4M7.5 7.5l3 3M21.5 21.5l3 3M24.5 7.5l-3 3M10.5 21.5l-3 3" /></svg><span>中科院软件所</span>
-        </div>
-        </div>
-      </section>
     </section>
     <section id="products" className="product-section container section-space">
       <div className="section-heading reveal">
-        <span className="section-kicker">PRODUCT MATRIX</span>
-        <h2>为 AI 而生的全能平台</h2>
-        <p>从开发到交付，从个人到团队，拾光为你提供全链路能力</p>
+        <span className="section-kicker">SHIGUANG PRODUCTS</span>
+        <h2>从想法到作品，找到你的工具</h2>
+        <p>搭建应用、协作执行、沉淀知识，让创作的每一步都有所依。</p>
       </div>
       <div className="feature-grid">
-        <article className="feature-card reveal delay-0">
-          <div className="icon-orb" aria-hidden="true"><ZhijieMark /></div>
-          <h3>织界</h3><p>连接可视化设计、React 组件与业务数据，把想法搭建成应用。</p><Link to={ZHIJIE_LANDING_PATH}>了解织界 <span>→</span></Link>
-        </article>
-        <article className="feature-card reveal delay-0">
-          <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-chat.png" width={72} height={72} alt="" aria-hidden="true" /></div>
-          <h3>智能助手</h3><p>多模型对话、知识检索、写作协作、编程辅助，轻松表达。</p><Link to="/app/chat">立即体验 <span>→</span></Link>
-        </article>
-        <article className="feature-card reveal delay-60">
-          <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-cube.png" width={72} height={72} alt="" aria-hidden="true" /></div>
-          <h3>知识库</h3><p>构建你的专属知识库，支持多格式导入、智能检索与问答。</p><Link to="/app/knowledge">立即体验 <span>→</span></Link>
-        </article>
-        <article className="feature-card reveal delay-120">
-          <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-flow.png" width={72} height={72} alt="" aria-hidden="true" /></div>
-          <h3>工作流</h3><p>可视化编排 AI 工作流，连接工具与数据，自动化复杂任务。</p><Link to="/app/workflow">立即体验 <span>→</span></Link>
-        </article>
-        <article className="feature-card reveal delay-180">
-          <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-apps.png" width={72} height={72} alt="" aria-hidden="true" /></div>
-          <h3>应用广场</h3><p>丰富的 AI 应用与插件，一键集成、开箱即用。</p><Link to="/app/market">立即体验 <span>→</span></Link>
-        </article>
-        <article className="feature-card reveal delay-240">
-          <div className="icon-orb icon-orb-reference"><img className="product-icon-image" src="/assets/product-icon-team.png" width={72} height={72} alt="" aria-hidden="true" /></div>
-          <h3>团队协作</h3><p>权限管理、成员协作、项目空间，让团队效率倍增。</p><Link to="/app/team">立即体验 <span>→</span></Link>
-        </article>
-        <article className="feature-card feature-card-zhixu reveal delay-300">
-          <div className="icon-orb zhixu-home-mark" aria-hidden="true"><span /><span /><span /></div>
-          <h3>知序</h3><p>让文档、知识、调研与交付成果在同一个 AI 空间有序沉淀。</p><Link to={ZHIXU_LANDING_PATH}>了解知序 <span>→</span></Link>
-        </article>
+        {homeProducts.map((product, index) => {
+          const Mark = product.icon;
+          const content = <>
+            <div className="feature-card-top">
+              <span className={`product-menu-icon ${product.tone}`}><Mark aria-hidden /></span>
+              <span className="feature-category">{product.category}</span>
+            </div>
+            <h3>{product.name}</h3>
+            <p>{product.description}</p>
+            <span className="feature-link">{product.external ? '进入' : '了解'}{product.name}<span aria-hidden="true">↗</span></span>
+          </>;
+          const className = `feature-card reveal${index < 3 ? ' feature-card-primary' : ''}`;
+          return product.external
+            ? <a key={product.name} className={className} href={product.href} target="_blank" rel="noopener noreferrer">{content}</a>
+            : <Link key={product.name} className={className} to={product.href}>{content}</Link>;
+        })}
       </div>
     </section>
     <section id="solutions" className="showcase-section container section-space">
@@ -145,28 +120,27 @@ export function HomePage() {
       <div className="section-heading reveal">
         <span className="section-kicker">SIMPLE PRICING</span>
         <h2>简单透明的定价</h2>
-        <p>选择适合你的方案，随时升级或降级</p>
+        <p>目前所有产品免费使用，仅开放免费版；专业版与团队版暂未开放。</p>
       </div>
       <div className="pricing-grid">
-        <article className="price-card reveal">
-          <div><h3>免费版</h3><p>适合个人探索与体验</p></div><div className="price"><b>¥0</b><span>/ 永久</span></div>
-          <ul><li>基础模型对话</li><li>知识库 100MB</li><li>工作流 3 个</li><li>应用广场基础应用</li></ul>
-          <button className="btn btn-ghost">开始使用</button>
-        </article>
         <article className="price-card featured reveal">
-          <div className="badge">推荐</div><div><h3>专业版</h3><p>适合个人与小团队高效协作</p></div><div className="price"><b>¥39</b><span>/ 月起</span></div>
-          <ul><li>高级模型与更长上下文</li><li>知识库 20GB</li><li>工作流无限</li><li>应用广场全部应用</li><li>优先支持与新功能体验</li></ul>
-          <button className="btn btn-primary">立即订阅</button>
+          <div className="badge">当前开放</div><div><h3>免费版</h3><p>适合个人探索与体验</p></div><div className="price"><b>¥0</b><span>/ 当前免费</span></div>
+          <ul><li>基础模型对话</li><li>知识库 100MB</li><li>工作流 3 个</li><li>应用广场基础应用</li>{planCapabilities.map((feature) => <li key={feature}>{feature}</li>)}</ul>
+          <Link className="btn btn-primary" to="/portal">开始使用</Link>
         </article>
         <article className="price-card reveal">
-          <div><h3>团队版</h3><p>适合团队与企业级需求</p></div><div className="price"><b>¥199</b><span>/ 月起</span></div>
-          <ul><li>团队空间与权限管理</li><li>知识库 1TB</li><li>工作流并行执行与调度</li><li>专属部署与安全保障</li><li>专属客户成功服务</li></ul>
-          <button className="btn btn-ghost">联系我们</button>
+          <div className="badge">暂未开放</div><div><h3>专业版</h3><p>适合个人与小团队高效协作</p></div><div className="price"><b>¥39</b><span>/ 月起</span></div>
+          <ul><li>包含免费版全部能力</li><li>高级模型与更长上下文</li><li>知识库 20GB</li><li>工作流无限</li><li>应用广场全部应用</li>{planCapabilities.map((feature) => <li key={feature}>{feature}</li>)}<li>优先支持与新功能体验</li></ul>
+          <button className="btn btn-ghost" disabled>暂未开放</button>
+        </article>
+        <article className="price-card reveal">
+          <div className="badge">暂未开放</div><div><h3>团队版</h3><p>适合团队与企业级需求</p></div><div className="price"><b>¥199</b><span>/ 月起</span></div>
+          <ul><li>包含专业版全部能力</li><li>团队空间与权限管理</li><li>知识库 1TB</li><li>工作流并行执行与调度</li>{planCapabilities.map((feature) => <li key={feature}>{feature}</li>)}<li>专属部署与安全保障</li><li>专属客户成功服务</li></ul>
+          <button className="btn btn-ghost" disabled>暂未开放</button>
         </article>
       </div>
     </section>
     <section className="cta-section" id="developers">
-      <div className="cta-art" aria-hidden="true"><span /><span /><span /></div>
       <div className="container cta-inner reveal">
         <div><span className="section-kicker">START NOW</span><h2>准备好和拾光一起，开启你的 AI 之旅了吗？</h2><p>立即注册，免费体验全部基础功能。</p></div>
         <div className="cta-actions"><Link className="btn btn-primary" to="/app/chat">免费体验</Link><button className="btn btn-ghost">预约演示</button></div>
@@ -185,7 +159,7 @@ export function HomePage() {
       <div className="footer-col" id="resources"><h4>资源</h4><a href="#">文档中心</a><a href="#">帮助中心</a><a href="#">更新日志</a><a href="#">API 文档</a><a href="#">博客</a></div>
       <div className="footer-col"><h4>公司</h4><a href="#">关于我们</a><a href="#">加入我们</a><a href="mailto:support@shiguanglab.com">联系我们</a><Link to="/privacy">隐私政策</Link><Link to="/terms">用户协议</Link></div>
     </div>
-    <div className="container footer-bottom"><span>© 2026 拾光 Shiguang. All rights reserved.</span><button type="button">简体中文⌄</button></div>
+    <div className="container footer-bottom"><span>© 2026 拾光 Shiguang. All rights reserved.</span><LanguageMenu /></div>
   </footer>
 </div>;
 }

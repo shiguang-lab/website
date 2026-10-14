@@ -71,7 +71,6 @@ export function SiteHeader({
 }: {
   productPage?: boolean;
 }) {
-  const prefix = productPage ? '/' : '';
   const location = useLocation();
   const { status, user, logout } = useAuth();
   const signInHref = loginHref(location);
@@ -87,11 +86,6 @@ export function SiteHeader({
         </a>
         <nav className="desktop-nav" aria-label="主导航">
           <ProductMenu />
-          <a href={`${prefix}#solutions`}>解决方案</a>
-          <a href={`${prefix}#pricing`}>定价</a>
-          <a href={`${prefix}#developers`}>开发者</a>
-          <a href={`${prefix}#resources`}>文档</a>
-          <a href={`${prefix}#about`}>关于我们</a>
         </nav>
         <div className="header-actions">
           {status === 'loading' && <span className="header-auth-loading" aria-label="正在检查登录状态" />}
@@ -109,10 +103,6 @@ export function SiteHeader({
       </div>
       <div className="mobile-panel" data-mobile-panel>
         <ProductMenu mobile />
-        <a href={`${prefix}#solutions`}>解决方案</a>
-        <a href={`${prefix}#pricing`}>定价</a>
-        <a href={`${prefix}#developers`}>开发者</a>
-        <a href={`${prefix}#resources`}>文档</a>
         {status === 'authenticated' && user ? (
           <div className="mobile-account">
             <span><b>{displayName}</b><small>{secondary}</small></span>
