@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthProviderIcon } from '../components/AuthProviderIcons';
 import { authProviders } from '../config/authProviders';
@@ -102,11 +102,16 @@ export function RegisterPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const passwordInput = useRef<HTMLInputElement>(null);
   const [confirmation, setConfirmation] = useState('');
   const [accepted, setAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState<RegisterStatus>('initializing');
   const [message, setMessage] = useState('');
+  const passwordError = context ? passwordValidationMessage(password, context.passwordPolicy) : '';
+  const showPasswordFeedback = Boolean(context && (password || passwordTouched) && passwordError);
+  const passwordInvalid = passwordTouched && Boolean(passwordError);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -145,9 +150,9 @@ export function RegisterPage() {
       setMessage('安全注册初始化失败，请刷新页面后重试。');
       return;
     }
-    const passwordError = passwordValidationMessage(password, context.passwordPolicy);
     if (passwordError) {
-      setMessage(passwordError);
+      setPasswordTouched(true);
+      passwordInput.current?.focus();
       return;
     }
     if (password !== confirmation) {
@@ -311,18 +316,21 @@ export function RegisterPage() {
             </div>
 
             <div className="register-field-group">
-              <label className="login-field" htmlFor="register-password">
+              <label className={`login-field${passwordInvalid ? ' register-field-invalid' : ''}`} htmlFor="register-password">
                 <span className="sr-only">设置密码</span>
                 <RegisterIcon name="lock" />
                 <input
                   id="register-password"
+                  ref={passwordInput}
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
-                  aria-describedby="register-password-requirements"
+                  aria-describedby={`register-password-requirements${showPasswordFeedback ? ' register-password-feedback' : ''}`}
+                  aria-invalid={passwordInvalid}
                   placeholder="设置密码"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
+                  onBlur={() => setPasswordTouched(true)}
                   disabled={status !== 'ready'}
                   required
                 />
@@ -337,6 +345,9 @@ export function RegisterPage() {
                 </button>
               </label>
               <small id="register-password-requirements">{context ? passwordRequirements(context.passwordPolicy) : status === 'error' ? '密码要求读取失败，请刷新页面后重试。' : '正在读取密码要求…'}</small>
+              <small id="register-password-feedback" className={passwordInvalid ? 'register-field-error' : undefined} role="status">
+                {showPasswordFeedback ? passwordError : ''}
+              </small>
             </div>
 
             <div className="register-field-group">
