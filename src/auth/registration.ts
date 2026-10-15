@@ -59,6 +59,8 @@ export function registrationErrorMessage(error: unknown): string {
       invalid_origin: '当前页面地址未获准注册，请从拾光官网重新进入。',
       invalid_request: '注册请求格式不正确，请刷新页面后重试。',
       invalid_registration: '注册信息不符合要求，请检查用户名、邮箱和密码。',
+      provider_email_missing: 'Google 未返回有效邮箱，请重新授权 Google 账号后重试。',
+      provider_email_mismatch: 'Google 注册邮箱不可修改，请重新授权 Google 账号后重试。',
       account_exists: '用户名或邮箱已被使用，请更换后重试。',
       registration_rejected: error.message || '注册信息被认证服务拒绝，请检查用户名、邮箱和密码。',
       try_again_later: '注册请求过于频繁，请稍后再试。',

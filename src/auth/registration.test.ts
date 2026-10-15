@@ -39,6 +39,8 @@ test('registration displays the backend rejection reason', async () => {
 test('registration distinguishes expired transactions, CSRF, duplicate accounts, throttling and network failures', async () => {
   for (const [status, code, reason] of [
     [400, 'expired_registration', '注册会话已过期'],
+    [400, 'provider_email_missing', 'Google 未返回有效邮箱'],
+    [400, 'provider_email_mismatch', 'Google 注册邮箱不可修改'],
     [403, 'invalid_csrf', '安全校验失败'],
     [403, 'invalid_origin', '页面地址未获准'],
     [409, 'account_exists', '用户名或邮箱已被使用'],

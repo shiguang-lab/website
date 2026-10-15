@@ -15,6 +15,7 @@ interface RegisterContext {
   passwordPolicy: PasswordPolicy;
   provider?: string;
   email?: string;
+  emailReadOnly?: boolean;
   username?: string;
   displayName?: string;
 }
@@ -305,6 +306,7 @@ export function RegisterPage() {
                   name="email"
                   type="email"
                   autoComplete="email"
+                  readOnly={context?.emailReadOnly}
                   placeholder="邮箱地址"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
@@ -312,7 +314,7 @@ export function RegisterPage() {
                   required
                 />
               </label>
-              <small>用于接收验证邮件和重要通知</small>
+              <small>{context?.emailReadOnly ? '来自 Google 授权，邮箱不可修改，无需再次验证。' : '用于接收验证邮件和重要通知'}</small>
             </div>
 
             <div className="register-field-group">
