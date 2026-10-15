@@ -4,6 +4,7 @@ import { AuthProviderIcon } from '../components/AuthProviderIcons';
 import { authProviders } from '../config/authProviders';
 import { completeLoginRedirect } from '../auth/loginRedirect';
 import { useAuth } from '../auth/useAuth';
+import { passwordRequirements, passwordValidationMessage, readRegistrationJSON, registrationErrorMessage, type PasswordPolicy } from '../auth/registration';
 
 const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -11,26 +12,14 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 interface RegisterContext {
   transactionId: string;
   csrfToken: string;
+  passwordPolicy: PasswordPolicy;
   provider?: string;
   email?: string;
   username?: string;
   displayName?: string;
 }
 
-interface ErrorPayload {
-  error?: string;
-}
-
 type RegisterStatus = 'initializing' | 'ready' | 'submitting' | 'success' | 'error';
-
-async function readJSON<T>(response: Response): Promise<T> {
-  const value = await response.json().catch(() => ({})) as T & ErrorPayload;
-  if (!response.ok) {
-    const error = Object.assign(new Error(value.error || 'request_failed'), { status: response.status });
-    throw error;
-  }
-  return value;
-}
 
 async function createRegisterContext(signal?: AbortSignal): Promise<RegisterContext> {
   const response = await fetch('/api/auth/register/context', {
@@ -39,7 +28,7 @@ async function createRegisterContext(signal?: AbortSignal): Promise<RegisterCont
     headers: { Accept: 'application/json' },
     signal,
   });
-  return readJSON<RegisterContext>(response);
+  return readRegistrationJSON<RegisterContext>(response);
 }
 
 async function createFederatedRegisterContext(transactionID: string, signal?: AbortSignal): Promise<RegisterContext> {
@@ -53,7 +42,7 @@ async function createFederatedRegisterContext(transactionID: string, signal?: Ab
     body: JSON.stringify({ transactionId: transactionID }),
     signal,
   });
-  return readJSON<RegisterContext>(response);
+  return readRegistrationJSON<RegisterContext>(response);
 }
 
 function RegisterIcon({ name }: { name: 'user' | 'mail' | 'lock' | 'eye' | 'eyeOff' }) {
@@ -133,7 +122,7 @@ export function RegisterPage() {
       })
       .catch((error: unknown) => {
         if (!(error instanceof Error) || error.name !== 'AbortError') {
-          setMessage('安全注册初始化失败，请稍后重试。');
+          setMessage(registrationErrorMessage(error));
           setStatus('error');
         }
       });
@@ -152,8 +141,13 @@ export function RegisterPage() {
       setMessage('请输入有效的邮箱地址。');
       return;
     }
-    if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
-      setMessage('密码至少 8 位，并同时包含字母和数字。');
+    if (!context) {
+      setMessage('安全注册初始化失败，请刷新页面后重试。');
+      return;
+    }
+    const passwordError = passwordValidationMessage(password, context.passwordPolicy);
+    if (passwordError) {
+      setMessage(passwordError);
       return;
     }
     if (password !== confirmation) {
@@ -164,12 +158,8 @@ export function RegisterPage() {
       setMessage('请先阅读并同意用户协议和隐私政策。');
       return;
     }
-    if (!context) {
-      setMessage('安全注册初始化失败，请刷新页面后重试。');
-      return;
-    }
-
     setStatus('submitting');
+    let value: { redirect?: string };
     try {
       const response = await fetch(federatedMode ? '/api/auth/register/federated' : '/api/auth/register', {
         method: 'POST',
@@ -186,24 +176,9 @@ export function RegisterPage() {
           password,
         }),
       });
-      const value = await readJSON<{ redirect?: string }>(response);
-      if (value.redirect) {
-        await refresh();
-        await completeLoginRedirect(value.redirect, navigate);
-        return;
-      }
-      setStatus('success');
-      setMessage(`验证邮件已发送至 ${email}，请完成验证后登录。`);
+      value = await readRegistrationJSON<{ redirect?: string }>(response);
     } catch (error) {
-      if (error instanceof Error && 'status' in error && error.status === 409) {
-        setMessage('用户名或邮箱已被使用，请更换后重试。');
-      } else if (error instanceof Error && 'status' in error && error.status === 429) {
-        setMessage('注册请求过于频繁，请稍后再试。');
-      } else if (error instanceof Error && 'status' in error && error.status === 404) {
-        setMessage('自助注册服务尚未启用，请联系管理员开通账号。');
-      } else {
-        setMessage('注册失败，请稍后重试。');
-      }
+      setMessage(registrationErrorMessage(error));
       try {
         setContext(
           await (federatedMode && federatedTransactionID
@@ -211,11 +186,26 @@ export function RegisterPage() {
             : createRegisterContext()),
         );
         setStatus('ready');
-      } catch {
+      } catch (contextError) {
         setContext(null);
         setStatus('error');
+        const reason = registrationErrorMessage(error);
+        const contextReason = registrationErrorMessage(contextError);
+        setMessage(reason === contextReason ? reason : `${reason} ${contextReason}`);
       }
+      return;
     }
+    setStatus('success');
+    if (value.redirect) {
+      try {
+        await refresh();
+        await completeLoginRedirect(value.redirect, navigate);
+      } catch {
+        setMessage('账号已创建，但自动登录未完成，请前往登录页登录。');
+      }
+      return;
+    }
+    setMessage(`验证邮件已发送至 ${email}，请完成验证后登录。`);
   };
 
   const startProviderRegistration = (provider: string) => {
@@ -329,6 +319,7 @@ export function RegisterPage() {
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
+                  aria-describedby="register-password-requirements"
                   placeholder="设置密码"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
@@ -345,7 +336,7 @@ export function RegisterPage() {
                   <RegisterIcon name={showPassword ? 'eye' : 'eyeOff'} />
                 </button>
               </label>
-              <small>至少 8 位，并同时包含字母和数字</small>
+              <small id="register-password-requirements">{context ? passwordRequirements(context.passwordPolicy) : status === 'error' ? '密码要求读取失败，请刷新页面后重试。' : '正在读取密码要求…'}</small>
             </div>
 
             <div className="register-field-group">
