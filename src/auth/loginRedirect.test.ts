@@ -25,9 +25,9 @@ test('same-origin Website routes stay in the document; server and external targe
     await completeLoginRedirect('/account/security?provider=github#links', navigate);
     await completeLoginRedirect('/oauth/device?user_code=ABCD-EFGH', navigate);
     await completeLoginRedirect('/api/auth/federated/start?provider=github', navigate);
-    await completeLoginRedirect('https://studio.plasmic.shiguanglab.com/projects/fixture', navigate);
+    await completeLoginRedirect('https://plasmic-studio.shiguanglab.com/projects/fixture', navigate);
     assert.deepEqual(routes, ['/portal', '/auth/apps/plasmicapp/authorize?request=fixture', '/account/security?provider=github#links', '/oauth/device?user_code=ABCD-EFGH']);
-    assert.deepEqual(documents, ['https://shiguanglab.com/api/auth/federated/start?provider=github', 'https://studio.plasmic.shiguanglab.com/projects/fixture']);
+    assert.deepEqual(documents, ['https://shiguanglab.com/api/auth/federated/start?provider=github', 'https://plasmic-studio.shiguanglab.com/projects/fixture']);
   } finally {
     if (previous) Object.defineProperty(globalThis, 'window', previous);
     else Reflect.deleteProperty(globalThis, 'window');

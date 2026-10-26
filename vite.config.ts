@@ -24,7 +24,7 @@ export default defineConfig(({ isSsrBuild, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const authProxyTarget = env.AUTH_PROXY_TARGET || 'https://shiguanglab.com';
   const authProxyOrigin = new URL(authProxyTarget).origin;
-  const plasmicUpdateUrl = (env.VITE_PLASMIC_UPDATE_URL || 'https://studio.plasmic.shiguanglab.com/desktop-updates').replace(/\/?$/, '/');
+  const plasmicUpdateUrl = (env.VITE_PLASMIC_UPDATE_URL || 'https://plasmic-studio.shiguanglab.com/desktop-updates').replace(/\/?$/, '/');
   const downloadDomain = new URL(plasmicUpdateUrl);
   if (downloadDomain.protocol !== 'https:' || /^[\d.]+$/.test(downloadDomain.hostname) || downloadDomain.username || downloadDomain.password) {
     throw new Error('Plasmic downloads require a public HTTPS domain');

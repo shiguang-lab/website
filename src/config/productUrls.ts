@@ -9,4 +9,4 @@ export const ZHIXU_LANDING_PATH = '/projects/zhixu';
 export const ZHIXU_WEB_URL = 'https://doc.shiguanglab.com';
 export const CONSOLE_WEB_URL = 'https://console.shiguanglab.com';
 export const ZHIJIE_LANDING_PATH = '/projects/zhijie';
-export const PLASMIC_WEB_URL = import.meta.env?.VITE_PLASMIC_WEB_URL || 'https://studio.plasmic.shiguanglab.com';
+export const PLASMIC_WEB_URL = import.meta.env?.VITE_PLASMIC_WEB_URL || 'https://plasmic-studio.shiguanglab.com';

@@ -69,7 +69,7 @@ docker compose --env-file deploy/website.env -f deploy/docker-compose.nas.yml up
 ## 织界产品页
 
 `/projects/zhijie` 是基于 Plasmic 的可视化应用搭建产品主页，进入官网产品菜单、
-首页产品区和 sitemap。在线使用默认打开 `https://studio.plasmic.shiguanglab.com`，
+首页产品区和 sitemap。在线使用默认打开 `https://plasmic-studio.shiguanglab.com`，
 沿用 Studio 的拾光统一登录，可通过 `VITE_PLASMIC_WEB_URL` 修改入口。
 
 产品内容覆盖 Studio 编辑器、数据连接与拖拽搭建、自由设计与 Figma 导入、团队协作、
@@ -77,7 +77,7 @@ React 组件集成和自主部署。产品示例图片来自 Plasmic 官网，�
 [`docs/zhijie-media.md`](docs/zhijie-media.md)。
 
 下载区在页面打开时读取公网域名配置 `VITE_PLASMIC_UPDATE_URL` 下的
-`latest.json`（默认 `https://studio.plasmic.shiguanglab.com/desktop-updates/latest.json`）。
+`latest.json`（默认 `https://plasmic-studio.shiguanglab.com/desktop-updates/latest.json`）。
 版本、大小和下载地址来自这份 JSON，不写入网站构建或 SSR 快照。
 Actions 构建三个平台的安装包并核对 SHA-512，再将安装包、Electron 更新 YAML
 和 JSON 一起打进 Plasmic 的静态下载镜像。更新 App 时只部署下载镜像，无需发布网站。
