@@ -1,9 +1,24 @@
+import { useEffect, useRef, useState } from 'react';
 import IconArrowRight from '@douyinfe/semi-icons/lib/es/icons/IconArrowRight';
 import IconChevronDown from '@douyinfe/semi-icons/lib/es/icons/IconChevronDown';
 import { Link } from 'react-router-dom';
 import { products, type Product } from '../config/products';
 
 export function ProductMenu({ mobile = false }: { mobile?: boolean }) {
+  const [hovered, setHovered] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelClose = () => {
+    if (closeTimer.current !== null) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+
+  useEffect(() => () => {
+    if (closeTimer.current !== null) clearTimeout(closeTimer.current);
+  }, []);
+
   if (mobile) {
     return (
       <div className="mobile-products">
@@ -16,7 +31,21 @@ export function ProductMenu({ mobile = false }: { mobile?: boolean }) {
   }
 
   return (
-    <div className="product-menu">
+    <div
+      className="product-menu"
+      data-hovered={hovered}
+      onMouseEnter={() => {
+        cancelClose();
+        setHovered(true);
+      }}
+      onMouseLeave={() => {
+        cancelClose();
+        closeTimer.current = setTimeout(() => {
+          setHovered(false);
+          closeTimer.current = null;
+        }, 300);
+      }}
+    >
       <button className="product-menu-trigger" type="button" aria-haspopup="true">
         产品
         <IconChevronDown size="small" aria-hidden="true" />
